@@ -201,8 +201,6 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		Optional<HsnDetails> hsnOpt = hsnDetailsRepo.findById(id);
 		// if id is present,it will delete that id information only
 		if (hsnOpt.isPresent()) {
-
-			HsnDetails dto = new HsnDetails();
 			hsnDetailsRepo.delete(hsnOpt.get());
 			log.info("deleted succesfully" + id);
 			return "deleted successfully with id:" + id;
