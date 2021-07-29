@@ -62,8 +62,17 @@ public class HsnDetailsController {
 		log.info("Received Request to update hsn :" + vo.toString());
 		return new GateWayResponse<HsnDetailsVo>(hsnDetailsService.hsnUpdate(vo));
 	}
-
 	/*
+	 * get functionality through service
+	 */
+
+	@GetMapping("/getTaxDetails")
+	public GateWayResponse<?> getTaxDetails() {
+		log.info("Received Request to get TaxDetails");
+		return new GateWayResponse<>(hsnDetailsService.getTaxDetails());
+
+	}
+        /*
 	 * delete functionality through service by id
 	 */
 	@DeleteMapping("/deleteHsn")
