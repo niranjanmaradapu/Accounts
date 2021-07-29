@@ -211,5 +211,20 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		}
 
 	}
+	
+	/*
+	 * get functionality for tax_details
+	 */
 
+	@Override
+	public List<TaxVo> getTaxDetails() {
+		List<Tax> taxs = new ArrayList<>();
+		List<TaxVo> VOList = new ArrayList<>();
+		//here,will find all tax's through taxRepo
+		taxs = taxRepo.findAll();
+		//here,will map and assign to VOList and return voList
+		VOList = taxMapper.EntityToVo(taxs);
+		log.info("after getting tax details:"+VOList);
+        return VOList;
+	}
 }
