@@ -81,5 +81,16 @@ public class HsnDetailsController {
 		return new GateWayResponse<String>(hsnDetailsService.hsnDelete(id));
 
 	}
+	
+	/*
+	 * fetch functionality through service
+	 */
+
+	@GetMapping("/getHsnDetails")
+	public GateWayResponse<?> getHsnDetails() {
+		log.info("Received Request to get HsnDetails");
+		return new GateWayResponse<>(hsnDetailsService.getHsnDetails());
+
+	}
 
 }
