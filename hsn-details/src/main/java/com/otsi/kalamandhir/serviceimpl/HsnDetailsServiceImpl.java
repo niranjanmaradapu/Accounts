@@ -63,41 +63,25 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	 */
 	@Override
 	public HsnDetailsVo hsnSave(HsnDetailsVo vo) {
-
-		List<SlabVo> slabVos = new ArrayList<>();
+       log.debug("debugging hsnSave:"+vo);
+		List<Slab> slabs = new ArrayList<>();
 		HsnDetails dto = hsnDetailsMapper.mapVoToEntity(vo);
 		HsnDetails save = hsnDetailsRepo.save(dto);
-		Optional<Tax> taxOpt = taxRepo.findById(vo.getTaxVo().getId());
-		//
-		if (taxOpt.isPresent()) {
-			save.setTax(taxOpt.get().getId());
-		}
-		/*
-		 * if vo.isSlabBased() is true,it will save hsn_details along with Slab
-		 * information.Otherwise it will save hsn_details information only
-		 */
-		if (vo.isSlabBased()) {
-			// will set tax_id and hsn_id to slab entity
-			vo.getSlabVos().stream().forEach(vos -> {
-				Slab slab = new Slab();
-				slab.setPriceFrom(vos.getPriceFrom());
-				slab.setPriceTo(vos.getPriceTo());
+		// if isSlabBased is true,it will print hsnDetails,slab and tax otherwise,it
+		// will only print hsn and tax details
+		if (vo.isSlabBased() && !vo.getSlabVos().isEmpty()) {
+			vo.getSlabVos().forEach(s -> {
+
+				Slab slab = slabMapper.VoToEntity(s);
 				slab.setHsnDetails(save);
-				Optional<Tax> tax = taxRepo.findById(vos.getTaxVo().getId());
-				if (tax.isPresent()) {
-					slab.setTax(tax.get().getId());
-				}
-				slab = slabRepo.save(slab);
-				TaxVo taxVo = taxMapper.EntityToVo(tax.get());
-				vos.setId(slab.getId());
-				vos.setTaxVo(taxVo);
-				slabVos.add(vos);
+				slabs.add(slabRepo.save(slab));
+
 			});
 		}
 		vo = hsnDetailsMapper.EntityToVo(save);
-		vo.setTaxVo(taxMapper.EntityToVo(taxOpt.get()));
-		vo.setSlabVos(slabVos);
-		log.info("after saving" + vo.toString());
+		vo.setSlabVos(slabMapper.EntityToVo(slabs));
+		vo.setTaxVo(taxMapper.EntityToVo(save.getTax()));
+		log.info("after saving hsn details:" + vo.toString());
 		return vo;
 	}
 
@@ -106,7 +90,8 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	 */
 	@Override
 	public HsnDetailsVo hsnUpdate(HsnDetailsVo vo) {
-		List<SlabVo> slabVos = new ArrayList<>();
+		log.debug(" debugging hsnUpdate:" + vo);
+		List<Slab> slabs = new ArrayList<>();
 		try {
 			Optional<HsnDetails> dto = hsnDetailsRepo.findById(vo.getId());
 			// if id is not present,it will throw custom exception "RecordNotFoundException"
@@ -114,44 +99,35 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 
 				throw new RecordNotFoundException("Record Not Found");
 			}
-			// if id is present,it will save data based on id.
+			// if id is present,it will update data based on id.
 			HsnDetails update = hsnDetailsMapper.mapVoToEntity(vo);
 			HsnDetails save = hsnDetailsRepo.save(update);
-			Optional<Tax> taxOpt = taxRepo.findById(vo.getTaxVo().getId());
-			// tax id is present,it will update tax
-			if (taxOpt.isPresent()) {
-				update.setTax(taxOpt.get().getId());
-
-			}
-			// will set tax_id and hsn_id to slab entity
+			update.setTax(taxMapper.VoToEntity(vo.getTaxVo()));
+			// here,will loop
 			vo.getSlabVos().stream().forEach(vos -> {
 				Slab slab = new Slab();
 				slab.setId(vos.getId());
 				slab.setPriceFrom(vos.getPriceFrom());
 				slab.setPriceTo(vos.getPriceTo());
-				slab.setTax(vos.getTaxVo().getId());
-				slab.setHsnDetails(save);
-				slabMapper.EntityToVo(slabRepo.save(slab));
+				slab.setTax(taxMapper.VoToEntity(vos.getTaxVo()));
 				slab.setHsnDetails(save);
 				Optional<Tax> tax = taxRepo.findById(vos.getTaxVo().getId());
 				if (tax.isPresent()) {
-					slab.setTax(tax.get().getId());
+					slab.setTax(tax.get());
 				}
-				TaxVo taxUpdate = taxMapper.EntityToVo(taxOpt.get());
 				vos.setId(slab.getId());
-				vos.setTaxVo(taxUpdate);
-				slabVos.add(vos);
+				slabs.add(slab);
+				slabRepo.save(slab);
 			});
-
 			vo = hsnDetailsMapper.EntityToVo(save);
-			vo.setTaxVo(taxMapper.EntityToVo(taxOpt.get()));
-			vo.setSlabVos(slabVos);
-			log.info("after updating" + vo.toString());
+			vo.setTaxVo(taxMapper.EntityToVo(save.getTax()));
+			vo.setSlabVos(slabMapper.EntityToVo(slabs));
+			log.info("after updating hsn details:" + vo.toString());
 			return vo;
 		} catch (Exception ex) {
+			log.error(ex.getMessage());
 			throw new RuntimeException(ex.getMessage());
 		}
-
 	}
 
 	/*
@@ -159,7 +135,7 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	 */
 	@Override
 	public List<EnumVo> getEnums(String enumName) {
-
+		log.debug(" debugging getEnums:" + enumName);
 		List<EnumVo> enumVos = new ArrayList<>();
 		// if we pass "description" keyword through link,it will show "GOODS" and
 		// "SERVICES"
@@ -184,10 +160,12 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 				enumVos.add(vo);
 			});
 		} else
-			// if we didn't pass "description" and "taxAppliesOn",it will throw
-			// "RuntimeException"
+		// if we didn't pass "description" and "taxAppliesOn",it will throw
+		// "RuntimeException"
+		{
 			throw new RuntimeException("no data found");
-
+		}
+		log.info("after fetching enumVos based on enumName:" + enumName + "enumVos:" + enumVos);
 		return enumVos;
 	}
 
@@ -197,19 +175,38 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 
 	@Override
 	public String hsnDelete(long id) {
-
+		log.debug(" debugging hsnDelete:" + id);
 		Optional<HsnDetails> hsnOpt = hsnDetailsRepo.findById(id);
 		// if id is present,it will delete that id information only
 		if (hsnOpt.isPresent()) {
 			hsnDetailsRepo.delete(hsnOpt.get());
-			log.info("deleted succesfully" + id);
+			log.info("deleted succesfully:" + id);
 			return "deleted successfully with id:" + id;
 
 		} else {
 			// if id is not present,it will throw error
+			log.error("hsn details not found with id: " + id);
 			throw new RuntimeException("hsn details not found with id: " + id);
 		}
+	}
 
+	/*
+	 * get functionality for hsn_details
+	 */
+	@Override
+	public List<HsnDetailsVo> getHsnDetails() {
+		log.debug(" debugging getHsnDetails");
+		List<HsnDetails> hsnDetails = new ArrayList<>();
+		List<HsnDetailsVo> voList = new ArrayList<>();
+		// here, find all details through repository
+		hsnDetails = hsnDetailsRepo.findAll();
+		voList = hsnDetailsMapper.EntityToVo(hsnDetails);
+		//here,will loop basedon hsn id
+		voList.stream().forEach(t -> {
+			t.setSlabVos(slabMapper.EntityToVo(slabRepo.findByHsnDetailsId(t.getId())));
+		});
+		log.info("after getting hsn details:" + voList);
+		return voList;
 	}
 	
 	/*
