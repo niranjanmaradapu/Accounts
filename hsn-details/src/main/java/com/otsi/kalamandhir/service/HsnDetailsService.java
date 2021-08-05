@@ -27,5 +27,7 @@ public interface HsnDetailsService {
 	String hsnDelete(long id);
 	
 	List<TaxVo> getTaxDetails();
+	
+	List<HsnDetailsVo> getHsnDetails();
 
 }
