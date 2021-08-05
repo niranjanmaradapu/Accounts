@@ -5,7 +5,7 @@ package com.otsi.kalamandhir.repo;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
+import java.util.List;
 import com.otsi.kalamandhir.model.Slab;
 
 /**
@@ -15,4 +15,6 @@ import com.otsi.kalamandhir.model.Slab;
 @Repository
 public interface SlabRepo extends JpaRepository<Slab, Long> {
 
+  List<Slab> findByHsnDetailsId(long id);
+  
 }
