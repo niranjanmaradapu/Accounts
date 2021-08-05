@@ -14,6 +14,9 @@ import com.otsi.kalamandhir.vo.HsnDetailsVo;
  */
 @Component
 public class HsnDetailsMapper {
+	
+	@Autowired
+	private TaxMapper taxmapper;
 
 	/*
 	 * EntityToVo converts dto to vo
@@ -26,10 +29,17 @@ public class HsnDetailsMapper {
 		vo.setId(dto.getId());
 		vo.setHsnCode(dto.getHsnCode());
 		vo.setDescription(dto.getDescription());
-		vo.setId(dto.getId());
 		vo.setSlabBased(dto.isSlabBased());
 		vo.setTaxAppliesOn(dto.getTaxAppliesOn());
+		vo.setTaxVo(taxmapper.EntityToVo(dto.getTax()));
 		return vo;
+	}
+	/*
+	 * to convert list dto's to vo's
+	 */
+	public List<HsnDetailsVo> EntityToVo(List<HsnDetails> dtos) {
+		return dtos.stream().map(dto -> EntityToVo(dto)).collect(Collectors.toList());
+
 	}
 
 	/*
@@ -47,8 +57,16 @@ public class HsnDetailsMapper {
 		dto.setId(vo.getId());
 		dto.setSlabBased(vo.isSlabBased());
 		dto.setTaxAppliesOn(vo.getTaxAppliesOn());
-		dto.setTax(vo.getTaxVo().getId());
+		dto.setTax(taxmapper.VoToEntity(vo.getTaxVo()));
 		return dto;
+
+	}
+	
+	/*
+	 * to convert list vo's to dto's
+	 */
+	public List<HsnDetails> mapVoToEntity(List<HsnDetailsVo> vos) {
+		return vos.stream().map(vo -> mapVoToEntity(vo)).collect(Collectors.toList());
 
 	}
 
