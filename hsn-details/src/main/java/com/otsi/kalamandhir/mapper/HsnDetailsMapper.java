@@ -5,8 +5,11 @@
 package com.otsi.kalamandhir.mapper;
 
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.otsi.kalamandhir.model.HsnDetails;
 import com.otsi.kalamandhir.vo.HsnDetailsVo;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author vasavi
