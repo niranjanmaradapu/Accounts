@@ -5,9 +5,8 @@ package com.otsi.kalamandhir.mapper;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Component;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import com.otsi.kalamandhir.model.Slab;
 import com.otsi.kalamandhir.vo.SlabVo;
 
@@ -17,6 +16,9 @@ import com.otsi.kalamandhir.vo.SlabVo;
  */
 @Component
 public class SlabMapper {
+	
+	@Autowired
+	private TaxMapper taxMapper;
 	/*
 	 * EntityToVo converts dto to vo
 	 * 
@@ -26,6 +28,7 @@ public class SlabMapper {
 		vo.setId(dto.getId());
 		vo.setPriceFrom(dto.getPriceFrom());
 		vo.setPriceTo(dto.getPriceTo());
+		vo.setTaxVo(taxMapper.EntityToVo(dto.getTax()));
 		return vo;
 
 	}
@@ -49,7 +52,7 @@ public class SlabMapper {
 		dto.setId(vo.getId());
 		dto.setPriceFrom(vo.getPriceFrom());
 		dto.setPriceTo(vo.getPriceTo());
-		dto.setTax(vo.getTaxVo().getId());
+		dto.setTax(taxMapper.VoToEntity(vo.getTaxVo()));
 		return dto;
 
 	}
