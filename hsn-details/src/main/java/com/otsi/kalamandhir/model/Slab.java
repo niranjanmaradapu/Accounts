@@ -4,7 +4,6 @@
 package com.otsi.kalamandhir.model;
 
 import java.io.Serializable;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,11 +12,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -40,8 +38,9 @@ public class Slab implements Serializable {
 	private double priceFrom;
 	@Column(name = "price_to")
 	private double priceTo;
-	@JoinColumn(name = "tax_id", insertable = false, updatable = false)
-	private long tax;
+	@JoinColumn(name = "tax_id")
+	@OneToOne(cascade = {CascadeType.MERGE,CascadeType.REFRESH})
+	private Tax tax;
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "hsn_id")
