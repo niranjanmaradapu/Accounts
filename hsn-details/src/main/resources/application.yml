@@ -1,0 +1,3 @@
+logging:
+    file:
+      name: C:/Users/ADMIN/Desktop/logs/hsn-details.log
