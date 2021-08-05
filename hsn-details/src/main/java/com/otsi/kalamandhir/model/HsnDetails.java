@@ -4,12 +4,14 @@
 package com.otsi.kalamandhir.model;
 
 import java.io.Serializable;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -33,8 +35,9 @@ public class HsnDetails implements Serializable {
 	private String taxAppliesOn;
 	@Column(name = "is_slab_based")
 	private boolean isSlabBased;
-	@JoinColumn(name = "tax_id", insertable = false, updatable = false)
-	private long tax;
+	@JoinColumn(name = "tax_id")
+	@OneToOne(cascade = { CascadeType.MERGE, CascadeType.REFRESH })
+	private Tax tax;
 
 	/**
 	 * @return the id
@@ -109,14 +112,14 @@ public class HsnDetails implements Serializable {
 	/**
 	 * @return the tax
 	 */
-	public long getTax() {
+	public Tax getTax() {
 		return tax;
 	}
 
 	/**
 	 * @param tax the tax to set
 	 */
-	public void setTax(long tax) {
+	public void setTax(Tax tax) {
 		this.tax = tax;
 	}
 
