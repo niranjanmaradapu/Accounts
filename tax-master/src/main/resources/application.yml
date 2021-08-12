@@ -1,0 +1,5 @@
+server:  port: 9191spring:  application:    name: tax-master-service  datasource:    url: jdbc:postgresql://localhost:5432/postgres    username: postgres    password: 12345  jpa:    properties:      hibernate.format_sql: true      hibernate.dailect: org.hibernate.dialect.PostgreSQL81Dialect          hibernate:      ddl-auto: update    show-sql: true              
+
+        
+
+
