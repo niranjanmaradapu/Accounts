@@ -58,4 +58,4 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/taxmaster:latest
-          file: new-sale-api/Dockerfile
+          file: taxmaster/Dockerfile
