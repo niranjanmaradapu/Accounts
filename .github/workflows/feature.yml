@@ -1,4 +1,4 @@
-name: Maven-docker-acr-eks-cicd
+name: Build-test
 on:
   push:
     branches:
