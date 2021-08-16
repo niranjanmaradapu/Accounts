@@ -23,6 +23,7 @@ jobs:
       - name: Build with Maven
         run: |
             mvn -B package --file taxmaster/pom.xml
+            mvn install -DskipTests
             ls -l && ls new-sale-api && ls taxmaster/target
             mkdir staging && cp taxmaster/target/*.war staging
      
