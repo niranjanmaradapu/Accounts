@@ -1,0 +1,61 @@
+name: Maven-docker-acr-eks-cicd
+on:
+  push:
+    branches:
+      - feature
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup jdk8
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          distribution: 'adopt'
+          server-id: github
+          settings-path: ${{ GITHUB.WORKSPACE }}
+
+      - name: Build with Maven
+        run: |
+            mvn -B package --file taxmaster/pom.xml
+            ls -l && ls new-sale-api && ls taxmaster/target
+            mkdir staging && cp taxmaster/target/*.war staging
+     
+      - name: set up a cache for maven
+        uses: actions/cache@v2
+        with: 
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+               
+      - name: persist workflow data as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: github-actions-artifact
+          path: staging
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+          
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/taxmaster:latest
+          file: new-sale-api/Dockerfile
