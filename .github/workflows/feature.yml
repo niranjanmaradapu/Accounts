@@ -23,7 +23,7 @@ jobs:
       - name: Build with Maven
         run: |
             mvn -B package --file taxmaster/pom.xml
-            ls -l && ls new-sale-api && ls taxmaster/target
+            ls -l && ls taxmaster && ls taxmaster/target
             mkdir staging && cp taxmaster/target/*.war staging
      
       - name: set up a cache for maven
