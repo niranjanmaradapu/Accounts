@@ -3,7 +3,7 @@
 /*  
  * controller for addNewTax And updateTax
 */
-package com.otsi.kalamandir.controller;
+package com.otsi.retail.taxMaster.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.otsi.kalamandir.service.TaxService;
-import com.otsi.kalamandir.vo.TaxVo;
+import com.otsi.retail.taxMaster.service.TaxService;
+import com.otsi.retail.taxMaster.vo.TaxVo;
 
 /*
  * @author Lakshmi

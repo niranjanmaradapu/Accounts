@@ -2,7 +2,7 @@
  *   serviceImplementation class implements from service class for addNewTax,updateTax
  */
 
-package com.otsi.kalamandir.serviceImp;
+package com.otsi.retail.taxMaster.serviceImp;
 
 import java.util.Optional;
 
@@ -11,12 +11,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import com.otsi.kalamandir.Repository.TaxRepository;
-import com.otsi.kalamandir.exceptions.RecordNotFoundException;
-import com.otsi.kalamandir.mapper.TaxMapper;
-import com.otsi.kalamandir.model.TaxModel;
-import com.otsi.kalamandir.service.TaxService;
-import com.otsi.kalamandir.vo.TaxVo;
+import com.otsi.retail.taxMaster.Repository.TaxRepository;
+import com.otsi.retail.taxMaster.exceptions.RecordNotFoundException;
+import com.otsi.retail.taxMaster.mapper.TaxMapper;
+import com.otsi.retail.taxMaster.model.TaxModel;
+import com.otsi.retail.taxMaster.service.TaxService;
+import com.otsi.retail.taxMaster.vo.TaxVo;
 /**
  * @author Lakshmi
  */

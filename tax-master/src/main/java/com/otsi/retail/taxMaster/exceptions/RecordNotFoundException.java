@@ -1,7 +1,7 @@
 /*
  * exception for RecordNotFoundException
 */
-package com.otsi.kalamandir.exceptions;
+package com.otsi.retail.taxMaster.exceptions;
 
 /*
  * @author Lakshmi

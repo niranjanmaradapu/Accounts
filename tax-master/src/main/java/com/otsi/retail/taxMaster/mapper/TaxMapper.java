@@ -1,13 +1,13 @@
 /**
  * mapper for Tax
  */
-package com.otsi.kalamandir.mapper;
+package com.otsi.retail.taxMaster.mapper;
 
 
 import org.springframework.stereotype.Component;
 
-import com.otsi.kalamandir.model.TaxModel;
-import com.otsi.kalamandir.vo.TaxVo;
+import com.otsi.retail.taxMaster.model.TaxModel;
+import com.otsi.retail.taxMaster.vo.TaxVo;
 /**
  * @author Lakshmi
  */

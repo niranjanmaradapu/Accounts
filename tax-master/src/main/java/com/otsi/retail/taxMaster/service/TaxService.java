@@ -2,12 +2,12 @@
  * service interface for Tax
  */
 
-package com.otsi.kalamandir.service;
+package com.otsi.retail.taxMaster.service;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.otsi.kalamandir.vo.TaxVo;
+import com.otsi.retail.taxMaster.vo.TaxVo;
 /**
  * @author Lakshmi
  */
