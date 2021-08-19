@@ -1,7 +1,7 @@
 
-server:  port: 8083
+server:  port: 0
 spring:  application:    name: hsn-details-service
-  
+      #######################------Database related propertises-------########################
   datasource:
     url: jdbc:postgresql://localhost:5432/accounting
     username: postgres
@@ -14,10 +14,13 @@ spring:  application:    name: hsn-details-service
     hibernate:
       ddl-auto: update
     show-sql: true
-
+    
+     #######################------Eureka server related propertises-------########################
 eureka:
   serviceUrl:
       defaultZone:http//localhost:8761/eureka/
+  instance:
+    instance-id: ${spring.application.name}:${random.int}
   client:    fetch-registry: true
     register-with-eureka: true
 
