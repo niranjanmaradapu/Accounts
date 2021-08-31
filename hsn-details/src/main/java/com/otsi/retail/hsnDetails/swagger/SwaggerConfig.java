@@ -14,7 +14,7 @@ public class SwaggerConfig {
 	@Bean
 	public Docket userApi() {
 		return new Docket(DocumentationType.SWAGGER_2).select()
-				.apis(RequestHandlerSelectors.basePackage("com.otsi.kalamandhir.controller")).build();
+				.apis(RequestHandlerSelectors.basePackage("com.otsi.retail.hsnDetails.controller")).build();
 	}
 
 }

@@ -1,11 +1,11 @@
 
-server:  port: 0
+server:  port: 8081
 spring:  application:    name: hsn-details-service
       #######################------Database related propertises-------########################
   datasource:
     url: jdbc:postgresql://localhost:5432/accounting
     username: postgres
-    password: 12345
+    password: Vasavi
     
   jpa:
     properties:
