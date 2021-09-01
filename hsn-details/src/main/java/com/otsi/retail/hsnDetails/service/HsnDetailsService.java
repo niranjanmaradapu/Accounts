@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
 import com.otsi.retail.hsnDetails.enums.Description;
 import com.otsi.retail.hsnDetails.enums.TaxAppliesOn;
 import com.otsi.retail.hsnDetails.exceptions.RecordNotFoundException;
@@ -32,7 +34,7 @@ import com.otsi.retail.hsnDetails.vo.TaxVo;
  * @author vasavi
  *
  */
-@Component
+@Service
 public interface HsnDetailsService {
 
 	HsnDetailsVo hsnSave(HsnDetailsVo vo);
