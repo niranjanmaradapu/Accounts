@@ -92,5 +92,15 @@ public class HsnDetailsController {
 		return new GateWayResponse<>(hsnDetailsService.getHsnDetails());
 
 	}
-
+	
+	/*
+	 * @GetMapping("/gettaxvalue") public GateWayResponse<?>
+	 * getTaxValue(@RequestParam Double netAmount) {
+	 * log.info("Received Request to get HsnDetails");
+	 * 
+	 * double result = hsnDetailsService.getTaxValue(netAmount); return new
+	 * GateWayResponse<>(result);
+	 * 
+	 * }
+	 */
 }
