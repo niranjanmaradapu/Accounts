@@ -19,5 +19,6 @@ public class TaxVo {
 	private float cgst;
 	private float igst;
 	private float cess;
+	private float taxPercentage;
 
 }
