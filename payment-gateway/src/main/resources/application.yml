@@ -1,0 +1,22 @@
+
+server:
+  port: 8081
+spring:
+  application:
+    name: paymentgateway
+      #######################------Database related propertises-------########################
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: Otsi@123
+
+
+    #######################------Eureka server related propertises-------########################
+eureka:
+  serviceUrl:
+    defaultZone:http//localhost:8761/eureka/
+  instance:
+    instance-id: ${spring.application.name}:${random.int}
+  client:
+    fetch-registry: true
+    register-with-eureka: true
