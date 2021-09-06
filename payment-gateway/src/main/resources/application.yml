@@ -20,3 +20,6 @@ eureka:
   client:
     fetch-registry: true
     register-with-eureka: true
+
+springdoc:
+  packagesToScan: com.otsi.retail.paymentgateway

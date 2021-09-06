@@ -35,5 +35,5 @@ public class PaymentGatewayController {
         return paymentGatwayService.createOrder(amt);
     }
 
-   
+
 }
