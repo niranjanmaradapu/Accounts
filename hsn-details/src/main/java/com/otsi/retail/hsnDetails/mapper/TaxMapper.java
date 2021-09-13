@@ -28,7 +28,7 @@ public class TaxMapper {
 		vo.setCgst(dto.getCgst());
 		vo.setSgst(dto.getSgst());
 		vo.setTaxLabel(dto.getTaxLabel());
-		vo.setTaxPercentage(dto.getTaxPercentage());
+		
 
 		return vo;
 
@@ -56,7 +56,7 @@ public class TaxMapper {
 		dto.setCgst(vo.getCgst());
 		dto.setSgst(vo.getSgst());
 		dto.setTaxLabel(vo.getTaxLabel());
-		dto.setTaxPercentage(vo.getTaxPercentage());
+		
 		return dto;
 	}
 	/*

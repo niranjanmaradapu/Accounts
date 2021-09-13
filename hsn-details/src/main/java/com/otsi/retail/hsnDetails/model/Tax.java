@@ -39,7 +39,6 @@ public class Tax implements Serializable {
 	private float igst;
 	@Column(name = "cess")
 	private float cess;
-	@Column(name = "taxPercentage")
-	private float taxPercentage;
+	
 	
 }
