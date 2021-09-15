@@ -7,7 +7,8 @@ data:
   postgres_user: postgres
   postgres_password: Vasavi
   postgres_host: jdbc:postgresql://postgres-hsn:5432/accounting  # we have to change based on the DB we launched 
-  
+ 
+ 
 ---
 #apiVersion: v1
 #kind: PersistentVolumeClaim
