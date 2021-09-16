@@ -27,3 +27,6 @@ eureka:
 logging:
     file:
       name: C:/Users/ADMIN/Desktop/logs/hsn-details.log
+    level:
+      com.otsi.retail.hsnDetails.service: DEBUG  
+    
