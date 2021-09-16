@@ -80,6 +80,7 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		vo = hsnDetailsMapper.EntityToVo(save);
 		vo.setSlabVos(slabMapper.EntityToVo(slabs));
 		vo.setTaxVo(taxMapper.EntityToVo(save.getTax()));
+		log.warn("we are checking,if hsn details is saved...");
 		log.info("after saving hsn details:" + vo.toString());
 		return vo;
 	}
@@ -95,7 +96,7 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 			Optional<HsnDetails> dto = hsnDetailsRepo.findById(vo.getId());
 			// if id is not present,it will throw custom exception "RecordNotFoundException"
 			if (!dto.isPresent()) {
-
+				log.error("Record Not Found");
 				throw new RecordNotFoundException("Record Not Found");
 			}
 			// if id is present,it will update data based on id.
@@ -121,6 +122,7 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 			vo = hsnDetailsMapper.EntityToVo(save);
 			vo.setTaxVo(taxMapper.EntityToVo(save.getTax()));
 			vo.setSlabVos(slabMapper.EntityToVo(slabs));
+			log.warn("wea re checking if hsn details is updated..");
 			log.info("after updating hsn details:" + vo.toString());
 			return vo;
 		} catch (Exception ex) {
@@ -162,8 +164,10 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		// if we didn't pass "description" and "taxAppliesOn",it will throw
 		// "RuntimeException"
 		{
+			log.error("no data found");
 			throw new RecordNotFoundException("no data found");
 		}
+		log.warn("we are checking if enumvos is fetching based on enumName...");
 		log.info("after fetching enumVos based on enumName:" + enumName + "enumVos:" + enumVos);
 		return enumVos;
 	}
@@ -178,6 +182,7 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		// if id is present,it will delete that id information only
 		if (hsnOpt.isPresent()) {
 			hsnDetailsRepo.delete(hsnOpt.get());
+			log.warn("we are checking if hsn is deleted based on id...");
 			log.info("deleted succesfully:" + id);
 			return "deleted successfully with id:" + id;
 
@@ -203,6 +208,7 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		voList.stream().forEach(t -> {
 			t.setSlabVos(slabMapper.EntityToVo(slabRepo.findByHsnDetailsId(t.getId())));
 		});
+		log.warn("we are checking if hsn details is fetching...");
 		log.info("after getting hsn details:" + voList);
 		return voList;
 	}
@@ -212,12 +218,14 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	 */
 	@Override
 	public List<TaxVo> getTaxDetails() {
+		log.debug("debugging getTaxDetails()");
 		List<Tax> taxs = new ArrayList<>();
 		List<TaxVo> VOList = new ArrayList<>();
 		// here,will find all tax's through taxRepo
 		taxs = taxRepo.findAll();
 		// here,will map and assign to VOList and return voList
 		VOList = taxMapper.EntityToVo(taxs);
+		log.warn("we are checking if tax details is fetching...");
 		log.info("after getting tax details:" + VOList);
 		return VOList;
 	}
