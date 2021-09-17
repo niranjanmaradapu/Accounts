@@ -132,6 +132,6 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-    - port: 8081
+    - port: 8086 
   selector:
     app: payment-gateway-app        

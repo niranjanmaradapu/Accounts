@@ -5,7 +5,7 @@ metadata:
   namespace: default
 data:
   postgres_user: postgres
-  postgres_password: Vasavi
+  postgres_password: Otsi@123
   postgres_host: jdbc:postgresql://postgres-hsn:5432/accounting  # we have to change based on the DB we launched 
  
  
@@ -133,6 +133,6 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-    - port: 8081
+    - port: 8083
   selector:
     app: hsn-details-app        
