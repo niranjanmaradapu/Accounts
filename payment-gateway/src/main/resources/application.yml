@@ -14,9 +14,7 @@ spring:
  #   ddl-auto: update
   # database-platform: org.hibernate.dialect.PostgreSQL9Dialect
   # show-sql: true
-
-    #######################------Eureka server related propertises-------########################
-    
+    #######################------Eureka server related propertises-------######################## 
 eureka:
   client:
     register-with-eureka: true
