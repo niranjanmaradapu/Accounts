@@ -38,40 +38,34 @@ public class TaxServiceImp implements TaxService {
 		TaxVo taxv = taxmapper.convertEntityToVo(tax);
 		log.warn("we are checking if tax is saved...");
 		log.info("tax details  saved successfully");
-		
-		
-		 return "tax details  saved successfully";
-		 
+
+		return "tax details  saved successfully";
+
 	}
 
 	/*
 	 * update functionality for tax information
 	 */
 	@Override
-	public String updateTax(Long id, TaxVo taxvo) {
+	public String updateTax(Long id, TaxVo taxvo) throws RecordNotFoundException {
 		log.debug("debugging updateTax:" + taxvo);
 		Optional<TaxModel> tax = taxRepo.findById(taxvo.getId());
-		try {
-			// if id is not present,it will throw custom exception "RecordNotFoundException"
-			if (!tax.isPresent()) {
-				log.error("Record Not Found");
-				throw new RecordNotFoundException("Record Not Found");
-			}
-			/*
-			 * calling a mapper to convert vo to entity
-			 */
 
-			TaxModel taxsave = taxmapper.convertVoToEntity(taxvo);
-			taxRepo.save(taxsave);
-			TaxVo taxvosave = taxmapper.convertEntityToVo(taxsave);
-			log.warn("we are checking if tax is updated...");
-			log.info("tax details updated successfully with the given id:" + taxvo.getId());
-			return "tax details updated successfully with the given id  " + taxvo.getId();
-
-		} catch (Exception ex) {
-			log.error(ex.getMessage());
-			throw new RuntimeException(ex.getMessage());
-
+		// if id is not present,it will throw custom exception "RecordNotFoundException"
+		if (!tax.isPresent()) {
+			log.error("Record Not Found");
+			throw new RecordNotFoundException("Record Not Found");
 		}
+		/*
+		 * calling a mapper to convert vo to entity
+		 */
+
+		TaxModel taxsave = taxmapper.convertVoToEntity(taxvo);
+		taxRepo.save(taxsave);
+		TaxVo taxvosave = taxmapper.convertEntityToVo(taxsave);
+		log.warn("we are checking if tax is updated...");
+		log.info("tax details updated successfully with the given id:" + taxvo.getId());
+		return "tax details updated successfully with the given id  " + taxvo.getId();
+
 	}
 }
