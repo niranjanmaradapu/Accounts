@@ -1,45 +1,66 @@
 package com.otsi.retail.hsnDetails.errors;
 
+public class ErrorResponse<T> {
 
+	private String isSuccess;
+	private Integer status;
+	private String message;
+	private T result;
+	
+	
+	//public final int HttpStatus_INTERNAL_SERVER_ERROR = 500;
 
-import java.util.Date;
-
-public class ErrorResponse {
-
-	private Integer errorCode;
-	private String errorDesc;
-	private Date date;
-
-	public ErrorResponse(Integer errorCode, String errorDesc, Date date) {
+	public ErrorResponse() {
 		super();
-		this.errorCode = errorCode;
-		this.errorDesc = errorDesc;
-		this.date = date;
 	}
 
-	public Integer getErrorCode() {
-		return errorCode;
+	public ErrorResponse(int status,String message) {
+		super();
+		this.isSuccess = "false";
+		this.status =status;
+		this.message = message;
+		this.result=null;
+	}
+	
+
+	@Override
+	public String toString() {
+		return "ErrorResponse [isSuccess=" + isSuccess + ", status=" + status + ", message=" + message + ", result="
+				+ result + "]";
 	}
 
-	public void setErrorCode(Integer errorCode) {
-		this.errorCode = errorCode;
+	
+
+	public String getIsSuccess() {
+		return isSuccess;
 	}
 
-	public String getErrorDesc() {
-		return errorDesc;
+	public void setIsSuccess(String isSuccess) {
+		this.isSuccess = isSuccess;
 	}
 
-	public void setErrorDesc(String errorDesc) {
-		this.errorDesc = errorDesc;
+	public Integer getStatus() {
+		return status;
 	}
 
-	public Date getDate() {
-		return date;
+	public void setStatus(Integer status) {
+		this.status = status;
 	}
 
-	public void setDate(Date date) {
-		this.date = date;
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public T getResult() {
+		return result;
+	}
+
+	public void setResult(T result) {
+		this.result = result;
 	}
 
 }
-

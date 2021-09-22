@@ -1,66 +1,62 @@
 package com.otsi.retail.taxMaster.errors;
 
-import java.util.Date;
+public class ErrorResponse<T> {
 
-import org.springframework.http.HttpStatus;
+	private String isSuccess;
+	private Integer status;
+	private String message;
+	private T result;
 
-public class ErrorResponse {
-
-	private Integer errorCode;
-	private String errorDesc;
-	private Date date;
-	private HttpStatus httpStatus;
+	// public final int HttpStatus_INTERNAL_SERVER_ERROR = 500;
 
 	public ErrorResponse() {
 		super();
 	}
 
-	public ErrorResponse(Integer errorCode, String errorDesc, Date date) {
+	public ErrorResponse(int status, String message) {
 		super();
-		this.errorCode = errorCode;
-		this.errorDesc = errorDesc;
-		this.date = date;
+		this.isSuccess = "false";
+		this.status = status;
+		this.message = message;
+		this.result = null;
 	}
 
-	public ErrorResponse(Integer errorCode, String errorDesc, Date date, HttpStatus httpStatus) {
-		super();
-		this.errorCode = errorCode;
-		this.errorDesc = errorDesc;
-		this.date = date;
-		this.httpStatus = httpStatus;
+	@Override
+	public String toString() {
+		return "ErrorResponse [isSuccess=" + isSuccess + ", status=" + status + ", message=" + message + ", result="
+				+ result + "]";
 	}
 
-	public Integer getErrorCode() {
-		return errorCode;
+	public String getIsSuccess() {
+		return isSuccess;
 	}
 
-	public void setErrorCode(Integer errorCode) {
-		this.errorCode = errorCode;
+	public void setIsSuccess(String isSuccess) {
+		this.isSuccess = isSuccess;
 	}
 
-	public String getErrorDesc() {
-		return errorDesc;
+	public Integer getStatus() {
+		return status;
 	}
 
-	public void setErrorDesc(String errorDesc) {
-		this.errorDesc = errorDesc;
+	public void setStatus(Integer status) {
+		this.status = status;
 	}
 
-	public Date getDate() {
-		return date;
+	public String getMessage() {
+		return message;
 	}
 
-	public void setDate(Date date) {
-		this.date = date;
+	public void setMessage(String message) {
+		this.message = message;
 	}
 
-	public HttpStatus getHttpStatus() {
-		return httpStatus;
+	public T getResult() {
+		return result;
 	}
 
-	public void setHttpStatus(HttpStatus httpStatus) {
-		this.httpStatus = httpStatus;
+	public void setResult(T result) {
+		this.result = result;
 	}
 
 }
-

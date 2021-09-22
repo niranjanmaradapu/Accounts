@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.otsi.retail.taxMaster.exceptions.RecordNotFoundException;
 import com.otsi.retail.taxMaster.gatewayresponse.GateWayResponse;
 import com.otsi.retail.taxMaster.service.TaxService;
 import com.otsi.retail.taxMaster.vo.TaxVo;
@@ -38,13 +40,8 @@ public class TaxController {
 	@PostMapping(value = "/addnewtax")
 	public GateWayResponse<?> AddNewTax(@RequestBody TaxVo taxvo) {
 		log.info("Recieved request to AddNewTax()");
-		try {
-			String saveTax = taxservice.addNewTax(taxvo);
-			return new GateWayResponse<>(HttpStatus.OK, saveTax.toString());
-		} catch (Exception e) {
-			log.error(e.getMessage());
-			return new GateWayResponse<>(HttpStatus.BAD_REQUEST, e.getMessage());
-		}
+		String saveTax = taxservice.addNewTax(taxvo);
+		return new GateWayResponse<>("new tax added successfully",saveTax);
 
 	}
 
@@ -52,15 +49,11 @@ public class TaxController {
 	 * update functionality for the Tax with the help of arguments: id,taxvo object
 	 */
 	@PutMapping(value = "/updatetax/{id}")
-	public GateWayResponse<?> updateExistingTax(@PathVariable Long id, @RequestBody TaxVo taxvo) {
+	public GateWayResponse<?> updateExistingTax(@PathVariable Long id, @RequestBody TaxVo taxvo)
+			throws RecordNotFoundException {
 		log.info("Recieved request to updateExistingTax()");
-		try {
-			String updateTax = taxservice.updateTax(id, taxvo);
-			return new GateWayResponse<>(HttpStatus.OK, updateTax.toString());
-		} catch (Exception e) {
-			log.error(e.getMessage());
-			return new GateWayResponse<>(HttpStatus.BAD_REQUEST, e.getMessage());
-		}
+		String updateTax = taxservice.updateTax(id, taxvo);
+		return new GateWayResponse<>("updated tax successfully",updateTax);
 
 	}
 
