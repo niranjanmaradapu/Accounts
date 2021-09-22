@@ -126,7 +126,6 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		log.warn("wea re checking if hsn details is updated..");
 		log.info("after updating hsn details:" + vo.toString());
 		return vo;
-
 	}
 
 	/*

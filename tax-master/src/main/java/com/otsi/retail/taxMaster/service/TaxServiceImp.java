@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.otsi.retail.taxMaster.Repository.TaxRepository;
+import com.otsi.retail.taxMaster.exceptions.InvalidDataException;
 import com.otsi.retail.taxMaster.exceptions.RecordNotFoundException;
 import com.otsi.retail.taxMaster.mapper.TaxMapper;
 import com.otsi.retail.taxMaster.model.TaxModel;
@@ -31,6 +32,10 @@ public class TaxServiceImp implements TaxService {
 	// Method use: add new tax information
 	@Override
 	public String addNewTax(TaxVo taxvo) {
+		if (taxvo.getCess() == 0 && taxvo.getCgst() == 0 && taxvo.getIgst() == 0 && taxvo.getIgst() == 0
+				|| taxvo.getTaxLable() == null) {
+			throw new InvalidDataException("please give valid data");
+		}
 		log.debug("debugging hsnSave:" + taxvo);
 		// calling a mapper to convert vo to entity
 		TaxModel tax = taxmapper.convertVoToEntity(taxvo);
