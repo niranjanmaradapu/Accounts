@@ -34,7 +34,8 @@ public class PaymentGatewayController {
 		log.info("Inside the create order service controller");
 		System.out.println(data);
 		int amt = Integer.parseInt(data.get("amount").toString());
-		return new GateWayResponse<String>(paymentGatwayService.createOrder(amt));
+		String payment=paymentGatwayService.createOrder(amt);
+		return new GateWayResponse<String>("order created successfully",payment);
 
 	}
 
