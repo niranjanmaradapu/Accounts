@@ -34,6 +34,6 @@ public class RazorPayImpl implements PaymentGatewayService {
 		Order order = client.Orders.create(ob);
 		System.out.println(order);
 		log.info("order created succesfully:" + order.toString());
-		return order.toString();
+		return "created order successfully";
 	}
 }
