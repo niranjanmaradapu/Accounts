@@ -28,7 +28,7 @@ public class Tax implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "tax_id")
-	private long id;
+	private Long id;
 	@Column(name = "tax_label")
 	private String taxLabel;
 	@Column(name = "sgst")
