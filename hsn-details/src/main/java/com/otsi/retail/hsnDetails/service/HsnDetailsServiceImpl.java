@@ -28,7 +28,6 @@ import com.otsi.retail.hsnDetails.repo.SlabRepo;
 import com.otsi.retail.hsnDetails.repo.TaxRepo;
 import com.otsi.retail.hsnDetails.vo.EnumVo;
 import com.otsi.retail.hsnDetails.vo.HsnDetailsVo;
-import com.otsi.retail.hsnDetails.vo.TaxVo;
 
 /**
  * @author vasavi
@@ -207,23 +206,6 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		log.warn("we are checking if hsn details is fetching...");
 		log.info("after getting hsn details:" + voList);
 		return voList;
-	}
-
-	/*
-	 * get functionality for tax_details
-	 */
-	@Override
-	public List<TaxVo> getTaxDetails() {
-		log.debug("debugging getTaxDetails()");
-		List<Tax> taxs = new ArrayList<>();
-		List<TaxVo> VOList = new ArrayList<>();
-		// here,will find all tax's through taxRepo
-		taxs = taxRepo.findAll();
-		// here,will map and assign to VOList and return voList
-		VOList = taxMapper.EntityToVo(taxs);
-		log.warn("we are checking if tax details is fetching...");
-		log.info("after getting tax details:" + VOList);
-		return VOList;
 	}
 
 	/*
