@@ -3,7 +3,11 @@
  */
 package com.otsi.retail.paymentgateway.controller;
 
+import java.util.List;
 import java.util.Map;
+
+import com.razorpay.Order;
+import com.razorpay.Payment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +38,19 @@ public class PaymentGatewayController {
 		log.info("Inside the create order service controller");
 		System.out.println(data);
 		int amt = Integer.parseInt(data.get("amount").toString());
-		String payment=paymentGatwayService.createOrder(amt);
-		return new GateWayResponse<String>("order created successfully",payment);
+		Order payment=paymentGatwayService.createOrder(amt);
+		return new GateWayResponse<String>("order created successfully",payment.toString());
+
+	}
+
+	@PostMapping("/fetchAllTranx")
+	@ResponseBody
+	public GateWayResponse<?> fetchAllTranx(@RequestBody Map<String, Object> data) throws Exception {
+		log.info("Inside the create order service controller");
+		System.out.println(data);
+		int amt = Integer.parseInt(data.get("amount").toString());
+		List<Payment> payment=paymentGatwayService.fetchAllTranx();
+		return new GateWayResponse<String>("fetched All transaction related to razorpay",payment.toString());
 
 	}
 
