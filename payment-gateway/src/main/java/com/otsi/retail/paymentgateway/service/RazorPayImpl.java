@@ -36,6 +36,9 @@ public class RazorPayImpl implements PaymentGatewayService {
 
 		Order order = client.Orders.create(ob);
 		System.out.println(order);
+
+		// KLModerid ,razor pay id-payment table rest call to new sale...
+
 		log.info("order created succesfully:" + order.toString());
 		return order;
 	}
