@@ -15,4 +15,7 @@ public class Config {
     private String Key;
     @Value("${RazorPay.key_Secret}")
     private String secert;
+
+    @Value("${paymenyUpdateNewsale}")
+    private String restCallForNewsalePayments;
 }
