@@ -38,8 +38,9 @@ public class PaymentGatewayController {
 		log.info("Inside the create order service controller");
 		System.out.println(data);
 		int amt = Integer.parseInt(data.get("amount").toString());
-		Order payment=paymentGatwayService.createOrder(amt);
-		return new GateWayResponse<String>("order created successfully",payment.toString());
+		String newsaleOrderNumber = data.get("newsaleId").toString();// Adding new sale OrderId in request
+		Order payment = paymentGatwayService.createOrder(amt, newsaleOrderNumber);
+		return new GateWayResponse<String>("order created successfully", payment.toString());
 
 	}
 
@@ -49,8 +50,8 @@ public class PaymentGatewayController {
 		log.info("Inside the create order service controller");
 		System.out.println(data);
 		int amt = Integer.parseInt(data.get("amount").toString());
-		List<Payment> payment=paymentGatwayService.fetchAllTranx();
-		return new GateWayResponse<String>("fetched All transaction related to razorpay",payment.toString());
+		List<Payment> payment = paymentGatwayService.fetchAllTranx();
+		return new GateWayResponse<String>("fetched All transaction related to razorpay", payment.toString());
 
 	}
 

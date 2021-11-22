@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface PaymentGatewayService {
 
-    Order createOrder(int amount) throws Exception;
+	Order createOrder(int amount, String newsaleOrderNumber) throws Exception;
 
-    List<Payment> fetchAllTranx() throws Exception;
+	List<Payment> fetchAllTranx() throws Exception;
 }
