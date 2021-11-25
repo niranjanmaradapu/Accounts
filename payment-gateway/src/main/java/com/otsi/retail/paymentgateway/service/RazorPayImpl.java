@@ -1,6 +1,7 @@
 package com.otsi.retail.paymentgateway.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -69,5 +70,13 @@ public class RazorPayImpl implements PaymentGatewayService {
 		List<Payment> payments = client.Payments.fetchAll();
 		log.info("All payments:" + payments.toString());
 		return payments;
+	}
+
+	@Override
+	public Order fetchTranx(String razorPayID) throws Exception {
+		RazorpayClient client = null;
+		client = new RazorpayClient(config.getKey(), config.getSecert());
+		Order order = client.Orders.fetch(razorPayID.trim());
+		return order;
 	}
 }
