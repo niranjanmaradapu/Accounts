@@ -5,12 +5,12 @@ package com.otsi.retail.hsnDetails.mapper;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.otsi.retail.hsnDetails.model.Slab;
 import com.otsi.retail.hsnDetails.vo.SlabVo;
-
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author vasavi
