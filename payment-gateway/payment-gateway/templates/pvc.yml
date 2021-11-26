@@ -2,9 +2,9 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ include payment-gateway.fullname" . }}
+  name: {{ include "payment-gateway.fullname" . }}
   labels:
-    {{- include payment-gateway.labels" . | nindent 4 }}
+    {{- include "payment-gateway.labels" . | nindent 4 }}
   annotations:
   {{- if .Values.persistence.storageClass }}
     volume.beta.kubernetes.io/storage-class: {{ .Values.persistence.storageClass | quote }}
