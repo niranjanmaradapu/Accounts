@@ -10,4 +10,6 @@ public interface PaymentGatewayService {
 	Order createOrder(int amount, String newsaleOrderNumber) throws Exception;
 
 	List<Payment> fetchAllTranx() throws Exception;
+
+	Order fetchTranx(String razoyPayID) throws Exception;
 }
