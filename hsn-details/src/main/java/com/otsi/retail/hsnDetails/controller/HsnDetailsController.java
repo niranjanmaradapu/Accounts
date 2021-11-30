@@ -20,6 +20,7 @@ import com.otsi.retail.hsnDetails.gatewayresponse.GateWayResponse;
 import com.otsi.retail.hsnDetails.service.HsnDetailsService;
 import com.otsi.retail.hsnDetails.vo.EnumVo;
 import com.otsi.retail.hsnDetails.vo.HsnDetailsVo;
+import com.otsi.retail.hsnDetails.vo.TaxVo;
 
 /**
  * @author vasavi
@@ -38,9 +39,10 @@ public class HsnDetailsController {
 	 * save functionality through service by HsnDetailsVo
 	 */
 	@PostMapping("/saveHsn")
-	public GateWayResponse<HsnDetailsVo> saveHsn(@RequestBody HsnDetailsVo vo) {
+	public GateWayResponse<?> saveHsn(@RequestBody HsnDetailsVo vo) {
 		log.info("Received Request to add new hsn : " + vo.toString());
-		return new GateWayResponse<HsnDetailsVo>(hsnDetailsService.hsnSave(vo));
+		HsnDetailsVo hsnSave = hsnDetailsService.hsnSave(vo);
+		return new GateWayResponse<>("hsn-details saved successfully", hsnSave);
 
 	}
 	/*
@@ -50,7 +52,8 @@ public class HsnDetailsController {
 	@GetMapping("/getEnums/{enumName}")
 	public GateWayResponse<List<EnumVo>> getEnums(@PathVariable("enumName") String enumName) {
 		log.info("Received Request to get enums: " + enumName);
-		return new GateWayResponse<List<EnumVo>>(hsnDetailsService.getEnums(enumName));
+		List<EnumVo> enumVo = hsnDetailsService.getEnums(enumName);
+		return new GateWayResponse<List<EnumVo>>("fetching enum details successfully", enumVo);
 
 	}
 	/*
@@ -58,30 +61,23 @@ public class HsnDetailsController {
 	 */
 
 	@PutMapping(value = "/updateHsn")
-	public GateWayResponse<HsnDetailsVo> updateHsn(@RequestBody HsnDetailsVo vo) {
+	public GateWayResponse<?> updateHsn(@RequestBody HsnDetailsVo vo) {
 		log.info("Received Request to update hsn :" + vo.toString());
-		return new GateWayResponse<HsnDetailsVo>(hsnDetailsService.hsnUpdate(vo));
+		HsnDetailsVo hsnUpdate = hsnDetailsService.hsnUpdate(vo);
+		return new GateWayResponse<>("hsn-details updated successfully", hsnUpdate);
 	}
+
 	/*
-	 * get functionality through service
-	 */
-
-	@GetMapping("/getTaxDetails")
-	public GateWayResponse<?> getTaxDetails() {
-		log.info("Received Request to get TaxDetails");
-		return new GateWayResponse<>(hsnDetailsService.getTaxDetails());
-
-	}
-        /*
 	 * delete functionality through service by id
 	 */
 	@DeleteMapping("/deleteHsn")
-	public GateWayResponse<String> deleteHsn(@RequestParam long id) {
+	public GateWayResponse<?> deleteHsn(@RequestParam long id) {
 		log.info("Received Request to delete hsn :" + id);
-		return new GateWayResponse<String>(hsnDetailsService.hsnDelete(id));
+		String hsnDelete = hsnDetailsService.hsnDelete(id);
+		return new GateWayResponse<>("hsn deleted successfully", hsnDelete);
 
 	}
-	
+
 	/*
 	 * fetch functionality through service
 	 */
@@ -89,10 +85,11 @@ public class HsnDetailsController {
 	@GetMapping("/getHsnDetails")
 	public GateWayResponse<?> getHsnDetails() {
 		log.info("Received Request to get HsnDetails");
-		return new GateWayResponse<>(hsnDetailsService.getHsnDetails());
+		List<HsnDetailsVo> hsnDetails = hsnDetailsService.getHsnDetails();
+		return new GateWayResponse<>("fetching all hsn-details", hsnDetails);
 
 	}
-	
+
 	/*
 	 * @GetMapping("/gettaxvalue") public GateWayResponse<?>
 	 * getTaxValue(@RequestParam Double netAmount) {
