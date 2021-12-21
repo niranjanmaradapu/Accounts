@@ -4,10 +4,10 @@
 */
 package com.otsi.retail.taxMaster.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -28,7 +28,7 @@ import com.otsi.retail.taxMaster.vo.TaxVo;
 @RequestMapping("tax")
 public class TaxController {
 
-	private Logger log = LoggerFactory.getLogger(TaxController.class);
+	private Logger log = LogManager.getLogger(TaxController.class);
 
 	@Autowired
 	private TaxService taxservice;
