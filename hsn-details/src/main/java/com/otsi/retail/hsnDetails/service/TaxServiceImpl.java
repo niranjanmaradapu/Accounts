@@ -3,10 +3,12 @@ package com.otsi.retail.hsnDetails.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import com.otsi.retail.hsnDetails.exceptions.InvalidDataException;
 import com.otsi.retail.hsnDetails.exceptions.RecordNotFoundException;
 import com.otsi.retail.hsnDetails.mapper.TaxMapper;
@@ -17,7 +19,7 @@ import com.otsi.retail.hsnDetails.vo.TaxVo;
 @Component
 public class TaxServiceImpl implements TaxService {
 
-	private Logger log = LoggerFactory.getLogger(TaxServiceImpl.class);
+	private Logger log = LogManager.getLogger(TaxServiceImpl.class);
 
 	@Autowired
 	private TaxRepo taxRepo;
