@@ -6,12 +6,8 @@ package com.otsi.retail.paymentgateway.controller;
 import java.util.List;
 import java.util.Map;
 
-import com.razorpay.Order;
-import com.razorpay.Payment;
-import com.razorpay.RazorpayException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,8 +16,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.otsi.retail.paymentgateway.gatewayresponse.GateWayResponse;
 import com.otsi.retail.paymentgateway.service.PaymentGatewayService;
+import com.razorpay.Order;
+import com.razorpay.Payment;
 
 /**
  * @author vasavi
@@ -31,7 +30,7 @@ import com.otsi.retail.paymentgateway.service.PaymentGatewayService;
 @RequestMapping("/paymentgateway")
 public class PaymentGatewayController {
 
-	private Logger log = LoggerFactory.getLogger(PaymentGatewayController.class);
+	private Logger log = LogManager.getLogger(PaymentGatewayController.class);
 
 	@Autowired
 	private PaymentGatewayService paymentGatwayService;

@@ -1,11 +1,10 @@
 package com.otsi.retail.paymentgateway.service;
 
 import java.util.List;
-import java.util.Optional;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,7 +20,7 @@ import com.razorpay.RazorpayClient;
 @Component
 public class RazorPayImpl implements PaymentGatewayService {
 
-	private Logger log = LoggerFactory.getLogger(RazorPayImpl.class);
+	private Logger log = LogManager.getLogger(RazorPayImpl.class);
 
 	@Autowired
 	Config config;

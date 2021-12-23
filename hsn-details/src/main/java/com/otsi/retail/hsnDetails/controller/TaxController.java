@@ -3,16 +3,17 @@ package com.otsi.retail.hsnDetails.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /*  
  * controller for addNewTax And updateTax
 */
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,7 +31,7 @@ import com.otsi.retail.hsnDetails.vo.TaxVo;
 @RequestMapping("tax")
 public class TaxController {
 
-	private Logger log = LoggerFactory.getLogger(TaxController.class);
+	private Logger log = LogManager.getLogger(TaxController.class);
 
 	@Autowired
 	private TaxService taxService;

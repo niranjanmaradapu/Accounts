@@ -5,10 +5,12 @@
 package com.otsi.retail.taxMaster.service;
 
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import com.otsi.retail.taxMaster.Repository.TaxRepository;
 import com.otsi.retail.taxMaster.exceptions.InvalidDataException;
 import com.otsi.retail.taxMaster.exceptions.RecordNotFoundException;
@@ -22,7 +24,7 @@ import com.otsi.retail.taxMaster.vo.TaxVo;
 @Component
 public class TaxServiceImp implements TaxService {
 
-	private Logger log = LoggerFactory.getLogger(TaxServiceImp.class);
+	private Logger log = LogManager.getLogger(TaxServiceImp.class);
 
 	@Autowired
 	private TaxRepository taxRepo;
