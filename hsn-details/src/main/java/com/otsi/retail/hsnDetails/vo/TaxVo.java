@@ -13,7 +13,7 @@ import lombok.Data;
 @Data
 public class TaxVo {
 
-	private long id;
+	private Long id;
 	private String taxLabel;
 	private float sgst;
 	private float cgst;

@@ -1,7 +1,8 @@
+
 /*
  *  gateway response for controllers
 */
-package com.otsi.retail.hsnDetails.gatewayresponse;
+package com.otsi.retail.taxMaster.gatewayresponse;
 
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,10 @@ public class GateWayResponse<T> {
 	 */
 	// public final int HttpStatus_OK = 200;
 
+	public GateWayResponse() {
+		super();
+	}
+
 	/**
 	 * @param result
 	 * @param status
@@ -30,7 +35,6 @@ public class GateWayResponse<T> {
 	 */
 	public GateWayResponse(final T result) {
 		this.result = result;
-		this.status = status;
 		// this.httpStatus = status;
 	}
 

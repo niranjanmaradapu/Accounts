@@ -4,12 +4,6 @@ server:
 spring:
   application:
     name: paymentgateway
-  rabbitmq:
-      host: localhost
-      port: 5672
-      username: guest
-      password: guest    
-
       #######################------Database related propertises-------########################
  # datasource:
  #   url: jdbc:postgresql://localhost:5432/newSale
@@ -28,7 +22,7 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://10.100.143.45:8762/eureka/
     instance:
     instance-id: ${spring.application.name}:${random.int}
     hostname: localhost

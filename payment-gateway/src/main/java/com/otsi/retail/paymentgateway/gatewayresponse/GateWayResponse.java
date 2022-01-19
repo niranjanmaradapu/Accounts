@@ -1,8 +1,9 @@
 /*
  *  gateway response for controllers
 */
-package com.otsi.retail.hsnDetails.gatewayresponse;
+package com.otsi.retail.paymentgateway.gatewayresponse;
 
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
