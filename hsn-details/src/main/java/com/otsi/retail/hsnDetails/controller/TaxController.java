@@ -49,7 +49,7 @@ public class TaxController {
 	}
 
 	@GetMapping("/getTax")
-	public GateWayResponse<?> getTax(@RequestParam Long id) {
+	public GateWayResponse<?> getTax(@RequestParam ("id") Long id) {
 		log.info("Recieved request to getTax:" + id);
 		Optional<Tax> tax = taxService.getTaxById(id);
 		return new GateWayResponse<>("fetching tax data details successfully with id", tax);
@@ -79,7 +79,7 @@ public class TaxController {
 	}
 
 	@DeleteMapping("/deleteTax")
-	public GateWayResponse<?> deleteDomainData(@RequestParam("id") Long id) throws Exception {
+	public GateWayResponse<?> deleteTax(@RequestParam("id") Long id) throws Exception {
 		log.info("Recieved request to deleteTax:" + id);
 		String deleteTax = taxService.deleteTax(id);
 		return new GateWayResponse<>("tax data deleted successfully", deleteTax);
