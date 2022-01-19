@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
  * controller for addNewTax And updateTax
 */
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,7 +48,7 @@ public class TaxController {
 	}
 
 	@GetMapping("/getTax")
-	public GateWayResponse<?> getTax(@RequestParam Long id) {
+	public GateWayResponse<?> getTax(@RequestParam("id") Long id) {
 		log.info("Recieved request to getTax:" + id);
 		Optional<Tax> tax = taxService.getTaxById(id);
 		return new GateWayResponse<>("fetching tax data details successfully with id", tax);
