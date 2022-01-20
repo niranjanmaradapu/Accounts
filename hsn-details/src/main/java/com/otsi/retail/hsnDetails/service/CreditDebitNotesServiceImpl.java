@@ -3,15 +3,18 @@ package com.otsi.retail.hsnDetails.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import com.otsi.retail.hsnDetails.exceptions.RecordNotFoundException;
 import com.otsi.retail.hsnDetails.mapper.CreditDebitNotesMapper;
 import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
 import com.otsi.retail.hsnDetails.repo.CreditDebitNotesRepo;
 import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVo;
+import com.otsi.retail.hsnDetails.vo.UpdateCreditRequest;
 
 @Component
 public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
@@ -23,6 +26,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 
 	@Autowired
 	private CreditDebitNotesMapper creditDebitNotesMapper;
+
+	
 
 	@Override
 	public String saveCreditDebitNotes(CreditDebitNotesVo debitNotesVo) {
@@ -68,7 +73,33 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 	}
 
 	@Override
-	public String updateCreditDebitNotes(CreditDebitNotesVo notesVo) {
+	public String updateCreditDebitNotes(UpdateCreditRequest notesVo) {
+		log.debug("debugging updateCreditDebitNotes:" + notesVo);
+
+		CreditDebitNotes cred = creditDebitNotesRepo.findByMobileNumberAndStoreIdAndCreditDebit(notesVo.getMobileNumber(),
+				notesVo.getStoreId(),notesVo.getCreditDebit());
+		if ((cred.getMobileNumber().equals(notesVo.getMobileNumber())) && (cred.getStoreId() == notesVo.getStoreId())
+				&& (cred.getCreditDebit().equals(notesVo.getCreditDebit()))) {
+
+			if (cred.getAmount() >= notesVo.getAmount()) {
+				cred.setAmount(Math.abs(cred.getAmount() - notesVo.getAmount()));
+			}
+
+			/*
+			 * else if(cred.getAmount()<notesVo.getAmount()) { CreditDebitNotes cred=new
+			 * CreditDebitNotes() }
+			 */
+		} else {
+			throw new RecordNotFoundException("no records found");
+		}
+		CreditDebitNotes notesSave = creditDebitNotesRepo.save(cred);
+		log.warn("we are checking if notes is updated...");
+		log.info("notes details updated successfully with the given id:" + notesSave);
+		return "Notes updated successfully:" + notesSave;
+	}
+
+	@Override
+	public String updateNotes(CreditDebitNotesVo notesVo) {
 		log.debug("debugging updateCreditDebitNotes:" + notesVo);
 		Optional<CreditDebitNotes> notesOpt = creditDebitNotesRepo.findByCreditDebitId(notesVo.getCreditDebitId());
 
@@ -83,7 +114,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		CreditDebitNotesVo notesUpdate = creditDebitNotesMapper.EntityToVo(notesSave);
 		log.warn("we are checking if notes is updated...");
 		log.info("notes details updated successfully with the given id:" + notesUpdate);
-		return "Notes updated successfully:" + notesUpdate.getCreditDebitId();
+		return "Notes updated successfully:" + notesUpdate.getMobileNumber();
 	}
 
 	@Override

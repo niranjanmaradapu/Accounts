@@ -16,6 +16,7 @@ import com.otsi.retail.hsnDetails.gatewayresponse.GateWayResponse;
 import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
 import com.otsi.retail.hsnDetails.service.CreditDebitNotesService;
 import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVo;
+import com.otsi.retail.hsnDetails.vo.UpdateCreditRequest;
 
 @RestController
 @RequestMapping("/credit-debit-notes")
@@ -57,14 +58,22 @@ public class CreditDebitNotesController {
 
 	}
 
-	@PutMapping(value = "/updateCreditDebitNotes")
-	public GateWayResponse<?> updateCreditDebitNotes(@RequestBody CreditDebitNotesVo vo) {
+	@PostMapping(value = "/updateCreditDebitNotes")
+	public GateWayResponse<?> updateCreditDebitNotes(@RequestBody UpdateCreditRequest vo) {
 		log.info("Recieved request to updateCreditDebitNotes:" + vo);
 		String updateNotes = creditDebitNotesService.updateCreditDebitNotes(vo);
 		return new GateWayResponse<>("updated notes successfully", updateNotes);
 
 	}
 
+	@PutMapping(value = "/updateNotes")
+	public GateWayResponse<?> updateNotes(@RequestBody CreditDebitNotesVo vo) {
+		log.info("Recieved request to updateCreditDebitNotes:" + vo);
+		String updateNotes = creditDebitNotesService.updateNotes(vo);
+		return new GateWayResponse<>("updated notes successfully", updateNotes);
+
+	}
+	
 	@DeleteMapping("/deleteCreditDebitNotes")
 	public GateWayResponse<?> deleteCreditDebitNotes(@RequestParam("creditDebitId") Long creditDebitId) {
 		log.info("Recieved request to deleteCreditDebitNotes:" + creditDebitId);
