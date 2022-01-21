@@ -1,5 +1,6 @@
 package com.otsi.retail.hsnDetails.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,8 +27,6 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 
 	@Autowired
 	private CreditDebitNotesMapper creditDebitNotesMapper;
-
-	
 
 	@Override
 	public String saveCreditDebitNotes(CreditDebitNotesVo debitNotesVo) {
@@ -75,27 +74,35 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 	@Override
 	public String updateCreditDebitNotes(UpdateCreditRequest notesVo) {
 		log.debug("debugging updateCreditDebitNotes:" + notesVo);
+		if (notesVo.getCreditDebit().equals("C")) {
+			CreditDebitNotes cred = creditDebitNotesRepo.findByMobileNumberAndStoreIdAndCreditDebit(
+					notesVo.getMobileNumber(), notesVo.getStoreId(), notesVo.getCreditDebit());
 
-		CreditDebitNotes cred = creditDebitNotesRepo.findByMobileNumberAndStoreIdAndCreditDebit(notesVo.getMobileNumber(),
-				notesVo.getStoreId(),notesVo.getCreditDebit());
-		if ((cred.getMobileNumber().equals(notesVo.getMobileNumber())) && (cred.getStoreId() == notesVo.getStoreId())
-				&& (cred.getCreditDebit().equals(notesVo.getCreditDebit()))) {
+			if ((cred.getMobileNumber().equals(notesVo.getMobileNumber()))
+					&& (cred.getStoreId() == notesVo.getStoreId())
+					&& (cred.getCreditDebit().equals(notesVo.getCreditDebit()))) {
 
-			if (cred.getAmount() >= notesVo.getAmount()) {
-				cred.setAmount(Math.abs(cred.getAmount() - notesVo.getAmount()));
+				if (cred.getAmount() >= notesVo.getAmount()) {
+					cred.setAmount(Math.abs(cred.getAmount() - notesVo.getAmount()));
+				}
+
 			}
-
-			/*
-			 * else if(cred.getAmount()<notesVo.getAmount()) { CreditDebitNotes cred=new
-			 * CreditDebitNotes() }
-			 */
-		} else {
-			throw new RecordNotFoundException("no records found");
+			CreditDebitNotes notesSave = creditDebitNotesRepo.save(cred);
+		} else if (notesVo.getCreditDebit().equals("D")) {
+			CreditDebitNotes deb = new CreditDebitNotes();
+			deb.setAmount(notesVo.getAmount());
+			deb.setStoreId(notesVo.getStoreId());
+			deb.setCreditDebit("D");
+			deb.setComments("debit");
+			deb.setCreatedDate(LocalDate.now());
+			deb.setLastModifiedDate(LocalDate.now());
+			deb.setMobileNumber(notesVo.getMobileNumber());
+			creditDebitNotesRepo.save(deb);
 		}
-		CreditDebitNotes notesSave = creditDebitNotesRepo.save(cred);
+
 		log.warn("we are checking if notes is updated...");
-		log.info("notes details updated successfully with the given id:" + notesSave);
-		return "Notes updated successfully:" + notesSave;
+		log.info("notes details updated successfully with the given id");
+		return "Notes updated successfully";
 	}
 
 	@Override
