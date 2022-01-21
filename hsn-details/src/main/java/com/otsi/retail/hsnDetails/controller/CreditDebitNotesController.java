@@ -95,5 +95,7 @@ public class CreditDebitNotesController {
 		List<CreditDebitNotesVo> allDebitNotes = creditDebitNotesService.getAllDebitNotes(vo);
 		return new GateWayResponse<>("fetching all credit notes details sucessfully", allDebitNotes);
 	}
+	
+	
 
 }
