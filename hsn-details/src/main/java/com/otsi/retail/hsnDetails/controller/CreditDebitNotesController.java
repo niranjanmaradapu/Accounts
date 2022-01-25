@@ -35,10 +35,10 @@ public class CreditDebitNotesController {
 
 	}
 
-	@GetMapping("/getMobileNumber")
-	public GateWayResponse<?> getMobileNumber(@RequestParam("mobileNumber") String mobileNumber) {
-		log.info("Received Request to getMobileNumber : " + mobileNumber);
-		CreditDebitNotesVo mobNo = creditDebitNotesService.getMobileNumber(mobileNumber);
+	@GetMapping("/getCreditNotes")
+	public GateWayResponse<?> getMobileNumber(@RequestParam("mobileNumber") String mobileNumber,@RequestParam("customerId") Long customerId ) {
+		log.info("Received Request to getCreditNotes : " + mobileNumber+"and"+customerId);
+		CreditDebitNotesVo mobNo = creditDebitNotesService.getCreditNotes(mobileNumber,customerId);
 		return new GateWayResponse<>("fetching  notes successfully with id", mobNo);
 	}
 

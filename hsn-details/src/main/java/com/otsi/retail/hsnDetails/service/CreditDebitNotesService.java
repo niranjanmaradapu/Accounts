@@ -12,7 +12,7 @@ public interface CreditDebitNotesService {
 
 	String saveCreditDebitNotes(CreditDebitNotesVo debitNotesVo) throws DataNotFoundException;
 
-	CreditDebitNotesVo getMobileNumber(String mobileNumber);
+	CreditDebitNotesVo getCreditNotes(String mobileNumber, Long customerId);
 
 	List<CreditDebitNotes> getAllCreditDebitNotes();
 
