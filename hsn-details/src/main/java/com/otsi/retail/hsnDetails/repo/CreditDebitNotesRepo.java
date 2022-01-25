@@ -14,25 +14,35 @@ public interface CreditDebitNotesRepo extends JpaRepository<CreditDebitNotes, Lo
 
 	Optional<CreditDebitNotes> findByCreditDebitId(Long creditDebitId);
 
-	List<CreditDebitNotes> findByCreatedDateBetweenAndStoreIdAndCreditDebitOrderByLastModifiedDateAsc(
-			LocalDate fromDate, LocalDate toDate, Long storeId, String creditDebit);
-
-	CreditDebitNotes findByMobileNumber(String mobileNumber);
-
-	CreditDebitNotes findByMobileNumberAndCreditDebit(String mobileNumber, String creditDebit);
-
-	List<CreditDebitNotes> findByCreatedDateBetweenAndMobileNumberAndStoreIdAndCreditDebitOrderByLastModifiedDateAsc(
-			LocalDate fromDate, LocalDate toDate, String mobileNumber, Long storeId, String creditDebit);
-
-	List<CreditDebitNotes> findAllByStoreIdAndCreditDebit(Long storeId, String creditDebit);
-
-	CreditDebitNotes findByMobileNumberAndStoreIdAndCreditDebit(String mobileNumber, Long storeId, String creditDebit);
-
 	List<CreditDebitNotes> findByCreditDebit(String creditDebit);
 
 	List<CreditDebitNotes> findByStoreIdAndCreditDebit(Long x, String creditDebit);
 
-	CreditDebitNotes findByMobileNumberAndCustomerId(String mobileNumber, Long customerId);
+	List<CreditDebitNotes> findAllByMobileNumberAndCustomerIdAndFlag(String mobileNumber, Long customerId,
+			boolean flag);
 
+	List<CreditDebitNotes> findByStoreIdAndCreditDebitAndActualAmountAndTransactionAmount(Long x, String creditDebit,
+			Long actualAmount, Long transactionAmount);
+
+	CreditDebitNotes findByMobileNumberAndCustomerIdAndFlag(String mobileNumber, Long customerId, boolean flag);
+
+	CreditDebitNotes findByMobileNumberAndStoreIdAndCreditDebitAndFlag(String mobileNumber, Long storeId,
+			String creditDebit, boolean flag);
+
+	List<CreditDebitNotes> findByStoreIdAndStatus(Long x, String status);
+
+	List<CreditDebitNotes> findByStoreIdAndFlag(Long x, Boolean true1);
+
+	List<CreditDebitNotes> findAllByStoreIdAndCreditDebitAndFlag(Long storeId, String creditDebit, boolean flag);
+
+	List<CreditDebitNotes> findByCreatedDateBetweenAndStoreIdAndCreditDebitAndFlagOrderByLastModifiedDateAsc(
+			LocalDate fromDate, LocalDate toDate, Long storeId, String creditDebit, boolean flag);
+
+	List<CreditDebitNotes> findAllByMobileNumber(String mobileNumber);
+
+	List<CreditDebitNotes> findByCreatedDateBetweenAndMobileNumberAndStoreIdAndCreditDebitAndFlagOrderByLastModifiedDateAsc(
+			LocalDate fromDate, LocalDate toDate, String mobileNumber, Long storeId, String creditDebit, boolean flag);
+
+	CreditDebitNotes findByMobileNumberAndFlag(String mobileNumber, boolean flag);
 
 }

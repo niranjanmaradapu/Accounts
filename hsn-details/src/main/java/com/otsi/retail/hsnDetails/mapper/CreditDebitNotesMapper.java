@@ -22,6 +22,10 @@ public class CreditDebitNotesMapper {
 	 * 
 	 */
 
+	/**
+	 * @param dto
+	 * @return
+	 */
 	public CreditDebitNotesVo EntityToVo(CreditDebitNotes dto) {
 		CreditDebitNotesVo vo = new CreditDebitNotesVo();
 		vo.setCreditDebitId(dto.getCreditDebitId());
@@ -29,7 +33,10 @@ public class CreditDebitNotesMapper {
 		vo.setFromDate(dto.getCreatedDate());
 		vo.setToDate(dto.getLastModifiedDate());
 		vo.setCreditDebit(dto.getCreditDebit());
-		vo.setAmount(dto.getAmount());
+		vo.setActualAmount(dto.getActualAmount());
+		vo.setTransactionAmount(dto.getTransactionAmount());
+		vo.setStatus(dto.getStatus());
+		vo.setFlag(dto.isFlag());
 		vo.setCustomerName(dto.getCustomerName());
 		vo.setMobileNumber(dto.getMobileNumber());
 		vo.setApprovedBy(dto.getApprovedBy());
@@ -55,7 +62,10 @@ public class CreditDebitNotesMapper {
 		dto.setCreatedDate(LocalDate.now());
 		dto.setLastModifiedDate(LocalDate.now());
 		dto.setCreditDebit(vo.getCreditDebit());
-		dto.setAmount(vo.getAmount());
+		dto.setActualAmount(vo.getActualAmount());
+		dto.setTransactionAmount(vo.getTransactionAmount());
+		dto.setStatus(vo.getStatus());
+		dto.setFlag(true);
 		dto.setCustomerName(vo.getCustomerName());
 		dto.setMobileNumber(vo.getMobileNumber());
 		dto.setApprovedBy(vo.getApprovedBy());
