@@ -32,5 +32,7 @@ public interface CreditDebitNotesRepo extends JpaRepository<CreditDebitNotes, Lo
 
 	List<CreditDebitNotes> findByStoreIdAndCreditDebit(Long x, String creditDebit);
 
+	CreditDebitNotes findByMobileNumberAndCustomerId(String mobileNumber, Long customerId);
+
 
 }

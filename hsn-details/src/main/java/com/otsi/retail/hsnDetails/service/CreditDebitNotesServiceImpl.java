@@ -2,6 +2,7 @@ package com.otsi.retail.hsnDetails.service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,17 +40,23 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 	}
 
 	@Override
-	public CreditDebitNotesVo getMobileNumber(String mobileNumber) {
+	public CreditDebitNotesVo getCreditNotes(String mobileNumber, Long customerId) {
 		log.debug("debugging getMobileNumber:" + mobileNumber);
-		CreditDebitNotes mob = creditDebitNotesRepo.findByMobileNumber(mobileNumber);
+		
+		CreditDebitNotes mob = creditDebitNotesRepo.findByMobileNumberAndCustomerId(mobileNumber, customerId);
 		if (mob == null) {
-			log.info("notes record not found with mobileNumber:" + mobileNumber);
-			throw new RecordNotFoundException("notes record not found with mobileNumber:" + mobileNumber);
+			log.error("no record found with mobile number and customerId:" + mobileNumber + " and " + customerId);
+			throw new RecordNotFoundException(
+					"no record found with mobile number and customerId:" + mobileNumber + " and " + customerId);
 		}
-		CreditDebitNotesVo vo = creditDebitNotesMapper.EntityToVo(mob);
-		log.warn("we are testing is fetching MobileNumber ");
-		log.info("after fetching MobileNumber :" + vo.toString());
-		return vo;
+		if (mob.getCreditDebit().equals("C")) {
+			CreditDebitNotesVo vo = creditDebitNotesMapper.EntityToVo(mob);
+			log.warn("we are testing is fetching MobileNumber ");
+			log.info("after fetching MobileNumber :" + vo.toString());
+			return vo;
+		} else
+           
+			return (CreditDebitNotesVo) Collections.emptyList();
 	}
 
 	@Override
