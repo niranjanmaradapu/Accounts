@@ -31,7 +31,7 @@ public class CreditDebitNotes implements Serializable {
 	@GeneratedValue
 	private Long creditDebitId;
 
-	private Long amount;
+	private Long actualAmount;
 
 	private LocalDate createdDate;
 
@@ -48,6 +48,12 @@ public class CreditDebitNotes implements Serializable {
 	private Long customerId;
 
 	private String creditDebit;
+
+	private String status;
+
+	private boolean flag;
+
+	private Long transactionAmount;
 
 	private int approvedBy;
 

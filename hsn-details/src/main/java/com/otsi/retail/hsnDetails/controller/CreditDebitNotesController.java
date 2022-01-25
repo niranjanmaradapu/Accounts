@@ -38,7 +38,7 @@ public class CreditDebitNotesController {
 	@GetMapping("/getCreditNotes")
 	public GateWayResponse<?> getMobileNumber(@RequestParam("mobileNumber") String mobileNumber,@RequestParam("customerId") Long customerId ) {
 		log.info("Received Request to getCreditNotes : " + mobileNumber+"and"+customerId);
-		CreditDebitNotesVo mobNo = creditDebitNotesService.getCreditNotes(mobileNumber,customerId);
+		List<CreditDebitNotesVo> mobNo = creditDebitNotesService.getCreditNotes(mobileNumber,customerId);
 		return new GateWayResponse<>("fetching  notes successfully with id", mobNo);
 	}
 

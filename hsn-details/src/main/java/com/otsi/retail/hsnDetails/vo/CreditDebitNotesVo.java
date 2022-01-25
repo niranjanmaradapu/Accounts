@@ -9,7 +9,7 @@ public class CreditDebitNotesVo {
 
 	private Long creditDebitId;
 
-	private Long amount;
+	private Long actualAmount;
 
 	private LocalDate fromDate;
 
@@ -26,6 +26,12 @@ public class CreditDebitNotesVo {
 	private Long customerId;
 
 	private String creditDebit;
+
+	private String status;
+
+	private boolean flag;
+
+	private Long transactionAmount;
 
 	private int approvedBy;
 }

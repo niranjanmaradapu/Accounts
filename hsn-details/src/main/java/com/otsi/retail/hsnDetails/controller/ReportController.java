@@ -29,4 +29,12 @@ public class ReportController {
 
 	}
 
+	@GetMapping("/usedAndBalancedAmountByStores")
+	public GateWayResponse<?> usedAndBalancedAmountByStores() {
+		log.info("Received Request to usedAndBalancedAmountByStores");
+		List<ReportsVo> allCreditDebitNotes = reportService.usedAndBalancedAmountByStores();
+		return new GateWayResponse<>("fetching all creditnotes sucessfully", allCreditDebitNotes);
+
+	}
+
 }

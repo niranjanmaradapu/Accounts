@@ -12,4 +12,6 @@ public interface ReportService {
 
 	List<ReportsVo> debitNotesByStores();
 
+	List<ReportsVo> usedAndBalancedAmountByStores();
+
 }
