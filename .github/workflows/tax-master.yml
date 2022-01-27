@@ -3,10 +3,15 @@ on:
   push:
     branches:
       - DevOps
-      
+    paths:
+      - "tax-master"
+      - ".github/workflows/tax-master.yml"  
   pull_request:
     branches: 
       - DevOps
+    paths:
+      - "tax-master"
+      - ".github/workflows/tax-master.yml"  
 jobs:
   build:
     runs-on: ubuntu-latest
