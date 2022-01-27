@@ -4,7 +4,7 @@ on:
     branches:
       - DevOps
     paths:
-      - "hsn-details"
+      - "hsn-details/**"
       - ".github/workflows/hsn-details.yml"  
   pull_request:
     branches: 

@@ -4,7 +4,7 @@ on:
     branches:
       - DevOps
     paths:
-      - "tax-master"
+      - "tax-master/**"
       - ".github/workflows/tax-master.yml"  
   pull_request:
     branches: 

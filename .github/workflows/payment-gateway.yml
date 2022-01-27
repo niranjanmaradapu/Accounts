@@ -4,7 +4,7 @@ on:
     branches:
       - DevOps
     paths:
-      - "payment-gateway"
+      - "payment-gateway/**"
       - ".github/workflows/payment-gateway.yml"    
   pull_request:
     branches: 
