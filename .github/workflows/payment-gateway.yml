@@ -3,15 +3,11 @@ on:
   push:
     branches:
       - DevOps
-    paths:
-      - "payment-gateway/**"
-      - ".github/workflows/payment-gateway.yml"    
+
   pull_request:
     branches: 
       - DevOps
-    paths:
-      - "payment-gateway"
-      - ".github/workflows/payment-gateway.yml"  
+
 jobs:
   build:
     runs-on: ubuntu-latest
