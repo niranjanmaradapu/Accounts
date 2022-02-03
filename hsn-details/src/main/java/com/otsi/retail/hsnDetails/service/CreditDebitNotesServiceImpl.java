@@ -49,8 +49,9 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 			CreditDebitNotes cd = creditDebitNotesMapper.VoToEntity(debitNotesVo);
 			if (debitNotesVo.getCreditDebit().equals("C")) {
 				cd.setStatus("credited");
-			} else
+			} else if (debitNotesVo.getCreditDebit().equals("D")) {
 				cd.setStatus("debited");
+			}
 			CreditDebitNotes notesSave = creditDebitNotesRepo.save(cd);
 		}
 		log.warn("we are checking if notes is saved...");
