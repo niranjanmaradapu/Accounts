@@ -12,5 +12,7 @@ public class ReportsVo {
 	private Long actualAmount;
 
 	private Long transactionAmount;
+	
+	private String name;
 
 }
