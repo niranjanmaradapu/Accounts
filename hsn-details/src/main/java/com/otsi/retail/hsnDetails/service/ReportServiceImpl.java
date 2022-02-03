@@ -52,6 +52,7 @@ public class ReportServiceImpl implements ReportService {
 			long amount = store.stream().mapToLong(a -> a.getActualAmount()).sum();
 			ReportsVo report = new ReportsVo();
 			report.setDAmount(amount);
+			report.setStoreId(x.getId());
 			report.setName(x.getName());
 			reports.add(report);
 		});
@@ -83,6 +84,7 @@ public class ReportServiceImpl implements ReportService {
 			ReportsVo report = new ReportsVo();
 			report.setActualAmount(actualAmount);
 			report.setTransactionAmount(transactionAmount);
+			report.setStoreId(x.getId());
 			report.setName(x.getName());
 			reports.add(report);
 		});
