@@ -93,7 +93,7 @@ public class CreditDebitNotesController {
 	public GateWayResponse<?> getAllDebitNotes(@RequestBody CreditDebitNotesVo vo) {
 		log.info("Recieved request to getAllDebitNotes:" + vo);
 		List<CreditDebitNotesVo> allDebitNotes = creditDebitNotesService.getAllDebitNotes(vo);
-		return new GateWayResponse<>("fetching all credit notes details sucessfully", allDebitNotes);
+		return new GateWayResponse<>("fetching all debit notes details sucessfully", allDebitNotes);
 	}
 	
 	

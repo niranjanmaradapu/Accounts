@@ -27,10 +27,10 @@ public class ReportServiceImpl implements ReportService {
 
 	@Autowired
 	private CreditDebitNotesRepo creditDebitNotesRepo;
-	
+
 	@Autowired
 	private RestTemplate restTemplate;
-	
+
 	@Autowired
 	private Config config;
 
@@ -40,9 +40,9 @@ public class ReportServiceImpl implements ReportService {
 		List<ReportsVo> reports = new ArrayList<>();
 		List<CreditDebitNotes> allNotes = creditDebitNotesRepo.findByCreditDebit(creditDebit);
 		List<Long> storeIds = allNotes.stream().map(x -> x.getStoreId()).distinct().collect(Collectors.toList());
-		List<StoreVo> svos=new ArrayList<>();
+		List<StoreVo> svos = new ArrayList<>();
 		try {
-			 svos = getStoresForGivenId(storeIds);
+			svos = getStoresForGivenId(storeIds);
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -67,9 +67,9 @@ public class ReportServiceImpl implements ReportService {
 		List<CreditDebitNotes> allNotes = creditDebitNotesRepo.findByCreditDebit(creditDebit);
 
 		List<Long> storeIds = allNotes.stream().map(x -> x.getStoreId()).distinct().collect(Collectors.toList());
-		List<StoreVo> svos=new ArrayList<>();
+		List<StoreVo> svos = new ArrayList<>();
 		try {
-			 svos = getStoresForGivenId(storeIds);
+			svos = getStoresForGivenId(storeIds);
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -91,16 +91,14 @@ public class ReportServiceImpl implements ReportService {
 
 		return reports;
 	}
-	
-	public List<StoreVo> getStoresForGivenId(List<Long> storeIds) throws URISyntaxException{
+
+	public List<StoreVo> getStoresForGivenId(List<Long> storeIds) throws URISyntaxException {
 		HttpHeaders headers = new HttpHeaders();
-		URI uri = UriComponentsBuilder.fromUri(new URI(config.getStoreDetails())).build()
-				.encode().toUri();
-		
+		URI uri = UriComponentsBuilder.fromUri(new URI(config.getStoreDetails())).build().encode().toUri();
+
 		HttpEntity<List<Long>> request = new HttpEntity<List<Long>>(storeIds, headers);
 
-		ResponseEntity<?> notesResponse = restTemplate.exchange(uri, HttpMethod.POST, request,
-				GateWayResponse.class);
+		ResponseEntity<?> notesResponse = restTemplate.exchange(uri, HttpMethod.POST, request, GateWayResponse.class);
 
 		System.out.println("Received Request to getStoreDetails:" + notesResponse);
 		ObjectMapper mapper = new ObjectMapper();
@@ -110,8 +108,7 @@ public class ReportServiceImpl implements ReportService {
 		List<StoreVo> bvo = mapper.convertValue(gatewayResponse.getResult(), new TypeReference<List<StoreVo>>() {
 		});
 		return bvo;
-		
-	}
 
+	}
 
 }

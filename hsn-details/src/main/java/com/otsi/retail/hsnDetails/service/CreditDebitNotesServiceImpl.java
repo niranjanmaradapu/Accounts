@@ -67,18 +67,19 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		boolean flag = true;
 		List<CreditDebitNotes> mob = creditDebitNotesRepo.findAllByMobileNumberAndCustomerIdAndFlag(mobileNumber,
 				customerId, flag);
-		if (mob != null && !mob.isEmpty()) {
-			mob.stream().forEach(m -> {
-				if (m.getCreditDebit().equals("C")) {
+		List<CreditDebitNotes> mob1 = creditDebitNotesRepo.findByCustomerIdAndFlag(customerId, flag);
+		if (mob1 != null && !mob1.isEmpty()) {
+			mob1.stream().forEach(m -> {
+				if (m.getCustomerId() != null) {
 					CreditDebitNotesVo vo = creditDebitNotesMapper.EntityToVo(m);
 					voList.add(vo);
 				}
 			});
 			return voList;
+
 		} else
-			log.error("no record found with mobileNumber and customerId:" + mobileNumber + "and" + customerId);
-		throw new RecordNotFoundException(
-				"no record found with mobileNumber and customerId:" + mobileNumber + "and" + customerId);
+			log.error("no record found with customerId:" + customerId);
+		throw new RecordNotFoundException("no record found with  customerId:" + customerId);
 
 	}
 
@@ -379,8 +380,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		}
 
 		List<CreditDebitNotesVo> debitList = creditDebitNotesMapper.EntityToVo(debitNotes);
-		log.warn("we are checking if credit notes is fetching...");
-		log.info("after fetching all credit notes  details:" + debitList.toString());
+		log.warn("we are checking if debit notes is fetching...");
+		log.info("after fetching all debit notes  details:" + debitList.toString());
 		return debitList;
 	}
 
