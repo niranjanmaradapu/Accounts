@@ -61,7 +61,7 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	 * hsn_details
 	 */
 	@Override
-	public HsnDetailsVo hsnSave(HsnDetailsVo vo) {
+	public String hsnSave(HsnDetailsVo vo) {
 		log.debug("debugging hsnSave:" + vo);
 		List<Slab> slabs = new ArrayList<>();
 		HsnDetails dto = hsnDetailsMapper.mapVoToEntity(vo);
@@ -82,14 +82,14 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		vo.setTaxVo(taxMapper.EntityToVo(save.getTax()));
 		log.warn("we are checking,if hsn details is saved...");
 		log.info("after saving hsn details:" + vo.toString());
-		return vo;
+		return "hsn-details saved succesfully:"+save.getId();
 	}
 
 	/*
 	 * update functionality for hsn_details
 	 */
 	@Override
-	public HsnDetailsVo hsnUpdate(HsnDetailsVo vo) {
+	public String hsnUpdate(HsnDetailsVo vo) {
 		log.debug(" debugging hsnUpdate:" + vo);
 		List<Slab> slabs = new ArrayList<>();
 
@@ -124,7 +124,7 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		vo.setSlabVos(slabMapper.EntityToVo(slabs));
 		log.warn("wea re checking if hsn details is updated..");
 		log.info("after updating hsn details:" + vo.toString());
-		return vo;
+		return "hsn-details updated successfully:"+save.getId();
 	}
 
 	/*

@@ -41,7 +41,7 @@ public class HsnDetailsController {
 	@PostMapping("/saveHsn")
 	public GateWayResponse<?> saveHsn(@RequestBody HsnDetailsVo vo) {
 		log.info("Received Request to add new hsn : " + vo.toString());
-		HsnDetailsVo hsnSave = hsnDetailsService.hsnSave(vo);
+		String hsnSave = hsnDetailsService.hsnSave(vo);
 		return new GateWayResponse<>("hsn-details saved successfully", hsnSave);
 
 	}
@@ -63,7 +63,7 @@ public class HsnDetailsController {
 	@PutMapping(value = "/updateHsn")
 	public GateWayResponse<?> updateHsn(@RequestBody HsnDetailsVo vo) {
 		log.info("Received Request to update hsn :" + vo.toString());
-		HsnDetailsVo hsnUpdate = hsnDetailsService.hsnUpdate(vo);
+		String hsnUpdate = hsnDetailsService.hsnUpdate(vo);
 		return new GateWayResponse<>("hsn-details updated successfully", hsnUpdate);
 	}
 
@@ -89,15 +89,4 @@ public class HsnDetailsController {
 		return new GateWayResponse<>("fetching all hsn-details", hsnDetails);
 
 	}
-
-	/*
-	 * @GetMapping("/gettaxvalue") public GateWayResponse<?>
-	 * getTaxValue(@RequestParam Double netAmount) {
-	 * log.info("Received Request to get HsnDetails");
-	 * 
-	 * double result = hsnDetailsService.getTaxValue(netAmount); return new
-	 * GateWayResponse<>(result);
-	 * 
-	 * }
-	 */
 }

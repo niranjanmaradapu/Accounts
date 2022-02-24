@@ -78,7 +78,7 @@ public class TaxController {
 	}
 
 	@DeleteMapping("/deleteTax")
-	public GateWayResponse<?> deleteDomainData(@RequestParam("id") Long id) throws Exception {
+	public GateWayResponse<?> deleteTax(@RequestParam("id") Long id) throws Exception {
 		log.info("Recieved request to deleteTax:" + id);
 		String deleteTax = taxService.deleteTax(id);
 		return new GateWayResponse<>("tax data deleted successfully", deleteTax);
