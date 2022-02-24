@@ -12,7 +12,7 @@ import java.util.List;
 public class HsnDetailsVo {
 
 	private long id;
-
+	
 	private String hsnCode;
 
 	private String description;

@@ -12,6 +12,7 @@ import com.otsi.retail.hsnDetails.vo.HsnDetailsVo;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
@@ -30,7 +31,7 @@ public class HsnDetailsMapper {
 	 */
 
 	public HsnDetailsVo EntityToVo(HsnDetails dto) {
-
+		
 		HsnDetailsVo vo = new HsnDetailsVo();
 		vo.setId(dto.getId());
 		vo.setHsnCode(dto.getHsnCode());
@@ -54,11 +55,11 @@ public class HsnDetailsMapper {
 	 */
 
 	public HsnDetails mapVoToEntity(HsnDetailsVo vo) {
-
+		Random ran=new Random();
 		HsnDetails dto = new HsnDetails();
 		if (vo.getId() != 0)
 			dto.setId(vo.getId());
-		dto.setHsnCode(vo.getHsnCode());
+		dto.setHsnCode("HSN"+ran.nextInt());
 		dto.setDescription(vo.getDescription());
 		dto.setId(vo.getId());
 		dto.setSlabBased(vo.isSlabBased());
