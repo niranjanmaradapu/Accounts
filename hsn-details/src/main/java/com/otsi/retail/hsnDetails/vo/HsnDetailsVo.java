@@ -4,129 +4,37 @@
 package com.otsi.retail.hsnDetails.vo;
 
 import java.util.List;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
 /**
  * @author vasavi
  *
  */
+@ApiModel
+@Data
 public class HsnDetailsVo {
 
 	private long id;
 	
+	@ApiModelProperty(value = "hsn code of the product", name = "hsnCode",required = true)
 	private String hsnCode;
 
+	@ApiModelProperty(value = "goods/services of the product", name = "description",required = true)
 	private String description;
 
+	@ApiModelProperty(value = "netPrice/rsp of the product", name = "taxAppliesOn",required = true)
 	private String taxAppliesOn;
 
+	@ApiModelProperty(value = "SlabBased of the product", name = "isSlabBased",required = true)
 	private boolean isSlabBased;
 
+	@ApiModelProperty(value = "tax of the product", name = "taxVo",required = true)
 	private TaxVo taxVo;
 
+	@ApiModelProperty(value = "slab ranges of the product", name = "slabVos",required = true)
 	private List<SlabVo> slabVos;
 
-	/**
-	 * @return the id
-	 */
-	public long getId() {
-		return id;
-	}
-
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	/**
-	 * @return the hsnCode
-	 */
-	public String getHsnCode() {
-		return hsnCode;
-	}
-
-	/**
-	 * @param hsnCode the hsnCode to set
-	 */
-	public void setHsnCode(String hsnCode) {
-		this.hsnCode = hsnCode;
-	}
-
-	/**
-	 * @return the description
-	 */
-	public String getDescription() {
-		return description;
-	}
-
-	/**
-	 * @param description the description to set
-	 */
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	/**
-	 * @return the taxAppliesOn
-	 */
-	public String getTaxAppliesOn() {
-		return taxAppliesOn;
-	}
-
-	/**
-	 * @param taxAppliesOn the taxAppliesOn to set
-	 */
-	public void setTaxAppliesOn(String taxAppliesOn) {
-		this.taxAppliesOn = taxAppliesOn;
-	}
-
-	/**
-	 * @return the isSlabBased
-	 */
-	public boolean isSlabBased() {
-		return isSlabBased;
-	}
-
-	/**
-	 * @param isSlabBased the isSlabBased to set
-	 */
-	public void setSlabBased(boolean isSlabBased) {
-		this.isSlabBased = isSlabBased;
-	}
-
-	/**
-	 * @return the taxVo
-	 */
-	public TaxVo getTaxVo() {
-		return taxVo;
-	}
-
-	/**
-	 * @param taxVo the taxVo to set
-	 */
-	public void setTaxVo(TaxVo taxVo) {
-		this.taxVo = taxVo;
-	}
-
-	/**
-	 * @return the slabVos
-	 */
-	public List<SlabVo> getSlabVos() {
-		return slabVos;
-	}
-
-	/**
-	 * @param slabVos the slabVos to set
-	 */
-	public void setSlabVos(List<SlabVo> slabVos) {
-		this.slabVos = slabVos;
-	}
-
-	@Override
-	public String toString() {
-		return "HsnDetailsVo [id=" + id + ", hsnCode=" + hsnCode + ", description=" + description + ", taxAppliesOn="
-				+ taxAppliesOn + ", isSlabBased=" + isSlabBased + ", taxVo=" + taxVo + ", slabVos=" + slabVos + "]";
-	}
-
+	
 }

@@ -10,7 +10,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.otsi.retail.hsnDetails.gatewayresponse.GateWayResponse;
 import com.otsi.retail.hsnDetails.service.ReportService;
 import com.otsi.retail.hsnDetails.vo.ReportsVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
+@Api(value = "ReportController", description = "REST APIs related to ReportsVo !!!!")
 @RestController
 @RequestMapping("/reports")
 public class ReportController {
@@ -21,6 +26,10 @@ public class ReportController {
 	@Autowired
 	private ReportService reportService;
 	
+	@ApiOperation(value = "debitNotesByStores", notes = "fetching debit notes by stores", response = ReportsVo.class)
+	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
+			@ApiResponse(code = 200, message = "Successful retrieval", 
+			response = ReportsVo.class, responseContainer = "List") })
 	@GetMapping("/debitNotesByStores")
 	public GateWayResponse<?> debitNotesByStores() {
 		log.info("Received Request to debitNotesByStores");
@@ -29,6 +38,10 @@ public class ReportController {
 
 	}
 
+	@ApiOperation(value = "usedAndBalancedAmountByStores", notes = "fetching used amount and balanced amount by stores", response = ReportsVo.class)
+	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
+			@ApiResponse(code = 200, message = "Successful retrieval", 
+			response = ReportsVo.class, responseContainer = "List") })
 	@GetMapping("/usedAndBalancedAmountByStores")
 	public GateWayResponse<?> usedAndBalancedAmountByStores() {
 		log.info("Received Request to usedAndBalancedAmountByStores");
