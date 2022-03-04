@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 import com.otsi.retail.hsnDetails.enums.Description;
 import com.otsi.retail.hsnDetails.enums.TaxAppliesOn;
 import com.otsi.retail.hsnDetails.exceptions.DataNotFoundException;
+import com.otsi.retail.hsnDetails.exceptions.DuplicateRecordException;
 import com.otsi.retail.hsnDetails.exceptions.RecordNotFoundException;
 import com.otsi.retail.hsnDetails.mapper.HsnDetailsMapper;
 import com.otsi.retail.hsnDetails.mapper.SlabMapper;
@@ -63,8 +65,15 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	@Override
 	public String hsnSave(HsnDetailsVo vo) {
 		log.debug("debugging hsnSave:" + vo);
+		vo.getSlabVos().stream().forEach(c -> {
+			if (slabRepo.existsByPriceFromAndPriceTo(c.getPriceFrom(), c.getPriceTo())) {
+				throw new DuplicateRecordException(
+						"price from and price to is already exists:" + c.getPriceFrom() + "and" + c.getPriceTo());
+			}
+		});
 		List<Slab> slabs = new ArrayList<>();
 		HsnDetails dto = hsnDetailsMapper.mapVoToEntity(vo);
+		dto.setHsnCode(getSaltString());
 		HsnDetails save = hsnDetailsRepo.save(dto);
 		// if isSlabBased is true,it will print hsnDetails,slab and tax otherwise,it
 		// will only print hsn and tax details
@@ -82,7 +91,20 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		vo.setTaxVo(taxMapper.EntityToVo(save.getTax()));
 		log.warn("we are checking,if hsn details is saved...");
 		log.info("after saving hsn details:" + vo.toString());
-		return "hsn-details saved succesfully:"+save.getId();
+		return "hsn-details saved succesfully:" + save.getId();
+	}
+
+	protected String getSaltString() {
+		String NUMERIC = "1234567890";
+		StringBuilder salt = new StringBuilder();
+		Random rnd = new Random();
+		while (salt.length() < 8) { // length of the random string.
+			int index = (int) (rnd.nextFloat() * NUMERIC.length());
+			salt.append(NUMERIC.charAt(index));
+		}
+		String saltStr = salt.toString();
+		return saltStr;
+
 	}
 
 	/*
@@ -124,7 +146,7 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		vo.setSlabVos(slabMapper.EntityToVo(slabs));
 		log.warn("wea re checking if hsn details is updated..");
 		log.info("after updating hsn details:" + vo.toString());
-		return "hsn-details updated successfully:"+save.getId();
+		return "hsn-details updated successfully:" + save.getId();
 	}
 
 	/*

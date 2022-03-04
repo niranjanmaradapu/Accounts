@@ -59,7 +59,7 @@ public class HsnDetailsMapper {
 		HsnDetails dto = new HsnDetails();
 		if (vo.getId() != 0)
 			dto.setId(vo.getId());
-		dto.setHsnCode("HSN"+ran.nextInt());
+		dto.setHsnCode(""+ran.nextInt());
 		dto.setDescription(vo.getDescription());
 		dto.setId(vo.getId());
 		dto.setSlabBased(vo.isSlabBased());
