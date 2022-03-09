@@ -4,6 +4,12 @@ server:
 spring:
   application:
     name: paymentgateway
+  rabbitmq:
+      host: localhost
+      port: 5672
+      username: guest
+      password: guest    
+
       #######################------Database related propertises-------########################
  # datasource:
  #   url: jdbc:postgresql://localhost:5432/newSale

@@ -17,9 +17,9 @@ import com.otsi.retail.hsnDetails.vo.TaxVo;
 @Service
 public interface HsnDetailsService {
 
-	HsnDetailsVo hsnSave(HsnDetailsVo vo);
+	String hsnSave(HsnDetailsVo vo);
 
-	HsnDetailsVo hsnUpdate(HsnDetailsVo vo);
+	String hsnUpdate(HsnDetailsVo vo);
 
 	List<EnumVo> getEnums(String enumName);
 

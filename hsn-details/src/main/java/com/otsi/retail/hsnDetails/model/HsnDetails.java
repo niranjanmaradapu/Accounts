@@ -13,9 +13,15 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "hsn_details")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class HsnDetails implements Serializable {
 
 	/**
@@ -38,89 +44,4 @@ public class HsnDetails implements Serializable {
 	@JoinColumn(name = "tax_id")
 	@OneToOne(cascade = { CascadeType.MERGE, CascadeType.REFRESH })
 	private Tax tax;
-
-	/**
-	 * @return the id
-	 */
-	public long getId() {
-		return id;
-	}
-
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	/**
-	 * @return the hsnCode
-	 */
-	public String getHsnCode() {
-		return hsnCode;
-	}
-
-	/**
-	 * @param hsnCode the hsnCode to set
-	 */
-	public void setHsnCode(String hsnCode) {
-		this.hsnCode = hsnCode;
-	}
-
-	/**
-	 * @return the description
-	 */
-	public String getDescription() {
-		return description;
-	}
-
-	/**
-	 * @param description the description to set
-	 */
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	/**
-	 * @return the taxAppliesOn
-	 */
-	public String getTaxAppliesOn() {
-		return taxAppliesOn;
-	}
-
-	/**
-	 * @param taxAppliesOn the taxAppliesOn to set
-	 */
-	public void setTaxAppliesOn(String taxAppliesOn) {
-		this.taxAppliesOn = taxAppliesOn;
-	}
-
-	/**
-	 * @return the isSlabBased
-	 */
-	public boolean isSlabBased() {
-		return isSlabBased;
-	}
-
-	/**
-	 * @param isSlabBased the isSlabBased to set
-	 */
-	public void setSlabBased(boolean isSlabBased) {
-		this.isSlabBased = isSlabBased;
-	}
-
-	/**
-	 * @return the tax
-	 */
-	public Tax getTax() {
-		return tax;
-	}
-
-	/**
-	 * @param tax the tax to set
-	 */
-	public void setTax(Tax tax) {
-		this.tax = tax;
-	}
-
 }

@@ -1,5 +1,0 @@
-server:  port: 8088spring:  application:    name: tax-master-service  datasource:    url: jdbc:postgresql://localhost:5432/postgres    username: postgres    password: Otsi@123  jpa:    properties:      hibernate.format_sql: true      hibernate.dailect: org.hibernate.dialect.PostgreSQL81Dialect          hibernate:      ddl-auto: update    show-sql: true       eureka:  client:    register-with-eureka: true    fetch-registry: true    service-url:      defaultZone: http://localhost:8762/eureka/  instance:    instance-id: ${spring.application.name}:${random.int}    hostname: localhost  springdoc:  packagesToScan: com.otsi.retail.taxMaster     logging:    file:      name: C:\Users\ADMIN\Desktop\logs\tax-master.log    level:     com.otsi.retail.taxMaster.serviceImp: DEBUG    
-
-        
-
-

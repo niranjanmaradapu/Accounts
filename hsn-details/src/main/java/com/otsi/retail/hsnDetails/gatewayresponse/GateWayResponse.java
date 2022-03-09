@@ -23,6 +23,10 @@ public class GateWayResponse<T> {
 	 */
 	// public final int HttpStatus_OK = 200;
 
+	public GateWayResponse() {
+		
+	}
+
 	/**
 	 * @param result
 	 * @param status

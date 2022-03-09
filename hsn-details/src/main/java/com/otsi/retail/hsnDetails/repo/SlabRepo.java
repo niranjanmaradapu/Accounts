@@ -17,6 +17,8 @@ import java.util.List;
 @Repository
 public interface SlabRepo extends JpaRepository<Slab, Long> {
 
-  List<Slab> findByHsnDetailsId(long id);
-  
+	List<Slab> findByHsnDetailsId(long id);
+
+	boolean existsByPriceFromAndPriceTo(double priceFrom, double priceTo);
+
 }
