@@ -7,7 +7,7 @@ metadata:
     {{- include "payment-gateway.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.replicaCountPos }}
   {{- end }}
   selector:
     matchLabels:
@@ -72,7 +72,7 @@ spec:
         - name: payment-gateway-data
         {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
-            claimName: {{ include "payment-gateway.fullname" . }}-pos
+            claimName: {{ include "payment-gateway.fullname" . }}
         {{- else }}
           emptyDir: {}
         {{- end -}}

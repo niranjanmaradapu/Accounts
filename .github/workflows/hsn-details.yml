@@ -3,10 +3,11 @@ on:
   push:
     branches:
       - DevOps
-      
+
   pull_request:
     branches: 
       - DevOps
+
 jobs:
   build:
     runs-on: ubuntu-latest
