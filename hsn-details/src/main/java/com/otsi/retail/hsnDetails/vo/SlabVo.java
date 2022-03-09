@@ -3,74 +3,27 @@
 */
 package com.otsi.retail.hsnDetails.vo;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
 /**
  * @author vasavi
  *
  */
-
+@ApiModel
+@Data
 public class SlabVo {
 
 	private long id;
+	
+	@ApiModelProperty(value = "starting price of the product", name = "priceFrom",required = true)
 	private double priceFrom;
+	
+	@ApiModelProperty(value = "last price of the product", name = "priceTo",required = true)
 	private double priceTo;
+	
+	@ApiModelProperty(value = "tax of the product", name = "taxVo",required = true)
 	private TaxVo taxVo;
-	
-	
-	/**
-	 * @return the id
-	 */
-	public long getId() {
-		return id;
-	}
-
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	/**
-	 * @return the priceFrom
-	 */
-	public double getPriceFrom() {
-		return priceFrom;
-	}
-
-	/**
-	 * @param priceFrom the priceFrom to set
-	 */
-	public void setPriceFrom(double priceFrom) {
-		this.priceFrom = priceFrom;
-	}
-
-	/**
-	 * @return the priceTo
-	 */
-	public double getPriceTo() {
-		return priceTo;
-	}
-
-	/**
-	 * @param priceTo the priceTo to set
-	 */
-	public void setPriceTo(double priceTo) {
-		this.priceTo = priceTo;
-	}
-
-	/**
-	 * @return the taxVo
-	 */
-	public TaxVo getTaxVo() {
-		return taxVo;
-	}
-
-	/**
-	 * @param taxVo the taxVo to set
-	 */
-	public void setTaxVo(TaxVo taxVo) {
-		this.taxVo = taxVo;
-	}
-
 
 }

@@ -45,4 +45,6 @@ public interface CreditDebitNotesRepo extends JpaRepository<CreditDebitNotes, Lo
 
 	CreditDebitNotes findByMobileNumberAndFlag(String mobileNumber, boolean flag);
 
+	List<CreditDebitNotes> findByCustomerIdAndFlag(Long customerId, boolean flag);
+
 }
