@@ -8,16 +8,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import com.otsi.retail.hsnDetails.enums.Description;
 import com.otsi.retail.hsnDetails.enums.TaxAppliesOn;
 import com.otsi.retail.hsnDetails.exceptions.DataNotFoundException;
 import com.otsi.retail.hsnDetails.exceptions.DuplicateRecordException;
+import com.otsi.retail.hsnDetails.exceptions.InvalidDataException;
 import com.otsi.retail.hsnDetails.exceptions.RecordNotFoundException;
 import com.otsi.retail.hsnDetails.mapper.HsnDetailsMapper;
 import com.otsi.retail.hsnDetails.mapper.SlabMapper;
@@ -63,22 +62,17 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	 * hsn_details
 	 */
 	@Override
-	public String hsnSave(HsnDetailsVo vo) {
-		log.debug("debugging hsnSave:" + vo);
-		vo.getSlabVos().stream().forEach(c -> {
-			if (slabRepo.existsByPriceFromAndPriceTo(c.getPriceFrom(), c.getPriceTo())) {
-				throw new DuplicateRecordException(
-						"price from and price to is already exists:" + c.getPriceFrom() + "and" + c.getPriceTo());
-			}
-		});
+	public String hsnSave(HsnDetailsVo hsnDetailsVo) {
+		log.debug("debugging hsnSave:" + hsnDetailsVo);
+		validateTaxSlabs(hsnDetailsVo);
 		List<Slab> slabs = new ArrayList<>();
-		HsnDetails dto = hsnDetailsMapper.mapVoToEntity(vo);
+		HsnDetails dto = hsnDetailsMapper.mapVoToEntity(hsnDetailsVo);
 		dto.setHsnCode(getSaltString());
 		HsnDetails save = hsnDetailsRepo.save(dto);
 		// if isSlabBased is true,it will print hsnDetails,slab and tax otherwise,it
 		// will only print hsn and tax details
-		if (vo.isSlabBased() && !vo.getSlabVos().isEmpty()) {
-			vo.getSlabVos().forEach(s -> {
+		if (hsnDetailsVo.isSlabBased() && !hsnDetailsVo.getSlabVos().isEmpty()) {
+			hsnDetailsVo.getSlabVos().forEach(s -> {
 
 				Slab slab = slabMapper.VoToEntity(s);
 				slab.setHsnDetails(save);
@@ -86,11 +80,11 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 
 			});
 		}
-		vo = hsnDetailsMapper.EntityToVo(save);
-		vo.setSlabVos(slabMapper.EntityToVo(slabs));
-		vo.setTaxVo(taxMapper.EntityToVo(save.getTax()));
+		hsnDetailsVo = hsnDetailsMapper.EntityToVo(save);
+		hsnDetailsVo.setSlabVos(slabMapper.EntityToVo(slabs));
+		hsnDetailsVo.setTaxVo(taxMapper.EntityToVo(save.getTax()));
 		log.warn("we are checking,if hsn details is saved...");
-		log.info("after saving hsn details:" + vo.toString());
+		log.info("after saving hsn details:" + hsnDetailsVo.toString());
 		return "hsn-details saved succesfully:" + save.getId();
 	}
 
@@ -230,30 +224,59 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		return voList;
 	}
 
-	/*
-	 * @Override public double getTaxValue(Double netAmount) {
+	/**
+	 * validate tax slab
 	 * 
-	 * List<Slab> slabList = slabRepo.findAll();
+	 * @param hsnDetails
 	 * 
-	 * double tax = 0;
-	 * 
-	 * // long l = (new Double(tax)).longValue();
-	 * 
-	 * 
-	 * slabList.stream().forEach(x -> {
-	 * 
-	 * if ((x.getPriceFrom() >= netAmount) && (x.getPriceTo() <= netAmount)) {
-	 * 
-	 * tax = (netAmount * (x.getTax().getPercentage())) / 100;
-	 * 
-	 * } });
-	 * 
-	 * 
-	 * for (Slab s : slabList) { if ((s.getPriceFrom() >= netAmount) &&
-	 * (s.getPriceTo() <= netAmount)) { tax = (netAmount *
-	 * (s.getTax().getPercentage())) / 100; } }
-	 * 
-	 * return tax; }
 	 */
+	private void validateTaxSlabs(HsnDetailsVo hsnDetails) {
+		hsnDetails.getSlabVos().stream().forEach(slabVO -> {
+
+			if (slabVO.getPriceFrom() >= slabVO.getPriceTo()) {
+				throw new InvalidDataException("Invalid slab range price from is greater than price to");
+			}
+			List<Slab> slabList = slabRepo.findAll();
+			slabList.stream().forEach(slab -> {
+
+				// check slab already exists with same prices
+				if (slabVO.getPriceFrom() == slab.getPriceFrom() && slabVO.getPriceTo() == slab.getPriceTo()) {
+					log.error("price from and price to is already exists:"
+							+ slabVO.getPriceFrom() + "and" + slabVO.getPriceTo());
+					throw new DuplicateRecordException("price from and price to is already exists:"
+							+ slabVO.getPriceFrom() + "and" + slabVO.getPriceTo());
+
+				}
+
+				// check if priceFrom exits in between other slab range
+				else if (slabVO.getPriceFrom() >= slab.getPriceFrom() && slabVO.getPriceTo() <= slab.getPriceTo()) {
+					log.error("price from  exists in other slab range :"
+							+ slabVO.getPriceFrom() + "and" + slabVO.getPriceTo());
+					throw new DuplicateRecordException("price from  exists in other slab range :"
+							+ slabVO.getPriceFrom() + "and" + slabVO.getPriceTo());
+
+				}
+
+				// check if priceTo exits in between other slab range
+				else if (slabVO.getPriceTo() >= slab.getPriceFrom() && slabVO.getPriceTo() <= slab.getPriceTo()) {
+					log.error("price to  exists in other slab range :" + slabVO.getPriceFrom()
+					+ "and" + slabVO.getPriceTo());
+					throw new DuplicateRecordException("price to  exists in other slab range :" + slabVO.getPriceFrom()
+							+ "and" + slabVO.getPriceTo());
+
+				}
+
+				// check if other slabs exits in this range
+				else if (slab.getPriceFrom() >= slabVO.getPriceFrom() && slab.getPriceTo() <= slabVO.getPriceTo()) {
+					log.error(" other slabs exists in the slab range :" + slabVO.getPriceFrom()
+					+ "and" + slabVO.getPriceTo());
+					throw new DuplicateRecordException(" other slabs exists in the slab range :" + slabVO.getPriceFrom()
+							+ "and" + slabVO.getPriceTo());
+				}
+
+			});
+
+		});
+	}
 
 }

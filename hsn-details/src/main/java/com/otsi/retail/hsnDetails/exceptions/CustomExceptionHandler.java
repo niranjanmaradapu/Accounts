@@ -7,9 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
 import com.otsi.retail.hsnDetails.errors.ErrorResponse;
-
 import io.netty.channel.unix.Errors.NativeIoException;
 import reactor.netty.http.client.PrematureCloseException;
 
@@ -28,6 +26,21 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(value = DuplicateRecordException.class)
 	public ResponseEntity<Object> handleDuplicateRecordException(DuplicateRecordException duplicateRecordException) {
 		ErrorResponse<?> error = new ErrorResponse<>(404, "Slab record already exists");
+		log.error("error response is:" + error);
+		return new ResponseEntity<Object>(error, HttpStatus.BAD_REQUEST);
+	}
+	
+
+	@ExceptionHandler(value = InvalidDataException.class)
+	public ResponseEntity<Object> handleInvalidDataException(InvalidDataException invalidDataException) {
+		ErrorResponse<?> error = new ErrorResponse<>(400, "please give valid data");
+		log.error("error response is:" + error);
+		return new ResponseEntity<Object>(error, HttpStatus.BAD_REQUEST);
+	}
+	
+	@ExceptionHandler(value = InvalidRecordException.class)
+	public ResponseEntity<Object> handleInvalidRecordException(InvalidRecordException invalidRecordException) {
+		ErrorResponse<?> error = new ErrorResponse<>(400, "Invalid slab range price from is greater than price to");
 		log.error("error response is:" + error);
 		return new ResponseEntity<Object>(error, HttpStatus.BAD_REQUEST);
 	}
