@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class PaymentConfigVo {
 
 
+	
 	private Long id;
 	
 	private String secretKey;

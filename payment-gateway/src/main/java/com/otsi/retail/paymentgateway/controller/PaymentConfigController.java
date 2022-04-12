@@ -19,11 +19,7 @@ import com.otsi.retail.paymentgateway.gatewayresponse.GateWayResponse;
 import com.otsi.retail.paymentgateway.service.PaymentConfigService;
 import com.otsi.retail.paymentgateway.util.Constants;
 import com.otsi.retail.paymentgateway.vo.PaymentConfigVo;
-/**
- * 
- * 
- *
- */
+
 
 @RestController
 @RequestMapping("/paymentconfig")

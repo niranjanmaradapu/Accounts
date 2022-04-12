@@ -10,5 +10,6 @@ import com.otsi.retail.paymentgateway.vo.PaymentConfigVo;
 public interface PaymentConfigRepository extends JpaRepository<PaymentConfig, Long>{
 
 	PaymentConfigVo save(PaymentConfigVo paymentConfigVoToEntity);
+	
 
 }

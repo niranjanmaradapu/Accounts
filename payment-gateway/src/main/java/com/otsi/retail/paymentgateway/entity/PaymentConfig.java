@@ -38,5 +38,7 @@ public class PaymentConfig  extends BaseEntity{
 	
 	private String mobileNumber;
 	
+	
+	
 
 }

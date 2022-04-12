@@ -25,6 +25,7 @@ import lombok.NoArgsConstructor;
 
 public class BaseEntity {
 
+	
 	@Column(name = "id")
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

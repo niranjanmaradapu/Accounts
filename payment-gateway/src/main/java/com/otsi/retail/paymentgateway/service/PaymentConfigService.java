@@ -14,6 +14,7 @@ public interface PaymentConfigService {
 
 	List<PaymentConfig> getListofData();
 
+	
 	void deleteById(Long id);
 
 }

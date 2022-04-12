@@ -1,4 +1,3 @@
-
 server:
   port: 8086
 spring:
@@ -11,15 +10,15 @@ spring:
       password: guest    
 
       #######################------Database related propertises-------########################
- # datasource:
- #   url: jdbc:postgresql://localhost:5432/newSale
- #   username: postgres
- #   password: Otsi@123
- # jpa:
- #  hibernate:
- #   ddl-auto: update
-  # database-platform: org.hibernate.dialect.PostgreSQL9Dialect
-  # show-sql: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/paymentGateway
+    username: postgres
+    password: DBA@123
+  jpa:
+   hibernate:
+    ddl-auto: upadate
+   database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+   show-sql: true
 
     #######################------Eureka server related propertises-------########################
     
