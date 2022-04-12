@@ -32,7 +32,7 @@ public class PaymentConfigController {
 
 /**
  * 	
- * @param paymentConfig
+ * @param paymentConfig 
  * Saving Data paymentconfig
  * @return
  */

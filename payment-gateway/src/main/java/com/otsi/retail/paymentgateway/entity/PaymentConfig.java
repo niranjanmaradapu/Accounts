@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 
 /**
  * 
- * 
  * @author Rao
  * Adding new entity for paymentGateway 
  * *

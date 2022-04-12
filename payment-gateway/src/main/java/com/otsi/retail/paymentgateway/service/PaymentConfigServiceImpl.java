@@ -41,7 +41,6 @@ public class PaymentConfigServiceImpl implements PaymentConfigService {
 
 	}
 
-	
 	@Override
 	public void deleteById(Long id) {
 		

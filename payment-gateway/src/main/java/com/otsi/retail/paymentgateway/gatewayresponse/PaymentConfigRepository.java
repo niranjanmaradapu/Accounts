@@ -11,5 +11,7 @@ public interface PaymentConfigRepository extends JpaRepository<PaymentConfig, Lo
 
 	PaymentConfigVo save(PaymentConfigVo paymentConfigVoToEntity);
 	
+	
+	
 
 }

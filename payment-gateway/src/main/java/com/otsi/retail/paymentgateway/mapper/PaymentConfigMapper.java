@@ -28,7 +28,6 @@ public class PaymentConfigMapper {
 		   paymentConfigVo.setMobileNumber(paymentConfig.getMobileNumber());
 		   paymentConfigVo.setSecretKey(paymentConfig.getSecretKey());
 		   paymentConfigVo.setActive(paymentConfig.getActive());
-		   
 		 
 		 return paymentConfigVo;
 				 
