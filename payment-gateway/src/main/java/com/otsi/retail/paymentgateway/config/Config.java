@@ -37,6 +37,9 @@ public class Config {
 	@Value("${payment_newsale_rk}")
 	private String paymentNewsaleRK;
 	
+	@Value("${razorpay.callback-url:}")
+	private String razorpayCallBackUrl;
+	
 	@Bean
 	public Queue queue() {
 		return new Queue(newSaleQueue);

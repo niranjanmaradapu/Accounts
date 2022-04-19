@@ -3,8 +3,8 @@
 */
 package com.otsi.retail.paymentgateway.gatewayresponse;
 
-import java.util.Arrays;
 import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.FieldError;
@@ -96,6 +96,11 @@ public class GateWayResponse<T> {
 		this.result = result;
 		// this.httpStatus = httpStatus;
 		this.message = message;
+	}
+
+	public GateWayResponse(final HttpStatus status, final T result) {
+		super();
+		this.result = result;
 	}
 
 	/**
