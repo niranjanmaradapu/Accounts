@@ -1,17 +1,29 @@
 package com.otsi.retail.paymentgateway.service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.otsi.retail.paymentgateway.config.Config;
+import com.otsi.retail.paymentgateway.util.EndpointConstants;
 import com.otsi.retail.paymentgateway.vo.PaymentDetailsVo;
+import com.otsi.retail.paymentgateway.vo.PaymentLinkRequest;
 import com.otsi.retail.paymentgateway.vo.RazorPayResponse;
 import com.razorpay.Order;
 import com.razorpay.Payment;
@@ -77,5 +89,50 @@ public class RazorPayImpl implements PaymentGatewayService {
 		client = new RazorpayClient(config.getKey(), config.getSecert());
 		Order order = client.Orders.fetch(razorPayID.trim());
 		return order;
+	}
+
+	/**
+	 * 
+	 * @param paymentLinkRequest
+	 * @return
+	 */
+	public Map<String, Object> createPaymentLink(PaymentLinkRequest paymentLinkRequest) {
+		ObjectMapper objMapper = new ObjectMapper();
+		String customerDetails = null;
+		try {
+			customerDetails = objMapper.writeValueAsString(paymentLinkRequest.getCustomerDetails());
+		} catch (JsonProcessingException e1) {
+			e1.printStackTrace();
+		}
+
+		String referenceId = UUID.randomUUID().toString();
+		String url = "https://api.razorpay.com/v1/payment_links";
+		String callbackUrl = config.getRazorpayCallBackUrl() + EndpointConstants.RAZORPAY_CALLBACK_URL;
+
+		String body = "{\r\n" + "    \"amount\": " + paymentLinkRequest.getAmount() + "," + "\r\n"
+				+ "    \"currency\": \"INR\",\r\n" + "    \"accept_partial\": true," + "\r\n"
+				+ "    \"first_min_partial_amount\": 0,\r\n" + "    \"expire_by\": 1691097057,\r\n"
+				+ "    \"reference_id\":  \"" + referenceId + "\",\r\n" + "    \"description\": \""
+				+ paymentLinkRequest.getDescription() + "\",\r\n" + "    \"customer\": " + customerDetails + ",\r\n"
+				+ "    \"notify\": {\r\n" + "        \"sms\": true,\r\n" + "        \"email\": true\r\n" + "    },\r\n"
+				+ "    \"reminder_enable\": true,\r\n" + "    \"notes\": {\r\n"
+				+ "        \"policy_name\": \"Jeevan Bima\"\r\n" + "    },\r\n" + "    \"callback_url\": \""
+				+ callbackUrl + "\",\r\n" + "    \"callback_method\": \"get\"\r\n" + "}";
+
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBasicAuth(config.getKey(), config.getSecert());
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<String> request = new HttpEntity<>(body, headers);
+		try {
+			UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(url);
+			ResponseEntity<Map> response = restTemplate.postForEntity(uriBuilder.toUriString(), request, Map.class);
+			if (response != null && response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+				return (Map<String, Object>) response.getBody();
+			}
+		} catch (Exception e) {
+			System.out.println("Exception while invoking payment create link :" + e.getMessage());
+		}
+		return null;
 	}
 }

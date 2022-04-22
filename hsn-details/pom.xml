@@ -9,7 +9,7 @@
 		<version>2.5.3</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.otsi.kalamandhir</groupId>
+	<groupId>com.otsi.retail.hsndetails</groupId>
 	<artifactId>hsn-details</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>hsn-details</name>

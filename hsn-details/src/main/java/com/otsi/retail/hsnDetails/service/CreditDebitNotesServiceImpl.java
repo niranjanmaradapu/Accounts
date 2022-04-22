@@ -2,16 +2,12 @@ package com.otsi.retail.hsnDetails.service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import com.otsi.retail.hsnDetails.exceptions.RecordNotFoundException;
 import com.otsi.retail.hsnDetails.mapper.CreditDebitNotesMapper;
 import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
@@ -31,25 +27,25 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 	private CreditDebitNotesMapper creditDebitNotesMapper;
 
 	@Override
-	public String saveCreditDebitNotes(CreditDebitNotesVo debitNotesVo) {
+	public String saveCreditDebitNotes(CreditDebitNotesVo creditDebitNotesVo) {
 		boolean flag = true;
 		CreditDebitNotes cred = creditDebitNotesRepo.findByMobileNumberAndCustomerIdAndFlag(
-				debitNotesVo.getMobileNumber(), debitNotesVo.getCustomerId(), flag);
+				creditDebitNotesVo.getMobileNumber(), creditDebitNotesVo.getCustomerId(), flag);
 		if (cred != null) {
 			cred.setFlag(false);
 			creditDebitNotesRepo.save(cred);
 
-			CreditDebitNotes cd = creditDebitNotesMapper.VoToEntity(debitNotesVo);
+			CreditDebitNotes cd = creditDebitNotesMapper.VoToEntity(creditDebitNotesVo);
 			cd.setFlag(true);
-			cd.setActualAmount(debitNotesVo.getActualAmount() + cred.getActualAmount());
+			cd.setActualAmount(creditDebitNotesVo.getActualAmount() + cred.getActualAmount());
 			cd.setStatus("credited");
 			creditDebitNotesRepo.save(cd);
 		} else {
 
-			CreditDebitNotes cd = creditDebitNotesMapper.VoToEntity(debitNotesVo);
-			if (debitNotesVo.getCreditDebit().equals("C")) {
+			CreditDebitNotes cd = creditDebitNotesMapper.VoToEntity(creditDebitNotesVo);
+			if (creditDebitNotesVo.getCreditDebit().equals("C")) {
 				cd.setStatus("credited");
-			} else if (debitNotesVo.getCreditDebit().equals("D")) {
+			} else if (creditDebitNotesVo.getCreditDebit().equals("D")) {
 				cd.setStatus("debited");
 			}
 			CreditDebitNotes notesSave = creditDebitNotesRepo.save(cd);
@@ -93,28 +89,28 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 	}
 
 	@Override
-	public List<CreditDebitNotesVo> saveListCreditDebitNotes(List<CreditDebitNotesVo> debitNotesVos) {
-		log.debug("debugging saveListDebitNotes:" + debitNotesVos);
-		List<CreditDebitNotes> voList = creditDebitNotesMapper.VoToEntity(debitNotesVos);
-		debitNotesVos = creditDebitNotesMapper.EntityToVo(creditDebitNotesRepo.saveAll(voList));
+	public List<CreditDebitNotesVo> saveListCreditDebitNotes(List<CreditDebitNotesVo> creditDebitNotesVos) {
+		log.debug("debugging saveListDebitNotes:" + creditDebitNotesVos);
+		List<CreditDebitNotes> voList = creditDebitNotesMapper.VoToEntity(creditDebitNotesVos);
+		creditDebitNotesVos = creditDebitNotesMapper.EntityToVo(creditDebitNotesRepo.saveAll(voList));
 		log.warn("we are testing is saving all credit-debit notes");
-		log.info("after saving all credit-debit notes:" + debitNotesVos.toString());
-		return debitNotesVos;
+		log.info("after saving all credit-debit notes:" + creditDebitNotesVos.toString());
+		return creditDebitNotesVos;
 	}
 
 	@Override
-	public String updateCreditDebitNotes(UpdateCreditRequest notesVo) {
-		log.debug("debugging updateCreditDebitNotes:" + notesVo);
+	public String updateCreditDebitNotes(UpdateCreditRequest updateCreditRequest) {
+		log.debug("debugging updateCreditDebitNotes:" + updateCreditRequest);
 		boolean flag = true;
-		if (notesVo.getCreditDebit().equals("C")) {
+		if (updateCreditRequest.getCreditDebit().equals("C")) {
 			CreditDebitNotes cred = creditDebitNotesRepo.findByMobileNumberAndStoreIdAndCreditDebitAndFlag(
-					notesVo.getMobileNumber(), notesVo.getStoreId(), notesVo.getCreditDebit(), flag);
+					updateCreditRequest.getMobileNumber(), updateCreditRequest.getStoreId(), updateCreditRequest.getCreditDebit(), flag);
 
-			if ((cred.getMobileNumber().equals(notesVo.getMobileNumber()))
-					&& (cred.getStoreId() == notesVo.getStoreId())
-					&& (cred.getCreditDebit().equals(notesVo.getCreditDebit()))) {
+			if ((cred.getMobileNumber().equals(updateCreditRequest.getMobileNumber()))
+					&& (cred.getStoreId() == updateCreditRequest.getStoreId())
+					&& (cred.getCreditDebit().equals(updateCreditRequest.getCreditDebit()))) {
 
-				if (cred.getActualAmount() >= notesVo.getAmount()) {
+				if (cred.getActualAmount() >= updateCreditRequest.getAmount()) {
 					cred.setFlag(false);
 					creditDebitNotesRepo.save(cred);
 					CreditDebitNotesVo credVo = new CreditDebitNotesVo();
@@ -125,25 +121,25 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 					credVo.setFlag(true);
 					credVo.setMobileNumber(cred.getMobileNumber());
 					credVo.setStoreId(cred.getStoreId());
-					credVo.setTransactionAmount(notesVo.getAmount());
-					credVo.setActualAmount(Math.abs(cred.getActualAmount() - notesVo.getAmount()));
+					credVo.setTransactionAmount(updateCreditRequest.getAmount());
+					credVo.setActualAmount(Math.abs(cred.getActualAmount() - updateCreditRequest.getAmount()));
 					credVo.setStatus("used");
-					credVo.setComments(notesVo.getAmount() + " used ");
+					credVo.setComments(updateCreditRequest.getAmount() + " used ");
 					CreditDebitNotes credMapper = creditDebitNotesMapper.VoToEntity(credVo);
 					creditDebitNotesRepo.save(credMapper);
 				}
 
 			}
 
-		} else if (notesVo.getCreditDebit().equals("D")) {
+		} else if (updateCreditRequest.getCreditDebit().equals("D")) {
 			CreditDebitNotes deb = new CreditDebitNotes();
-			deb.setActualAmount(notesVo.getAmount());
-			deb.setStoreId(notesVo.getStoreId());
+			deb.setActualAmount(updateCreditRequest.getAmount());
+			deb.setStoreId(updateCreditRequest.getStoreId());
 			deb.setCreditDebit("D");
 			deb.setComments("debit");
 			deb.setCreatedDate(LocalDate.now());
 			deb.setLastModifiedDate(LocalDate.now());
-			deb.setMobileNumber(notesVo.getMobileNumber());
+			deb.setMobileNumber(updateCreditRequest.getMobileNumber());
 			creditDebitNotesRepo.save(deb);
 		}
 
@@ -153,9 +149,9 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 	}
 
 	@Override
-	public String updateNotes(CreditDebitNotesVo notesVo) {
-		log.debug("debugging updateCreditDebitNotes:" + notesVo);
-		Optional<CreditDebitNotes> notesOpt = creditDebitNotesRepo.findByCreditDebitId(notesVo.getCreditDebitId());
+	public String updateNotes(CreditDebitNotesVo creditDebitNotesVo) {
+		log.debug("debugging updateCreditDebitNotes:" + creditDebitNotesVo);
+		Optional<CreditDebitNotes> notesOpt = creditDebitNotesRepo.findByCreditDebitId(creditDebitNotesVo.getCreditDebitId());
 
 		// if id is not present,it will throw custom exception "RecordNotFoundException"
 		if (!notesOpt.isPresent()) {
@@ -163,7 +159,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 			throw new RecordNotFoundException("Record Not Found with id:" + notesOpt.get());
 		}
 
-		CreditDebitNotes notes = creditDebitNotesMapper.VoToEntity(notesVo);
+		CreditDebitNotes notes = creditDebitNotesMapper.VoToEntity(creditDebitNotesVo);
 		CreditDebitNotes notesSave = creditDebitNotesRepo.save(notes);
 		CreditDebitNotesVo notesUpdate = creditDebitNotesMapper.EntityToVo(notesSave);
 		log.warn("we are checking if notes is updated...");
@@ -186,24 +182,24 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 	}
 
 	@Override
-	public List<CreditDebitNotesVo> getAllCreditNotes(CreditDebitNotesVo vo) {
+	public List<CreditDebitNotesVo> getAllCreditNotes(CreditDebitNotesVo creditNotesVo) {
 		List<CreditDebitNotes> creditNotes = new ArrayList<>();
 		String creditDebit = "C";
 		boolean flag = true;
-		List<CreditDebitNotes> storeOpt = creditDebitNotesRepo.findAllByStoreIdAndCreditDebitAndFlag(vo.getStoreId(),
+		List<CreditDebitNotes> storeOpt = creditDebitNotesRepo.findAllByStoreIdAndCreditDebitAndFlag(creditNotesVo.getStoreId(),
 				creditDebit, flag);
 
 		/*
 		 * using dates and storeId
 		 */
-		if (vo.getFromDate() != null && vo.getToDate() != null && vo.getStoreId() != null
-				&& vo.getMobileNumber() == "") {
+		if (creditNotesVo.getFromDate() != null && creditNotesVo.getToDate() != null && creditNotesVo.getStoreId() != null
+				&& creditNotesVo.getMobileNumber() == "") {
 
 			if (storeOpt != null) {
 
 				creditNotes = creditDebitNotesRepo
 						.findByCreatedDateBetweenAndStoreIdAndCreditDebitAndFlagOrderByLastModifiedDateAsc(
-								vo.getFromDate(), vo.getToDate(), vo.getStoreId(), creditDebit, flag);
+								creditNotesVo.getFromDate(), creditNotesVo.getToDate(), creditNotesVo.getStoreId(), creditDebit, flag);
 
 				if (creditNotes.isEmpty()) {
 					log.error("No record found with given information");
@@ -217,15 +213,15 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		 * 
 		 * using dates and mobile number and storeId
 		 */
-		else if (vo.getFromDate() != null && vo.getToDate() != null && vo.getMobileNumber() != null
-				&& vo.getStoreId() != null) {
+		else if (creditNotesVo.getFromDate() != null && creditNotesVo.getToDate() != null && creditNotesVo.getMobileNumber() != null
+				&& creditNotesVo.getStoreId() != null) {
 
 			if (storeOpt != null) {
-				List<CreditDebitNotes> mobileOpt = creditDebitNotesRepo.findAllByMobileNumber(vo.getMobileNumber());
+				List<CreditDebitNotes> mobileOpt = creditDebitNotesRepo.findAllByMobileNumber(creditNotesVo.getMobileNumber());
 				if (mobileOpt != null) {
 					creditNotes = creditDebitNotesRepo
 							.findByCreatedDateBetweenAndMobileNumberAndStoreIdAndCreditDebitAndFlagOrderByLastModifiedDateAsc(
-									vo.getFromDate(), vo.getToDate(), vo.getMobileNumber(), vo.getStoreId(),
+									creditNotesVo.getFromDate(), creditNotesVo.getToDate(), creditNotesVo.getMobileNumber(), creditNotesVo.getStoreId(),
 									creditDebit, flag);
 				} else {
 					log.error("No record found with given productItemId");
@@ -237,13 +233,13 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		/*
 		 * using storeId
 		 */
-		else if (vo.getFromDate() == null && vo.getToDate() == null && vo.getMobileNumber() == ""
-				&& vo.getStoreId() != null) {
+		else if (creditNotesVo.getFromDate() == null && creditNotesVo.getToDate() == null && creditNotesVo.getMobileNumber() == ""
+				&& creditNotesVo.getStoreId() != null) {
 			if (storeOpt.isEmpty()) {
-				log.error("retail record is not found with storeId:" + vo.getStoreId());
-				throw new RecordNotFoundException("retail record is not found with storeId:" + vo.getStoreId());
+				log.error("retail record is not found with storeId:" + creditNotesVo.getStoreId());
+				throw new RecordNotFoundException("retail record is not found with storeId:" + creditNotesVo.getStoreId());
 			}
-			if (vo.getStoreId() != null) {
+			if (creditNotesVo.getStoreId() != null) {
 				List<CreditDebitNotesVo> creditList = creditDebitNotesMapper.EntityToVo(storeOpt);
 				return creditList;
 			} else {
@@ -253,11 +249,11 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		/*
 		 * using mobile number and storeId
 		 */
-		else if (vo.getFromDate() == null && vo.getToDate() == null && vo.getMobileNumber() != null
-				&& vo.getStoreId() != null) {
+		else if (creditNotesVo.getFromDate() == null && creditNotesVo.getToDate() == null && creditNotesVo.getMobileNumber() != null
+				&& creditNotesVo.getStoreId() != null) {
 
 			if (storeOpt != null) {
-				CreditDebitNotes mobileOpt = creditDebitNotesRepo.findByMobileNumberAndFlag(vo.getMobileNumber(), flag);
+				CreditDebitNotes mobileOpt = creditDebitNotesRepo.findByMobileNumberAndFlag(creditNotesVo.getMobileNumber(), flag);
 				if (mobileOpt == null) {
 					throw new RecordNotFoundException("barcode record is not found");
 
@@ -286,24 +282,24 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 	}
 
 	@Override
-	public List<CreditDebitNotesVo> getAllDebitNotes(CreditDebitNotesVo vo) {
+	public List<CreditDebitNotesVo> getAllDebitNotes(CreditDebitNotesVo debitNotesVo) {
 		List<CreditDebitNotes> debitNotes = new ArrayList<>();
 		String creditDebit = "D";
 		boolean flag = true;
-		List<CreditDebitNotes> storeOpt = creditDebitNotesRepo.findAllByStoreIdAndCreditDebitAndFlag(vo.getStoreId(),
+		List<CreditDebitNotes> storeOpt = creditDebitNotesRepo.findAllByStoreIdAndCreditDebitAndFlag(debitNotesVo.getStoreId(),
 				creditDebit, flag);
 
 		/*
 		 * using dates and storeId
 		 */
-		if (vo.getFromDate() != null && vo.getToDate() != null && vo.getStoreId() != null
-				&& vo.getMobileNumber() == "") {
+		if (debitNotesVo.getFromDate() != null && debitNotesVo.getToDate() != null && debitNotesVo.getStoreId() != null
+				&& debitNotesVo.getMobileNumber() == "") {
 
 			if (storeOpt != null) {
 
 				debitNotes = creditDebitNotesRepo
 						.findByCreatedDateBetweenAndStoreIdAndCreditDebitAndFlagOrderByLastModifiedDateAsc(
-								vo.getFromDate(), vo.getToDate(), vo.getStoreId(), creditDebit, flag);
+								debitNotesVo.getFromDate(), debitNotesVo.getToDate(), debitNotesVo.getStoreId(), creditDebit, flag);
 
 				if (debitNotes.isEmpty()) {
 					log.error("No record found with given information");
@@ -317,15 +313,15 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		 * 
 		 * using dates and mobile number and storeId
 		 */
-		else if (vo.getFromDate() != null && vo.getToDate() != null && vo.getMobileNumber() != null
-				&& vo.getStoreId() != null) {
+		else if (debitNotesVo.getFromDate() != null && debitNotesVo.getToDate() != null && debitNotesVo.getMobileNumber() != null
+				&& debitNotesVo.getStoreId() != null) {
 
 			if (storeOpt != null) {
-				List<CreditDebitNotes> mobileOpt = creditDebitNotesRepo.findAllByMobileNumber(vo.getMobileNumber());
+				List<CreditDebitNotes> mobileOpt = creditDebitNotesRepo.findAllByMobileNumber(debitNotesVo.getMobileNumber());
 				if (mobileOpt != null) {
 					debitNotes = creditDebitNotesRepo
 							.findByCreatedDateBetweenAndMobileNumberAndStoreIdAndCreditDebitAndFlagOrderByLastModifiedDateAsc(
-									vo.getFromDate(), vo.getToDate(), vo.getMobileNumber(), vo.getStoreId(),
+									debitNotesVo.getFromDate(), debitNotesVo.getToDate(), debitNotesVo.getMobileNumber(), debitNotesVo.getStoreId(),
 									creditDebit, flag);
 				} else {
 					log.error("No record found with given productItemId");
@@ -337,13 +333,13 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		/*
 		 * using storeId
 		 */
-		else if (vo.getFromDate() == null && vo.getToDate() == null && vo.getMobileNumber() == ""
-				&& vo.getStoreId() != null) {
+		else if (debitNotesVo.getFromDate() == null && debitNotesVo.getToDate() == null && debitNotesVo.getMobileNumber() == ""
+				&& debitNotesVo.getStoreId() != null) {
 			if (storeOpt.isEmpty()) {
-				log.error("retail record is not found with storeId:" + vo.getStoreId());
-				throw new RecordNotFoundException("retail record is not found with storeId:" + vo.getStoreId());
+				log.error("retail record is not found with storeId:" + debitNotesVo.getStoreId());
+				throw new RecordNotFoundException("retail record is not found with storeId:" + debitNotesVo.getStoreId());
 			}
-			if (vo.getStoreId() != null) {
+			if (debitNotesVo.getStoreId() != null) {
 				List<CreditDebitNotesVo> debitList = creditDebitNotesMapper.EntityToVo(storeOpt);
 				return debitList;
 			} else {
@@ -353,11 +349,11 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		/*
 		 * using mobile number and storeId
 		 */
-		else if (vo.getFromDate() == null && vo.getToDate() == null && vo.getMobileNumber() != null
-				&& vo.getStoreId() != null) {
+		else if (debitNotesVo.getFromDate() == null && debitNotesVo.getToDate() == null && debitNotesVo.getMobileNumber() != null
+				&& debitNotesVo.getStoreId() != null) {
 
 			if (storeOpt != null) {
-				CreditDebitNotes mobileOpt = creditDebitNotesRepo.findByMobileNumberAndFlag(vo.getMobileNumber(), flag);
+				CreditDebitNotes mobileOpt = creditDebitNotesRepo.findByMobileNumberAndFlag(debitNotesVo.getMobileNumber(), flag);
 				if (mobileOpt == null) {
 					throw new RecordNotFoundException("barcode record is not found");
 
