@@ -115,4 +115,16 @@ public class HsnDetailsController {
 		return new GateWayResponse<>("fetching all hsn-details", hsnDetails);
 
 	}
+	
+	@ApiOperation(value = "getHsnDetails", notes = "fetching hsn-details", response = HsnDetailsVo.class)
+	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
+			@ApiResponse(code = 200, message = "Successful retrieval", 
+			response = HsnDetailsVo.class, responseContainer = "List") })
+	@GetMapping("/getAllHsnDetails")
+	public GateWayResponse<?> getAllHsnDetails(@RequestParam("hsnCode") String hsnCode) {
+		log.info("Received Request to get HsnDetails");
+		List<HsnDetailsVo> hsnDetails = hsnDetailsService.getAllHsnDetails(hsnCode);
+		return new GateWayResponse<>("fetching all hsn-details", hsnDetails);
+
+	}
 }

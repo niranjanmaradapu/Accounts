@@ -4,15 +4,26 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.otsi.retail.hsnDetails.enums.AccountType;
 import com.otsi.retail.hsnDetails.exceptions.RecordNotFoundException;
+import com.otsi.retail.hsnDetails.mapper.AccountingBookMapper;
 import com.otsi.retail.hsnDetails.mapper.CreditDebitNotesMapper;
+import com.otsi.retail.hsnDetails.mapper.LedgerLogBookMapper;
+import com.otsi.retail.hsnDetails.model.AccountingBook;
 import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
+import com.otsi.retail.hsnDetails.model.LedgerLogBook;
+import com.otsi.retail.hsnDetails.repo.AccountingBookRepo;
 import com.otsi.retail.hsnDetails.repo.CreditDebitNotesRepo;
+import com.otsi.retail.hsnDetails.repo.LedgerLogBookRepo;
+import com.otsi.retail.hsnDetails.vo.AccountingBookVo;
 import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVo;
+import com.otsi.retail.hsnDetails.vo.LedgerLogBookVo;
 import com.otsi.retail.hsnDetails.vo.UpdateCreditRequest;
 
 @Component
@@ -25,6 +36,18 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 
 	@Autowired
 	private CreditDebitNotesMapper creditDebitNotesMapper;
+
+	@Autowired
+	private AccountingBookMapper accountingBookMapper;
+
+	@Autowired
+	private LedgerLogBookMapper ledgerLogBookMapper;
+
+	@Autowired
+	private AccountingBookRepo accountingBookRepo;
+
+	@Autowired
+	private LedgerLogBookRepo ledgerLogBookRepo;
 
 	@Override
 	public String saveCreditDebitNotes(CreditDebitNotesVo creditDebitNotesVo) {
@@ -104,7 +127,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		boolean flag = true;
 		if (updateCreditRequest.getCreditDebit().equals("C")) {
 			CreditDebitNotes cred = creditDebitNotesRepo.findByMobileNumberAndStoreIdAndCreditDebitAndFlag(
-					updateCreditRequest.getMobileNumber(), updateCreditRequest.getStoreId(), updateCreditRequest.getCreditDebit(), flag);
+					updateCreditRequest.getMobileNumber(), updateCreditRequest.getStoreId(),
+					updateCreditRequest.getCreditDebit(), flag);
 
 			if ((cred.getMobileNumber().equals(updateCreditRequest.getMobileNumber()))
 					&& (cred.getStoreId() == updateCreditRequest.getStoreId())
@@ -151,7 +175,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 	@Override
 	public String updateNotes(CreditDebitNotesVo creditDebitNotesVo) {
 		log.debug("debugging updateCreditDebitNotes:" + creditDebitNotesVo);
-		Optional<CreditDebitNotes> notesOpt = creditDebitNotesRepo.findByCreditDebitId(creditDebitNotesVo.getCreditDebitId());
+		Optional<CreditDebitNotes> notesOpt = creditDebitNotesRepo
+				.findByCreditDebitId(creditDebitNotesVo.getCreditDebitId());
 
 		// if id is not present,it will throw custom exception "RecordNotFoundException"
 		if (!notesOpt.isPresent()) {
@@ -186,20 +211,21 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		List<CreditDebitNotes> creditNotes = new ArrayList<>();
 		String creditDebit = "C";
 		boolean flag = true;
-		List<CreditDebitNotes> storeOpt = creditDebitNotesRepo.findAllByStoreIdAndCreditDebitAndFlag(creditNotesVo.getStoreId(),
-				creditDebit, flag);
+		List<CreditDebitNotes> storeOpt = creditDebitNotesRepo
+				.findAllByStoreIdAndCreditDebitAndFlag(creditNotesVo.getStoreId(), creditDebit, flag);
 
 		/*
 		 * using dates and storeId
 		 */
-		if (creditNotesVo.getFromDate() != null && creditNotesVo.getToDate() != null && creditNotesVo.getStoreId() != null
-				&& creditNotesVo.getMobileNumber() == "") {
+		if (creditNotesVo.getFromDate() != null && creditNotesVo.getToDate() != null
+				&& creditNotesVo.getStoreId() != null && creditNotesVo.getMobileNumber() == "") {
 
 			if (storeOpt != null) {
 
 				creditNotes = creditDebitNotesRepo
 						.findByCreatedDateBetweenAndStoreIdAndCreditDebitAndFlagOrderByLastModifiedDateAsc(
-								creditNotesVo.getFromDate(), creditNotesVo.getToDate(), creditNotesVo.getStoreId(), creditDebit, flag);
+								creditNotesVo.getFromDate(), creditNotesVo.getToDate(), creditNotesVo.getStoreId(),
+								creditDebit, flag);
 
 				if (creditNotes.isEmpty()) {
 					log.error("No record found with given information");
@@ -213,16 +239,17 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		 * 
 		 * using dates and mobile number and storeId
 		 */
-		else if (creditNotesVo.getFromDate() != null && creditNotesVo.getToDate() != null && creditNotesVo.getMobileNumber() != null
-				&& creditNotesVo.getStoreId() != null) {
+		else if (creditNotesVo.getFromDate() != null && creditNotesVo.getToDate() != null
+				&& creditNotesVo.getMobileNumber() != null && creditNotesVo.getStoreId() != null) {
 
 			if (storeOpt != null) {
-				List<CreditDebitNotes> mobileOpt = creditDebitNotesRepo.findAllByMobileNumber(creditNotesVo.getMobileNumber());
+				List<CreditDebitNotes> mobileOpt = creditDebitNotesRepo
+						.findAllByMobileNumber(creditNotesVo.getMobileNumber());
 				if (mobileOpt != null) {
 					creditNotes = creditDebitNotesRepo
 							.findByCreatedDateBetweenAndMobileNumberAndStoreIdAndCreditDebitAndFlagOrderByLastModifiedDateAsc(
-									creditNotesVo.getFromDate(), creditNotesVo.getToDate(), creditNotesVo.getMobileNumber(), creditNotesVo.getStoreId(),
-									creditDebit, flag);
+									creditNotesVo.getFromDate(), creditNotesVo.getToDate(),
+									creditNotesVo.getMobileNumber(), creditNotesVo.getStoreId(), creditDebit, flag);
 				} else {
 					log.error("No record found with given productItemId");
 					throw new RecordNotFoundException("No record found with given productItemId");
@@ -233,11 +260,12 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		/*
 		 * using storeId
 		 */
-		else if (creditNotesVo.getFromDate() == null && creditNotesVo.getToDate() == null && creditNotesVo.getMobileNumber() == ""
-				&& creditNotesVo.getStoreId() != null) {
+		else if (creditNotesVo.getFromDate() == null && creditNotesVo.getToDate() == null
+				&& creditNotesVo.getMobileNumber() == "" && creditNotesVo.getStoreId() != null) {
 			if (storeOpt.isEmpty()) {
 				log.error("retail record is not found with storeId:" + creditNotesVo.getStoreId());
-				throw new RecordNotFoundException("retail record is not found with storeId:" + creditNotesVo.getStoreId());
+				throw new RecordNotFoundException(
+						"retail record is not found with storeId:" + creditNotesVo.getStoreId());
 			}
 			if (creditNotesVo.getStoreId() != null) {
 				List<CreditDebitNotesVo> creditList = creditDebitNotesMapper.EntityToVo(storeOpt);
@@ -249,11 +277,12 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		/*
 		 * using mobile number and storeId
 		 */
-		else if (creditNotesVo.getFromDate() == null && creditNotesVo.getToDate() == null && creditNotesVo.getMobileNumber() != null
-				&& creditNotesVo.getStoreId() != null) {
+		else if (creditNotesVo.getFromDate() == null && creditNotesVo.getToDate() == null
+				&& creditNotesVo.getMobileNumber() != null && creditNotesVo.getStoreId() != null) {
 
 			if (storeOpt != null) {
-				CreditDebitNotes mobileOpt = creditDebitNotesRepo.findByMobileNumberAndFlag(creditNotesVo.getMobileNumber(), flag);
+				CreditDebitNotes mobileOpt = creditDebitNotesRepo
+						.findByMobileNumberAndFlag(creditNotesVo.getMobileNumber(), flag);
 				if (mobileOpt == null) {
 					throw new RecordNotFoundException("barcode record is not found");
 
@@ -286,8 +315,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		List<CreditDebitNotes> debitNotes = new ArrayList<>();
 		String creditDebit = "D";
 		boolean flag = true;
-		List<CreditDebitNotes> storeOpt = creditDebitNotesRepo.findAllByStoreIdAndCreditDebitAndFlag(debitNotesVo.getStoreId(),
-				creditDebit, flag);
+		List<CreditDebitNotes> storeOpt = creditDebitNotesRepo
+				.findAllByStoreIdAndCreditDebitAndFlag(debitNotesVo.getStoreId(), creditDebit, flag);
 
 		/*
 		 * using dates and storeId
@@ -299,7 +328,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 
 				debitNotes = creditDebitNotesRepo
 						.findByCreatedDateBetweenAndStoreIdAndCreditDebitAndFlagOrderByLastModifiedDateAsc(
-								debitNotesVo.getFromDate(), debitNotesVo.getToDate(), debitNotesVo.getStoreId(), creditDebit, flag);
+								debitNotesVo.getFromDate(), debitNotesVo.getToDate(), debitNotesVo.getStoreId(),
+								creditDebit, flag);
 
 				if (debitNotes.isEmpty()) {
 					log.error("No record found with given information");
@@ -313,16 +343,17 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		 * 
 		 * using dates and mobile number and storeId
 		 */
-		else if (debitNotesVo.getFromDate() != null && debitNotesVo.getToDate() != null && debitNotesVo.getMobileNumber() != null
-				&& debitNotesVo.getStoreId() != null) {
+		else if (debitNotesVo.getFromDate() != null && debitNotesVo.getToDate() != null
+				&& debitNotesVo.getMobileNumber() != null && debitNotesVo.getStoreId() != null) {
 
 			if (storeOpt != null) {
-				List<CreditDebitNotes> mobileOpt = creditDebitNotesRepo.findAllByMobileNumber(debitNotesVo.getMobileNumber());
+				List<CreditDebitNotes> mobileOpt = creditDebitNotesRepo
+						.findAllByMobileNumber(debitNotesVo.getMobileNumber());
 				if (mobileOpt != null) {
 					debitNotes = creditDebitNotesRepo
 							.findByCreatedDateBetweenAndMobileNumberAndStoreIdAndCreditDebitAndFlagOrderByLastModifiedDateAsc(
-									debitNotesVo.getFromDate(), debitNotesVo.getToDate(), debitNotesVo.getMobileNumber(), debitNotesVo.getStoreId(),
-									creditDebit, flag);
+									debitNotesVo.getFromDate(), debitNotesVo.getToDate(),
+									debitNotesVo.getMobileNumber(), debitNotesVo.getStoreId(), creditDebit, flag);
 				} else {
 					log.error("No record found with given productItemId");
 					throw new RecordNotFoundException("No record found with given productItemId");
@@ -333,11 +364,12 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		/*
 		 * using storeId
 		 */
-		else if (debitNotesVo.getFromDate() == null && debitNotesVo.getToDate() == null && debitNotesVo.getMobileNumber() == ""
-				&& debitNotesVo.getStoreId() != null) {
+		else if (debitNotesVo.getFromDate() == null && debitNotesVo.getToDate() == null
+				&& debitNotesVo.getMobileNumber() == "" && debitNotesVo.getStoreId() != null) {
 			if (storeOpt.isEmpty()) {
 				log.error("retail record is not found with storeId:" + debitNotesVo.getStoreId());
-				throw new RecordNotFoundException("retail record is not found with storeId:" + debitNotesVo.getStoreId());
+				throw new RecordNotFoundException(
+						"retail record is not found with storeId:" + debitNotesVo.getStoreId());
 			}
 			if (debitNotesVo.getStoreId() != null) {
 				List<CreditDebitNotesVo> debitList = creditDebitNotesMapper.EntityToVo(storeOpt);
@@ -349,11 +381,12 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		/*
 		 * using mobile number and storeId
 		 */
-		else if (debitNotesVo.getFromDate() == null && debitNotesVo.getToDate() == null && debitNotesVo.getMobileNumber() != null
-				&& debitNotesVo.getStoreId() != null) {
+		else if (debitNotesVo.getFromDate() == null && debitNotesVo.getToDate() == null
+				&& debitNotesVo.getMobileNumber() != null && debitNotesVo.getStoreId() != null) {
 
 			if (storeOpt != null) {
-				CreditDebitNotes mobileOpt = creditDebitNotesRepo.findByMobileNumberAndFlag(debitNotesVo.getMobileNumber(), flag);
+				CreditDebitNotes mobileOpt = creditDebitNotesRepo
+						.findByMobileNumberAndFlag(debitNotesVo.getMobileNumber(), flag);
 				if (mobileOpt == null) {
 					throw new RecordNotFoundException("barcode record is not found");
 
@@ -379,6 +412,79 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		log.warn("we are checking if debit notes is fetching...");
 		log.info("after fetching all debit notes  details:" + debitList.toString());
 		return debitList;
+	}
+
+	@Override
+	public AccountingBookVo saveNotes(AccountingBookVo accountingBookVo) {
+		AccountingBook accountingBook = accountingBookMapper.voToEntity(accountingBookVo);
+		AccountingBook accountingBookSave = accountingBookRepo.save(accountingBook);
+		List<LedgerLogBook> listLogBooks = new ArrayList<>();
+		List<LedgerLogBookVo> ledgerLogBooks = accountingBookVo.getLedgerLogBooks();
+		if (accountingBookVo.getLedgerLogBooks() != null) {
+			ledgerLogBooks.forEach(x -> {
+				LedgerLogBook ledgerLogBook = new LedgerLogBook();
+				ledgerLogBook.setTransactionType(AccountType.CREDIT);
+				ledgerLogBook.setStoreId(x.getStoreId());
+				ledgerLogBook.setCustomerId(x.getCustomerId());
+				ledgerLogBook.setAccountingBook(accountingBookSave);
+				listLogBooks.add(ledgerLogBookRepo.save(ledgerLogBook));
+			});
+		}
+		accountingBookVo = accountingBookMapper.entityToVo(accountingBookSave);
+		accountingBookVo.setLedgerLogBooks(ledgerLogBookMapper.entityToVo(listLogBooks));
+		return accountingBookVo;
+	}
+
+	@Override
+	public List<AccountingBookVo> getNotes(AccountType accountType, Long storeId) {
+		List<AccountingBook> accountingBookOpt = accountingBookRepo.findByAccountTypeAndStoreId(accountType, storeId);
+		if (accountingBookOpt == null) {
+			log.error("accounting book id  is Not Found:" + accountingBookOpt);
+			throw new RecordNotFoundException("accounting book id  is Not Found:" + accountingBookOpt);
+		}
+		List<AccountingBookVo> accountingBookVos = accountingBookMapper.mapEntityToVo(accountingBookOpt);
+		return accountingBookVos;
+	}
+
+	@Override
+	public AccountingBookVo update(AccountingBookVo accountingBookVo) {
+		Optional<AccountingBook> accountingBookOpt = accountingBookRepo
+				.findByAccountingBookId(accountingBookVo.getAccountingBookId());
+		if (!accountingBookOpt.isPresent()) {
+			log.error("accounting book id  is Not Found:" + accountingBookOpt);
+			throw new RecordNotFoundException("accounting book id  is Not Found:" + accountingBookOpt);
+		}
+
+		AccountingBook accountingBook = accountingBookMapper.voToEntityUpdate(accountingBookVo);
+		AccountingBook accountingBookSave = accountingBookRepo.save(accountingBook);
+		List<LedgerLogBook> listLogBooks = new ArrayList<>();
+		List<LedgerLogBookVo> ledgerLogBooks = accountingBookVo.getLedgerLogBooks();
+		if (accountingBookVo.getLedgerLogBooks() != null) {
+			ledgerLogBooks.forEach(ledgerBookVo -> {
+				LedgerLogBook ledgerLogBook = new LedgerLogBook();
+				ledgerLogBook.setLedgerLogBookid(ledgerBookVo.getLedgerLogBookid());
+				ledgerLogBook.setTransactionType(AccountType.CREDIT);
+				ledgerLogBook.setStoreId(ledgerBookVo.getStoreId());
+				ledgerLogBook.setCustomerId(ledgerBookVo.getCustomerId());
+				ledgerLogBook.setAccountingBook(accountingBookSave);
+				listLogBooks.add(ledgerLogBookRepo.save(ledgerLogBook));
+			});
+		}
+		accountingBook.setLedgerLogBooks(listLogBooks);
+		accountingBookVo = accountingBookMapper.entityToVo(accountingBookSave);
+		accountingBookVo.setLedgerLogBooks(ledgerLogBookMapper.entityToVo(listLogBooks));
+		return accountingBookVo;
+	}
+
+	@Override
+	public String delete(Long accountingBookId) {
+		Optional<AccountingBook> accountingBookOpt = accountingBookRepo.findByAccountingBookId(accountingBookId);
+		if (!(accountingBookOpt.isPresent())) {
+			log.error("accounting book id  is Not Found:" + accountingBookOpt);
+			throw new RecordNotFoundException("accounting book id  is Not Found:" + accountingBookOpt);
+		}
+		accountingBookRepo.delete(accountingBookOpt.get());
+		return "";
 	}
 
 }

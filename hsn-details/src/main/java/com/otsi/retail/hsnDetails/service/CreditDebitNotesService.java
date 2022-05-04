@@ -2,8 +2,12 @@ package com.otsi.retail.hsnDetails.service;
 
 import java.util.List;
 import org.springframework.stereotype.Service;
+
+import com.otsi.retail.hsnDetails.enums.AccountType;
 import com.otsi.retail.hsnDetails.exceptions.DataNotFoundException;
+import com.otsi.retail.hsnDetails.model.AccountingBook;
 import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
+import com.otsi.retail.hsnDetails.vo.AccountingBookVo;
 import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVo;
 import com.otsi.retail.hsnDetails.vo.UpdateCreditRequest;
 
@@ -27,5 +31,13 @@ public interface CreditDebitNotesService {
 	String updateCreditDebitNotes(UpdateCreditRequest notesVo);
 
 	String updateNotes(CreditDebitNotesVo vo);
+
+	AccountingBookVo saveNotes(AccountingBookVo accountingBookVo);
+
+	AccountingBookVo update(AccountingBookVo vo);
+
+	String delete(Long accountBookingId);
+
+	List<AccountingBookVo> getNotes(AccountType accountType, Long storeId);
 
 }

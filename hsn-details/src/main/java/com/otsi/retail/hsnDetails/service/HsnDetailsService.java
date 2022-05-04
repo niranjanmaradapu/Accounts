@@ -27,6 +27,6 @@ public interface HsnDetailsService {
 
 	List<HsnDetailsVo> getHsnDetails();
 
-	/* double getTaxValue(Double netAmount); */
+	List<HsnDetailsVo> getAllHsnDetails(String hsnCode);
 
 }

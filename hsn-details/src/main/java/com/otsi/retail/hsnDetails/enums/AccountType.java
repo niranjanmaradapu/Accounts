@@ -1,25 +1,21 @@
-/*
- * enum for taxAppliesOn field
-*/
-
 package com.otsi.retail.hsnDetails.enums;
 
 /**
  * @author vasavi
  *
  */
-public enum TaxAppliesOn {
+public enum AccountType {
 
-	LISTEDPRICE(1, "listedPrice"), MRP(2, "mrp");
+	None(0L, "none"), CREDIT(1L, "credit"), DEBIT(2L, "debit");
 
-	private int id;
+	private Long id;
 	private String name;
 
 	/**
 	 * @param id
 	 * @param name
 	 */
-	private TaxAppliesOn(int id, String name) {
+	private AccountType(Long id, String name) {
 		this.id = id;
 		this.name = name;
 	}
@@ -27,14 +23,14 @@ public enum TaxAppliesOn {
 	/**
 	 * @return the id
 	 */
-	public int getId() {
+	public Long getId() {
 		return id;
 	}
 
 	/**
 	 * @param id the id to set
 	 */
-	public void setId(int id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

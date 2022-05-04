@@ -25,7 +25,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@ExceptionHandler(value = DuplicateRecordException.class)
 	public ResponseEntity<Object> handleDuplicateRecordException(DuplicateRecordException duplicateRecordException) {
-		ErrorResponse<?> error = new ErrorResponse<>(404, "Slab record already exists");
+		ErrorResponse<?> error = new ErrorResponse<>(404, "record already exists");
 		log.error("error response is:" + error);
 		return new ResponseEntity<Object>(error, HttpStatus.BAD_REQUEST);
 	}

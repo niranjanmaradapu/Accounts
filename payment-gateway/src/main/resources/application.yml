@@ -16,7 +16,7 @@ spring:
     password: DBA@123
   jpa:
    hibernate:
-    ddl-auto: upadate
+    ddl-auto: update
    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
    show-sql: true
 
