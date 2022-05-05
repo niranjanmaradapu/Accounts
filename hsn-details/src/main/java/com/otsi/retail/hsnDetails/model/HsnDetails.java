@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class HsnDetails implements Serializable {
+public class HsnDetails extends BaseEntity implements Serializable {
 
 	/**
 	 * @author vasavi

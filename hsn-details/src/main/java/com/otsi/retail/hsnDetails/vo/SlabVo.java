@@ -3,6 +3,8 @@
 */
 package com.otsi.retail.hsnDetails.vo;
 
+import java.time.LocalDateTime;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -22,6 +24,16 @@ public class SlabVo {
 	
 	@ApiModelProperty(value = "last price of the product", name = "priceTo",required = true)
 	private double priceTo;
+	
+	private Long createdBy;
+
+    private LocalDateTime createdDate;
+
+   
+    private Long modifiedBy;
+
+  
+    private LocalDateTime lastModifiedDate;
 	
 	@ApiModelProperty(value = "tax of the product", name = "taxVo",required = true)
 	private TaxVo taxVo;

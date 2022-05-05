@@ -99,6 +99,8 @@ public class AccountingBookMapper {
 		accountingBookVo.setStoreId(accountingBook.getStoreId());
 		accountingBookVo.setCreatedDate(accountingBook.getCreatedDate());
 		accountingBookVo.setLastModifiedDate(accountingBook.getLastModifiedDate());
+		accountingBookVo.setAccountType(accountingBook.getAccountType());
+		
 
 		List<LedgerLogBook> listLogBooks = accountingBook.getLedgerLogBooks();
 		List<LedgerLogBookVo> ledgerLogBooks = new ArrayList<>();
@@ -108,6 +110,9 @@ public class AccountingBookMapper {
 			ledgerLogBook.setTransactionType(AccountType.CREDIT);
 			ledgerLogBook.setStoreId(x.getStoreId());
 			ledgerLogBook.setCustomerId(x.getCustomerId());
+			ledgerLogBook.setStatus(x.getStatus());
+			ledgerLogBook.setPaymentType(x.getPaymentType());
+			BeanUtils.copyProperties(ledgerLogBook, x);
 			listLogBooks.add(ledgerLogBook);
 		});
 

@@ -9,6 +9,7 @@ import com.otsi.retail.hsnDetails.model.AccountingBook;
 import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
 import com.otsi.retail.hsnDetails.vo.AccountingBookVo;
 import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVo;
+import com.otsi.retail.hsnDetails.vo.SearchFilterVo;
 import com.otsi.retail.hsnDetails.vo.UpdateCreditRequest;
 
 @Service
@@ -39,5 +40,9 @@ public interface CreditDebitNotesService {
 	String delete(Long accountBookingId);
 
 	List<AccountingBookVo> getNotes(AccountType accountType, Long storeId);
+
+	List<AccountingBookVo> getAllNotes(SearchFilterVo searchFilterVo, AccountType accountType);
+
+	
 
 }

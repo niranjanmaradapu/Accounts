@@ -8,7 +8,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import com.otsi.retail.hsnDetails.enums.AccountStatus;
 import com.otsi.retail.hsnDetails.enums.AccountType;
+import com.otsi.retail.hsnDetails.enums.PaymentType;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,12 +23,12 @@ import lombok.NoArgsConstructor;
 @Data
 @Table(name = "ledger_log_book")
 public class LedgerLogBook extends BaseEntity {
-	
-    @Id
-    @GeneratedValue
+
+	@Id
+	@GeneratedValue
 	private Long ledgerLogBookid;
-    
-    @Enumerated(EnumType.STRING)
+
+	@Enumerated(EnumType.STRING)
 	private AccountType transactionType;
 
 	private String comments;
@@ -32,7 +36,13 @@ public class LedgerLogBook extends BaseEntity {
 	private Long storeId;
 
 	private Long customerId;
-	
+
+	@Enumerated(EnumType.STRING)
+	private AccountStatus status;
+
+	@Enumerated(EnumType.STRING)
+	private PaymentType paymentType;
+
 	@ManyToOne
 	@JoinColumn(name = "accountingBookId")
 	private AccountingBook accountingBook;

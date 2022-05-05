@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Tax implements Serializable {
+public class Tax extends BaseEntity implements Serializable {
 
 	/**
 	 * @author vasavi

@@ -11,8 +11,6 @@ import com.otsi.retail.hsnDetails.vo.TaxVo;
 @Service
 public interface TaxService {
 
-	String addNewTax(TaxVo taxvo);
-
 	String updateTax(TaxVo taxvo) throws RecordNotFoundException;
 
 	Optional<Tax> getTaxById(Long id);
@@ -21,6 +19,6 @@ public interface TaxService {
 
 	List<TaxVo> getTaxDetails();
 
-	
+	TaxVo saveTax(TaxVo taxvo);
 
 }

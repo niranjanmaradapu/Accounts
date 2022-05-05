@@ -3,7 +3,13 @@
  */
 package com.otsi.retail.hsnDetails.vo;
 
+import java.time.LocalDateTime;
 import java.util.List;
+
+import javax.persistence.Column;
+
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import com.otsi.retail.hsnDetails.enums.TaxAppliedType;
 
@@ -32,13 +38,23 @@ public class HsnDetailsVo {
 
 	@ApiModelProperty(value = "tax appliedType of the product", name = "taxAppliedType",required = true)
 	private TaxAppliedType taxAppliedType; 
+	
+	private Long createdBy;
 
+    private LocalDateTime createdDate;
+
+   
+    private Long modifiedBy;
+
+  
+    private LocalDateTime lastModifiedDate;
 
 	@ApiModelProperty(value = "tax of the product", name = "taxVo",required = true)
-	private TaxVo taxVo;
+	private Long taxId;
 
-	@ApiModelProperty(value = "slab ranges of the product", name = "slabVos",required = true)
-	private List<SlabVo> slabVos;
-
+	/*
+	 * @ApiModelProperty(value = "slab ranges of the product", name =
+	 * "slabVos",required = true) private List<SlabVo> slabVos;
+	 */
 	
 }

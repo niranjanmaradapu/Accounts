@@ -1,17 +1,33 @@
 package com.otsi.retail.hsnDetails.service;
 
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.otsi.retail.hsnDetails.config.Config;
+import com.otsi.retail.hsnDetails.enums.AccountStatus;
 import com.otsi.retail.hsnDetails.enums.AccountType;
 import com.otsi.retail.hsnDetails.exceptions.RecordNotFoundException;
+import com.otsi.retail.hsnDetails.gatewayresponse.GateWayResponse;
 import com.otsi.retail.hsnDetails.mapper.AccountingBookMapper;
 import com.otsi.retail.hsnDetails.mapper.CreditDebitNotesMapper;
 import com.otsi.retail.hsnDetails.mapper.LedgerLogBookMapper;
@@ -23,8 +39,11 @@ import com.otsi.retail.hsnDetails.repo.CreditDebitNotesRepo;
 import com.otsi.retail.hsnDetails.repo.LedgerLogBookRepo;
 import com.otsi.retail.hsnDetails.vo.AccountingBookVo;
 import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVo;
+import com.otsi.retail.hsnDetails.vo.GetUserRequestVo;
 import com.otsi.retail.hsnDetails.vo.LedgerLogBookVo;
+import com.otsi.retail.hsnDetails.vo.SearchFilterVo;
 import com.otsi.retail.hsnDetails.vo.UpdateCreditRequest;
+import com.otsi.retail.hsnDetails.vo.UserDetailsVo;
 
 @Component
 public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
@@ -48,6 +67,12 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 
 	@Autowired
 	private LedgerLogBookRepo ledgerLogBookRepo;
+
+	@Autowired
+	private RestTemplate restTemplate;
+
+	@Autowired
+	private Config config;
 
 	@Override
 	public String saveCreditDebitNotes(CreditDebitNotesVo creditDebitNotesVo) {
@@ -414,6 +439,35 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		return debitList;
 	}
 
+	public List<UserDetailsVo> getUserDetailsFromURM(@RequestParam String MobileNumber, @RequestParam Long UserId) {
+
+		// UserDetailsVo vo = new UserDetailsVo();
+		GetUserRequestVo uvo = new GetUserRequestVo();
+		uvo.setPhoneNo(MobileNumber);
+
+		uvo.setId(UserId);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<GetUserRequestVo> entity = new HttpEntity<>(uvo, headers);
+
+		ResponseEntity<?> returnSlipListResponse = restTemplate.exchange(config.getGetCustomerDetailsFromURM(),
+				HttpMethod.POST, entity, GateWayResponse.class);
+
+		ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule())
+				.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
+		GateWayResponse<?> gatewayResponse = mapper.convertValue(returnSlipListResponse.getBody(),
+				GateWayResponse.class);
+
+		List<UserDetailsVo> vo = mapper.convertValue(gatewayResponse.getResult(),
+				new TypeReference<List<UserDetailsVo>>() {
+				});
+
+		return vo;
+
+	}
+
 	@Override
 	public AccountingBookVo saveNotes(AccountingBookVo accountingBookVo) {
 		AccountingBook accountingBook = accountingBookMapper.voToEntity(accountingBookVo);
@@ -485,6 +539,73 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		}
 		accountingBookRepo.delete(accountingBookOpt.get());
 		return "";
+	}
+
+	@Override
+	public List<AccountingBookVo> getAllNotes(SearchFilterVo searchFilterVo, AccountType accountType) {
+		List<AccountingBook> accountingBooks = new ArrayList<>();
+
+		AccountStatus accountStatus = AccountStatus.ACTIVE;
+		
+		
+		/*
+		 * using dates and storeId
+		 */
+		if (searchFilterVo.getFromDate() != null && searchFilterVo.getToDate() != null
+				&& searchFilterVo.getStoreId() != null && searchFilterVo.getMobileNumber() == null) {
+
+			accountingBooks = accountingBookRepo
+					.findByCreatedDateBetweenAndStoreIdAndAccountTypeAndLedgerLogBooksStatusOrderByLastModifiedDateAsc(
+							searchFilterVo.getFromDate(), searchFilterVo.getToDate(), searchFilterVo.getStoreId(),
+							accountType, accountStatus);
+
+		}
+		/*
+		 * 
+		 * using dates and mobile number and storeId
+		 */
+		else if (searchFilterVo.getFromDate() != null && searchFilterVo.getToDate() != null
+				&& searchFilterVo.getMobileNumber() != null && searchFilterVo.getStoreId() != null) {
+			
+			List<UserDetailsVo> uvo = getUserDetailsFromURM(searchFilterVo.getMobileNumber(), 0L);
+		
+			if (uvo != null) {
+
+				List<Long> userIds = uvo.stream().map(x -> x.getUserId()).collect(Collectors.toList());
+			accountingBooks = accountingBookRepo
+					.findByCreatedDateBetweenAndCustomerIdInAndStoreIdAndAccountTypeAndLedgerLogBooksStatusOrderByLastModifiedDateAsc(
+							searchFilterVo.getFromDate(), searchFilterVo.getToDate(), userIds,
+							searchFilterVo.getStoreId(), accountType, accountStatus);
+			}
+		}
+
+		/*
+		 * using storeId
+		 */
+		else if (searchFilterVo.getFromDate() == null && searchFilterVo.getToDate() == null
+				&& searchFilterVo.getMobileNumber() == null && searchFilterVo.getStoreId() != null) {
+			accountingBooks = accountingBookRepo.findByStoreIdAndAccountTypeAndLedgerLogBooksStatus(
+					searchFilterVo.getStoreId(), accountType, accountStatus);
+		}
+		/*
+		 * using mobile number and storeId
+		 */
+		else if (searchFilterVo.getFromDate() == null && searchFilterVo.getToDate() == null
+				&& searchFilterVo.getMobileNumber() != null && searchFilterVo.getStoreId() != null) {
+			
+			List<UserDetailsVo> uvo = getUserDetailsFromURM(searchFilterVo.getMobileNumber(), 0L);
+			
+			if (uvo != null) {
+
+				List<Long> userIds = uvo.stream().map(x -> x.getUserId()).collect(Collectors.toList());
+			accountingBooks = accountingBookRepo.findByCustomerIdInAndStoreIdAndAccountTypeAndLedgerLogBooksStatus(
+					userIds, searchFilterVo.getStoreId(), accountType, accountStatus);
+
+			}
+		}
+
+		List<AccountingBookVo> notesList = accountingBookMapper.mapEntityToVo(accountingBooks);
+		return notesList;
 	}
 
 }

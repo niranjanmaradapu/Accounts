@@ -28,19 +28,15 @@ public class TaxServiceImpl implements TaxService {
 
 	// Method use: add new tax information
 	@Override
-	public String addNewTax(TaxVo taxvo) {
+	public TaxVo saveTax(TaxVo taxvo) {
 		if (taxvo.getCess() == 0 && taxvo.getCgst() == 0 && taxvo.getIgst() == 0 && taxvo.getIgst() == 0
 				|| taxvo.getTaxLabel() == null) {
 			throw new InvalidDataException("please give valid data");
 		}
-		log.debug("debugging hsnSave:" + taxvo);
+		log.debug("debugging saveTax:" + taxvo);
 		Tax tax = taxMapper.VoToEntity(taxvo);
-		Tax taxSave = taxRepo.save(tax);
-
-		log.warn("we are checking if tax is saved...");
-		log.info("tax details  saved successfully:" + taxSave);
-
-		return "tax details  saved successfully:" + taxSave;
+		taxvo=taxMapper.EntityToVo(taxRepo.save(tax));
+		return taxvo;
 
 	}
 

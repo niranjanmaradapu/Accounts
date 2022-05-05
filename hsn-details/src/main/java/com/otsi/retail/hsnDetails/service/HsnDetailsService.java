@@ -17,7 +17,7 @@ import com.otsi.retail.hsnDetails.vo.TaxVo;
 @Service
 public interface HsnDetailsService {
 
-	String hsnSave(HsnDetailsVo vo);
+	HsnDetailsVo hsnSave(HsnDetailsVo hsnDetailsVo, Long userId);
 
 	String hsnUpdate(HsnDetailsVo vo);
 

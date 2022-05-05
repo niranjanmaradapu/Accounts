@@ -33,4 +33,6 @@ public class AccountingBookVo extends BaseEntityVo {
 	private LocalDateTime lastModifiedDate;
 
 	private List<LedgerLogBookVo> ledgerLogBooks;
+	
+	private String customerName;
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +21,7 @@ import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
 import com.otsi.retail.hsnDetails.service.CreditDebitNotesService;
 import com.otsi.retail.hsnDetails.vo.AccountingBookVo;
 import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVo;
+import com.otsi.retail.hsnDetails.vo.SearchFilterVo;
 import com.otsi.retail.hsnDetails.vo.UpdateCreditRequest;
 
 import io.swagger.annotations.Api;
@@ -176,6 +178,17 @@ public class CreditDebitNotesController {
 		String deleteNotes = creditDebitNotesService.delete(accountBookingId);
 		return new GateWayResponse<>("notes deleted successfully", deleteNotes);
 
+	}
+	
+	
+	@ApiOperation(value = "getAllNotes", notes = "fetching all notes", response = CreditDebitNotesVo.class)
+	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
+			@ApiResponse(code = 200, message = "Successful retrieval", response = AccountingBookVo.class, responseContainer = "List") })
+	@PostMapping("/getAllNotes")
+	public GateWayResponse<?> getAllNotes(@RequestBody SearchFilterVo searchFilterVo,AccountType accountType) {
+		log.info("Recieved request to getAllNotes:" + searchFilterVo);
+		List<AccountingBookVo> allNotes = creditDebitNotesService.getAllNotes(searchFilterVo,accountType);
+		return new GateWayResponse<>("fetching all notes details sucessfully", allNotes);
 	}
 
 }
