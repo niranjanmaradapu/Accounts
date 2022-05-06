@@ -31,11 +31,14 @@ public class HsnDetailsMapper {
 		hsnDetailsVo.setDescription(hsnDetails.getDescription());
 		hsnDetailsVo.setTaxAppliedType(hsnDetails.getTaxAppliedType());
 		hsnDetailsVo.setTaxAppliesOn(hsnDetails.getTaxAppliesOn());
+		if(hsnDetailsVo.getTaxId()!=null) {
 		hsnDetailsVo.setTaxId(hsnDetails.getTax().getId());
+		}
 		hsnDetailsVo.setCreatedDate(hsnDetails.getCreatedDate());
 		hsnDetailsVo.setLastModifiedDate(hsnDetails.getLastModifiedDate());
 		hsnDetailsVo.setCreatedBy(hsnDetails.getCreatedBy());
 		hsnDetailsVo.setModifiedBy(hsnDetails.getModifiedBy());
+		hsnDetailsVo.setClientId(hsnDetails.getClientId());
 		return hsnDetailsVo;
 	}
 

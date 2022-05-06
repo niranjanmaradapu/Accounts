@@ -26,35 +26,33 @@ import lombok.Data;
 public class HsnDetailsVo {
 
 	private long id;
-	
-	@ApiModelProperty(value = "hsn code of the product", name = "hsnCode",required = true)
+
+	@ApiModelProperty(value = "hsn code of the product", name = "hsnCode", required = true)
 	private String hsnCode;
 
-	@ApiModelProperty(value = "goods/services of the product", name = "description",required = true)
+	@ApiModelProperty(value = "goods/services of the product", name = "description", required = true)
 	private String description;
 
-	@ApiModelProperty(value = "netPrice/rsp of the product", name = "taxAppliesOn",required = true)
+	@ApiModelProperty(value = "netPrice/rsp of the product", name = "taxAppliesOn", required = true)
 	private String taxAppliesOn;
 
-	@ApiModelProperty(value = "tax appliedType of the product", name = "taxAppliedType",required = true)
-	private TaxAppliedType taxAppliedType; 
-	
+	@ApiModelProperty(value = "tax appliedType of the product", name = "taxAppliedType", required = true)
+	private TaxAppliedType taxAppliedType;
+
 	private Long createdBy;
 
-    private LocalDateTime createdDate;
+	private LocalDateTime createdDate;
 
-   
-    private Long modifiedBy;
+	private Long modifiedBy;
 
-  
-    private LocalDateTime lastModifiedDate;
+	private Long clientId;
 
-	@ApiModelProperty(value = "tax of the product", name = "taxVo",required = true)
+	private LocalDateTime lastModifiedDate;
+
+	@ApiModelProperty(value = "tax of the product", name = "taxVo", required = true)
 	private Long taxId;
 
-	/*
-	 * @ApiModelProperty(value = "slab ranges of the product", name =
-	 * "slabVos",required = true) private List<SlabVo> slabVos;
-	 */
-	
+	@ApiModelProperty(value = "slab ranges of the product", name = "slabVos", required = true)
+	private List<SlabVo> slabs;
+
 }

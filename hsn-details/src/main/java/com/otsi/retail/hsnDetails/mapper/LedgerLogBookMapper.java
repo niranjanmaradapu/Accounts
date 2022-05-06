@@ -19,11 +19,11 @@ public class LedgerLogBookMapper {
 	public LedgerLogBook voToEntity(LedgerLogBookVo ledgerLogBookVo) {
 		LedgerLogBook ledgerLogBook = new LedgerLogBook();
 		ledgerLogBook.setCreatedBy(ledgerLogBookVo.getCreatedBy());
-		ledgerLogBook.setCreatedDate(ledgerLogBookVo.getCreatedDate());
-		ledgerLogBook.setLastModifiedDate(ledgerLogBookVo.getCreatedDate());
 		ledgerLogBook.setCustomerId(ledgerLogBookVo.getCustomerId());
 		ledgerLogBook.setStoreId(ledgerLogBookVo.getStoreId());
+		ledgerLogBook.setAmount(ledgerLogBookVo.getAmount());
 		ledgerLogBook.setTransactionType(ledgerLogBookVo.getTransactionType());
+		ledgerLogBook.setAccountType(ledgerLogBookVo.getAccountType());
 		ledgerLogBook.setModifiedBy(ledgerLogBookVo.getModifiedBy());
 		return ledgerLogBook;
 	}
@@ -39,7 +39,7 @@ public class LedgerLogBookMapper {
 
 	public LedgerLogBookVo entityToVo(LedgerLogBook ledgerLogBook) {
 		LedgerLogBookVo ledgerLogBookVo = new LedgerLogBookVo();
-		ledgerLogBookVo.setLedgerLogBookid(ledgerLogBook.getLedgerLogBookid());
+		ledgerLogBookVo.setLedgerLogBookId(ledgerLogBook.getLedgerLogBookId());
 		ledgerLogBookVo.setComments(ledgerLogBook.getComments());
 		ledgerLogBookVo.setCreatedBy(ledgerLogBook.getCreatedBy());
 		ledgerLogBookVo.setCreatedDate(ledgerLogBook.getCreatedDate());
@@ -48,6 +48,8 @@ public class LedgerLogBookMapper {
 		ledgerLogBookVo.setStoreId(ledgerLogBook.getStoreId());
 		ledgerLogBookVo.setTransactionType(ledgerLogBook.getTransactionType());
 		ledgerLogBookVo.setModifiedBy(ledgerLogBook.getModifiedBy());
+		ledgerLogBookVo.setAmount(ledgerLogBook.getAmount());
+		ledgerLogBookVo.setAccountingBookId(ledgerLogBook.getAccountingBookId());
 		return ledgerLogBookVo;
 
 	}
@@ -55,5 +57,19 @@ public class LedgerLogBookMapper {
 	public List<LedgerLogBookVo> entityToVo(List<LedgerLogBook> ledgerLogBooks) {
 		return ledgerLogBooks.stream().map(ledgerLogBook -> entityToVo(ledgerLogBook)).collect(Collectors.toList());
 	}
-
+	
+	public LedgerLogBook voToEntityUpdate(LedgerLogBook ledgerLogBook,LedgerLogBookVo ledgerLogBookVo) {
+		ledgerLogBook.setLedgerLogBookId(ledgerLogBookVo.getLedgerLogBookId());
+		ledgerLogBook.setCreatedBy(ledgerLogBookVo.getCreatedBy());
+		ledgerLogBook.setCreatedDate(ledgerLogBookVo.getCreatedDate());
+		ledgerLogBook.setLastModifiedDate(ledgerLogBookVo.getCreatedDate());
+		ledgerLogBook.setCustomerId(ledgerLogBookVo.getCustomerId());
+		ledgerLogBook.setStoreId(ledgerLogBookVo.getStoreId());
+		ledgerLogBook.setAmount(ledgerLogBookVo.getAmount());
+		ledgerLogBook.setTransactionType(ledgerLogBookVo.getTransactionType());
+		ledgerLogBook.setAccountType(ledgerLogBookVo.getAccountType());
+		ledgerLogBook.setModifiedBy(ledgerLogBookVo.getModifiedBy());
+		ledgerLogBook.setAccountingBookId(ledgerLogBookVo.getAccountingBookId());
+		return ledgerLogBook;
+	}
 }

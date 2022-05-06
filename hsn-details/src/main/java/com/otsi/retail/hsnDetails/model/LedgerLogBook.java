@@ -5,8 +5,6 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.otsi.retail.hsnDetails.enums.AccountStatus;
@@ -26,12 +24,17 @@ public class LedgerLogBook extends BaseEntity {
 
 	@Id
 	@GeneratedValue
-	private Long ledgerLogBookid;
+	private Long ledgerLogBookId;
 
 	@Enumerated(EnumType.STRING)
 	private AccountType transactionType;
+	
+	@Enumerated(EnumType.STRING)
+	private AccountType accountType;
 
 	private String comments;
+	
+	private Long amount;
 
 	private Long storeId;
 
@@ -43,8 +46,6 @@ public class LedgerLogBook extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private PaymentType paymentType;
 
-	@ManyToOne
-	@JoinColumn(name = "accountingBookId")
-	private AccountingBook accountingBook;
+	private Long accountingBookId;
 
 }

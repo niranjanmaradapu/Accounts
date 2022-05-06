@@ -47,6 +47,8 @@ public class HsnDetails extends BaseEntity implements Serializable {
 	@Column(name = "taxAppliedType")
 	@Enumerated(EnumType.STRING)
 	private TaxAppliedType taxAppliedType; 
+	@Column(name = "clientId")
+	private Long clientId;
 	@JoinColumn(name = "tax_id")
 	@OneToOne(cascade = { CascadeType.MERGE, CascadeType.REFRESH })
 	private Tax tax;

@@ -8,17 +8,21 @@ import lombok.Data;
 @Data
 public class LedgerLogBookVo extends BaseEntityVo {
 
-	private Long ledgerLogBookid;
+	private Long ledgerLogBookId;
 
 	private AccountType transactionType;
+	
+	private AccountType accountType;
 
 	private String comments;
 
 	private Long storeId;
 
 	private Long customerId;
+	
+	private Long amount;
 
-	private AccountingBookVo accountingBook;
+	private Long accountingBookId;
 
 	private AccountStatus status;
 

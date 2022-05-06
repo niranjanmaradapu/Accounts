@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import com.otsi.retail.hsnDetails.enums.TaxAppliedType;
 import com.otsi.retail.hsnDetails.model.HsnDetails;
 
 /**
@@ -22,5 +23,9 @@ public interface HsnDetailsRepo extends JpaRepository<HsnDetails, Long> {
 	List<HsnDetails> findByHsnCode(String hsnCode);
 
 	boolean existsByHsnCode(String hsnCode);
+
+	List<HsnDetails> findByDescription(String description);
+
+	List<HsnDetails> findByTaxAppliedType(TaxAppliedType taxAppliedType);
 
 }

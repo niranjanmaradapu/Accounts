@@ -1,8 +1,9 @@
 package com.otsi.retail.hsnDetails.vo;
 
 import java.time.LocalDateTime;
-import java.util.List;
+
 import com.otsi.retail.hsnDetails.enums.AccountType;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,8 +32,6 @@ public class AccountingBookVo extends BaseEntityVo {
 	private Long modifiedBy;
 
 	private LocalDateTime lastModifiedDate;
-
-	private List<LedgerLogBookVo> ledgerLogBooks;
 	
 	private String customerName;
 }

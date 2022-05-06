@@ -57,20 +57,6 @@ public class AccountingBookMapper {
 		accountingBookVo.setStoreId(accountingBook.getStoreId());
 		accountingBookVo.setCreatedDate(accountingBook.getCreatedDate());
 		accountingBookVo.setLastModifiedDate(accountingBook.getLastModifiedDate());
-
-		List<LedgerLogBook> listLogBooks = accountingBook.getLedgerLogBooks();
-		List<LedgerLogBookVo> ledgerLogBooks = new ArrayList<>();
-		ledgerLogBooks.forEach(x -> {
-			LedgerLogBook ledgerLogBook = new LedgerLogBook();
-			ledgerLogBook.setLedgerLogBookid(x.getLedgerLogBookid());
-			ledgerLogBook.setTransactionType(AccountType.CREDIT);
-			ledgerLogBook.setStoreId(x.getStoreId());
-			ledgerLogBook.setCustomerId(x.getCustomerId());
-			listLogBooks.add(ledgerLogBook);
-		});
-
-	 
-		
 		return accountingBookVo;
 
 	}
@@ -87,41 +73,5 @@ public class AccountingBookMapper {
 		accountingBook.setAccountType(accountingBookVo.getAccountType());
 		accountingBook.setStoreId(accountingBookVo.getStoreId());
 		return accountingBook;
-	}
-
-	
-	public AccountingBookVo mapEntityToVo(AccountingBook accountingBook) {
-		AccountingBookVo accountingBookVo = new AccountingBookVo();
-		accountingBookVo.setAccountingBookId(accountingBook.getAccountingBookId());
-		accountingBookVo.setCustomerId(accountingBook.getCustomerId());
-		accountingBookVo.setAmount(accountingBook.getAmount());
-		accountingBookVo.setAccountType(accountingBook.getAccountType());
-		accountingBookVo.setStoreId(accountingBook.getStoreId());
-		accountingBookVo.setCreatedDate(accountingBook.getCreatedDate());
-		accountingBookVo.setLastModifiedDate(accountingBook.getLastModifiedDate());
-		accountingBookVo.setAccountType(accountingBook.getAccountType());
-		
-
-		List<LedgerLogBook> listLogBooks = accountingBook.getLedgerLogBooks();
-		List<LedgerLogBookVo> ledgerLogBooks = new ArrayList<>();
-		ledgerLogBooks.forEach(x -> {
-			LedgerLogBook ledgerLogBook = new LedgerLogBook();
-			ledgerLogBook.setLedgerLogBookid(x.getLedgerLogBookid());
-			ledgerLogBook.setTransactionType(AccountType.CREDIT);
-			ledgerLogBook.setStoreId(x.getStoreId());
-			ledgerLogBook.setCustomerId(x.getCustomerId());
-			ledgerLogBook.setStatus(x.getStatus());
-			ledgerLogBook.setPaymentType(x.getPaymentType());
-			BeanUtils.copyProperties(ledgerLogBook, x);
-			listLogBooks.add(ledgerLogBook);
-		});
-
-	   accountingBookVo.setLedgerLogBooks(ledgerLogBookMapper.entityToVo(accountingBook.getLedgerLogBooks()));
-		return accountingBookVo;
-
-	}
-
-	public List<AccountingBookVo> mapEntityToVo(List<AccountingBook> accountingBooks) {
-		return accountingBooks.stream().map(accountingBook -> mapEntityToVo(accountingBook)).collect(Collectors.toList());
 	}
 }

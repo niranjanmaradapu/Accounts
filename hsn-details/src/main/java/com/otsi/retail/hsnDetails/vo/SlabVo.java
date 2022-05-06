@@ -36,6 +36,6 @@ public class SlabVo {
     private LocalDateTime lastModifiedDate;
 	
 	@ApiModelProperty(value = "tax of the product", name = "taxVo",required = true)
-	private TaxVo taxVo;
+	private Long taxId;
 
 }

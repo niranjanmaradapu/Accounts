@@ -9,6 +9,7 @@ import com.otsi.retail.hsnDetails.model.AccountingBook;
 import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
 import com.otsi.retail.hsnDetails.vo.AccountingBookVo;
 import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVo;
+import com.otsi.retail.hsnDetails.vo.LedgerLogBookVo;
 import com.otsi.retail.hsnDetails.vo.SearchFilterVo;
 import com.otsi.retail.hsnDetails.vo.UpdateCreditRequest;
 
@@ -33,15 +34,17 @@ public interface CreditDebitNotesService {
 
 	String updateNotes(CreditDebitNotesVo vo);
 
-	AccountingBookVo saveNotes(AccountingBookVo accountingBookVo);
-
-	AccountingBookVo update(AccountingBookVo vo);
-
-	String delete(Long accountBookingId);
+	LedgerLogBookVo saveNotes(LedgerLogBookVo ledgerLogBookVo);
 
 	List<AccountingBookVo> getNotes(AccountType accountType, Long storeId);
 
+	LedgerLogBookVo update(LedgerLogBookVo ledgerLogBookVo);
+
 	List<AccountingBookVo> getAllNotes(SearchFilterVo searchFilterVo, AccountType accountType);
+
+	List<LedgerLogBookVo> getAllLedgerLogs(SearchFilterVo searchFilterVo, AccountType accountType);
+
+	//List<AccountingBookVo> getAllNotes(SearchFilterVo searchFilterVo, AccountType accountType);
 
 	
 

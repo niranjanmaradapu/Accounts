@@ -81,12 +81,17 @@ public class TaxServiceImpl implements TaxService {
 	 * get functionality for tax_details
 	 */
 	@Override
-	public List<TaxVo> getTaxDetails() {
+	public List<TaxVo> getTaxDetails(String taxLabel) {
 		log.debug("debugging getTaxDetails()");
 		List<Tax> taxs = new ArrayList<>();
 		List<TaxVo> VOList = new ArrayList<>();
+		if(taxLabel != null) {
+		taxs=taxRepo.findByTaxLabel(taxLabel);
+		}
+		else {
 		// here,will find all tax's through taxRepo
 		taxs = taxRepo.findAll();
+		}
 		// here,will map and assign to VOList and return voList
 		VOList = taxMapper.EntityToVo(taxs);
 		log.warn("we are checking if tax details is fetching...");

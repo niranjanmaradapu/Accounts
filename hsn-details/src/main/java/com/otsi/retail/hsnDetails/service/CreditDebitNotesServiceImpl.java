@@ -1,7 +1,7 @@
 package com.otsi.retail.hsnDetails.service;
 
-import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.otsi.retail.hsnDetails.config.Config;
-import com.otsi.retail.hsnDetails.enums.AccountStatus;
 import com.otsi.retail.hsnDetails.enums.AccountType;
 import com.otsi.retail.hsnDetails.exceptions.RecordNotFoundException;
 import com.otsi.retail.hsnDetails.gatewayresponse.GateWayResponse;
@@ -37,6 +36,7 @@ import com.otsi.retail.hsnDetails.model.LedgerLogBook;
 import com.otsi.retail.hsnDetails.repo.AccountingBookRepo;
 import com.otsi.retail.hsnDetails.repo.CreditDebitNotesRepo;
 import com.otsi.retail.hsnDetails.repo.LedgerLogBookRepo;
+import com.otsi.retail.hsnDetails.util.DateConverters;
 import com.otsi.retail.hsnDetails.vo.AccountingBookVo;
 import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVo;
 import com.otsi.retail.hsnDetails.vo.GetUserRequestVo;
@@ -469,24 +469,25 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 	}
 
 	@Override
-	public AccountingBookVo saveNotes(AccountingBookVo accountingBookVo) {
-		AccountingBook accountingBook = accountingBookMapper.voToEntity(accountingBookVo);
-		AccountingBook accountingBookSave = accountingBookRepo.save(accountingBook);
-		List<LedgerLogBook> listLogBooks = new ArrayList<>();
-		List<LedgerLogBookVo> ledgerLogBooks = accountingBookVo.getLedgerLogBooks();
-		if (accountingBookVo.getLedgerLogBooks() != null) {
-			ledgerLogBooks.forEach(x -> {
-				LedgerLogBook ledgerLogBook = new LedgerLogBook();
-				ledgerLogBook.setTransactionType(AccountType.CREDIT);
-				ledgerLogBook.setStoreId(x.getStoreId());
-				ledgerLogBook.setCustomerId(x.getCustomerId());
-				ledgerLogBook.setAccountingBook(accountingBookSave);
-				listLogBooks.add(ledgerLogBookRepo.save(ledgerLogBook));
-			});
+	public LedgerLogBookVo saveNotes(LedgerLogBookVo ledgerLogBookVo) {
+		AccountingBook accountingBookCustomer = accountingBookRepo.findByCustomerIdAndStoreIdAndAccountType(
+				ledgerLogBookVo.getCustomerId(), ledgerLogBookVo.getStoreId(), ledgerLogBookVo.getAccountType());
+		LedgerLogBook ledgerLogBook = ledgerLogBookMapper.voToEntity(ledgerLogBookVo);
+		if (accountingBookCustomer != null) {
+			accountingBookCustomer.setAmount(accountingBookCustomer.getAmount() + ledgerLogBookVo.getAmount());
+			accountingBookRepo.save(accountingBookCustomer);
+		} else {
+			AccountingBook accountingBook = new AccountingBook();
+			accountingBook.setAmount(ledgerLogBookVo.getAmount());
+			accountingBook.setAccountType(ledgerLogBookVo.getAccountType());
+			accountingBook.setCustomerId(ledgerLogBookVo.getCustomerId());
+			accountingBook.setStoreId(ledgerLogBookVo.getStoreId());
+			AccountingBook accountingBookSave = accountingBookRepo.save(accountingBook);
+			ledgerLogBook.setAccountingBookId(accountingBookSave.getAccountingBookId());
 		}
-		accountingBookVo = accountingBookMapper.entityToVo(accountingBookSave);
-		accountingBookVo.setLedgerLogBooks(ledgerLogBookMapper.entityToVo(listLogBooks));
-		return accountingBookVo;
+		LedgerLogBook ledgerLogBookSave = ledgerLogBookRepo.save(ledgerLogBook);
+		ledgerLogBookVo = ledgerLogBookMapper.entityToVo(ledgerLogBookSave);
+		return ledgerLogBookVo;
 	}
 
 	@Override
@@ -496,116 +497,162 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 			log.error("accounting book id  is Not Found:" + accountingBookOpt);
 			throw new RecordNotFoundException("accounting book id  is Not Found:" + accountingBookOpt);
 		}
-		List<AccountingBookVo> accountingBookVos = accountingBookMapper.mapEntityToVo(accountingBookOpt);
+		List<AccountingBookVo> accountingBookVos = accountingBookMapper.entityToVo(accountingBookOpt);
 		return accountingBookVos;
 	}
 
-	@Override
-	public AccountingBookVo update(AccountingBookVo accountingBookVo) {
-		Optional<AccountingBook> accountingBookOpt = accountingBookRepo
-				.findByAccountingBookId(accountingBookVo.getAccountingBookId());
-		if (!accountingBookOpt.isPresent()) {
-			log.error("accounting book id  is Not Found:" + accountingBookOpt);
-			throw new RecordNotFoundException("accounting book id  is Not Found:" + accountingBookOpt);
-		}
-
-		AccountingBook accountingBook = accountingBookMapper.voToEntityUpdate(accountingBookVo);
-		AccountingBook accountingBookSave = accountingBookRepo.save(accountingBook);
-		List<LedgerLogBook> listLogBooks = new ArrayList<>();
-		List<LedgerLogBookVo> ledgerLogBooks = accountingBookVo.getLedgerLogBooks();
-		if (accountingBookVo.getLedgerLogBooks() != null) {
-			ledgerLogBooks.forEach(ledgerBookVo -> {
-				LedgerLogBook ledgerLogBook = new LedgerLogBook();
-				ledgerLogBook.setLedgerLogBookid(ledgerBookVo.getLedgerLogBookid());
-				ledgerLogBook.setTransactionType(AccountType.CREDIT);
-				ledgerLogBook.setStoreId(ledgerBookVo.getStoreId());
-				ledgerLogBook.setCustomerId(ledgerBookVo.getCustomerId());
-				ledgerLogBook.setAccountingBook(accountingBookSave);
-				listLogBooks.add(ledgerLogBookRepo.save(ledgerLogBook));
-			});
-		}
-		accountingBook.setLedgerLogBooks(listLogBooks);
-		accountingBookVo = accountingBookMapper.entityToVo(accountingBookSave);
-		accountingBookVo.setLedgerLogBooks(ledgerLogBookMapper.entityToVo(listLogBooks));
-		return accountingBookVo;
-	}
+	/*
+	 * @Override public String delete(Long accountingBookId) {
+	 * Optional<AccountingBook> accountingBookOpt =
+	 * accountingBookRepo.findByAccountingBookId(accountingBookId); if
+	 * (!(accountingBookOpt.isPresent())) {
+	 * log.error("accounting book id  is Not Found:" + accountingBookOpt); throw new
+	 * RecordNotFoundException("accounting book id  is Not Found:" +
+	 * accountingBookOpt); } accountingBookRepo.delete(accountingBookOpt.get());
+	 * return ""; }
+	 */
 
 	@Override
-	public String delete(Long accountingBookId) {
-		Optional<AccountingBook> accountingBookOpt = accountingBookRepo.findByAccountingBookId(accountingBookId);
-		if (!(accountingBookOpt.isPresent())) {
-			log.error("accounting book id  is Not Found:" + accountingBookOpt);
-			throw new RecordNotFoundException("accounting book id  is Not Found:" + accountingBookOpt);
+	public LedgerLogBookVo update(LedgerLogBookVo ledgerLogBookVo) {
+
+		LedgerLogBook ledBook = ledgerLogBookRepo.findByLedgerLogBookId(ledgerLogBookVo.getLedgerLogBookId());
+		if (ledBook == null) {
+			throw new RecordNotFoundException("record not found with id:" + ledgerLogBookVo.getLedgerLogBookId());
 		}
-		accountingBookRepo.delete(accountingBookOpt.get());
-		return "";
+		AccountingBook accountingBookCustomer = accountingBookRepo.findByCustomerIdAndStoreIdAndAccountType(
+				ledgerLogBookVo.getCustomerId(), ledgerLogBookVo.getStoreId(), ledgerLogBookVo.getAccountType());
+		LedgerLogBook ledgerLogBook = ledgerLogBookMapper.voToEntityUpdate(ledBook, ledgerLogBookVo);
+		LedgerLogBook ledgerLogBookSave = ledgerLogBookRepo.save(ledgerLogBook);
+		if (accountingBookCustomer != null) {
+			accountingBookCustomer.setAmount(ledgerLogBookVo.getAmount());
+			accountingBookRepo.save(accountingBookCustomer);
+		} else {
+			AccountingBook accountingBook = new AccountingBook();
+			accountingBook.setAccountingBookId(ledgerLogBookSave.getAccountingBookId());
+			accountingBook.setAmount(ledgerLogBookVo.getAmount());
+			accountingBook.setAccountType(ledgerLogBookVo.getAccountType());
+			accountingBook.setCustomerId(ledgerLogBookVo.getCustomerId());
+			accountingBook.setStoreId(ledgerLogBookVo.getStoreId());
+			AccountingBook accountingBookSave = accountingBookRepo.save(accountingBook);
+			ledgerLogBook.setAccountingBookId(accountingBookSave.getAccountingBookId());
+		}
+
+		ledgerLogBookVo = ledgerLogBookMapper.entityToVo(ledgerLogBookSave);
+		return ledgerLogBookVo;
 	}
 
 	@Override
 	public List<AccountingBookVo> getAllNotes(SearchFilterVo searchFilterVo, AccountType accountType) {
 		List<AccountingBook> accountingBooks = new ArrayList<>();
+		/*
+		 * using from date and storeId
+		 */
+		if (searchFilterVo.getFromDate() != null && searchFilterVo.getToDate() == null
+				&& searchFilterVo.getStoreId() != null && searchFilterVo.getMobileNumber() == null) {
+			LocalDateTime fromTime = DateConverters.convertLocalDateToLocalDateTime(searchFilterVo.getFromDate());
+			LocalDateTime fromTime1 = DateConverters.convertToLocalDateTimeMax(searchFilterVo.getFromDate());
+			accountingBooks = accountingBookRepo.findByCreatedDateBetweenAndStoreIdAndAccountType(fromTime, fromTime1,
+					searchFilterVo.getStoreId(), accountType);
 
-		AccountStatus accountStatus = AccountStatus.ACTIVE;
-		
-		
+		}
+
 		/*
 		 * using dates and storeId
 		 */
-		if (searchFilterVo.getFromDate() != null && searchFilterVo.getToDate() != null
+		else if (searchFilterVo.getFromDate() != null && searchFilterVo.getToDate() != null
 				&& searchFilterVo.getStoreId() != null && searchFilterVo.getMobileNumber() == null) {
-
+			LocalDateTime fromTime = DateConverters.convertLocalDateToLocalDateTime(searchFilterVo.getFromDate());
+			LocalDateTime toTime = DateConverters.convertToLocalDateTimeMax(searchFilterVo.getToDate());
 			accountingBooks = accountingBookRepo
-					.findByCreatedDateBetweenAndStoreIdAndAccountTypeAndLedgerLogBooksStatusOrderByLastModifiedDateAsc(
-							searchFilterVo.getFromDate(), searchFilterVo.getToDate(), searchFilterVo.getStoreId(),
-							accountType, accountStatus);
+					.findByCreatedDateBetweenAndStoreIdAndAccountTypeOrderByLastModifiedDateAsc(fromTime, toTime,
+							searchFilterVo.getStoreId(), accountType);
 
 		}
+
 		/*
-		 * 
 		 * using dates and mobile number and storeId
 		 */
+
 		else if (searchFilterVo.getFromDate() != null && searchFilterVo.getToDate() != null
 				&& searchFilterVo.getMobileNumber() != null && searchFilterVo.getStoreId() != null) {
-			
-			List<UserDetailsVo> uvo = getUserDetailsFromURM(searchFilterVo.getMobileNumber(), 0L);
-		
-			if (uvo != null) {
 
+			List<UserDetailsVo> uvo = getUserDetailsFromURM(searchFilterVo.getMobileNumber(), 0L);
+			if (uvo != null) {
 				List<Long> userIds = uvo.stream().map(x -> x.getUserId()).collect(Collectors.toList());
-			accountingBooks = accountingBookRepo
-					.findByCreatedDateBetweenAndCustomerIdInAndStoreIdAndAccountTypeAndLedgerLogBooksStatusOrderByLastModifiedDateAsc(
-							searchFilterVo.getFromDate(), searchFilterVo.getToDate(), userIds,
-							searchFilterVo.getStoreId(), accountType, accountStatus);
+				LocalDateTime fromTime = DateConverters.convertLocalDateToLocalDateTime(searchFilterVo.getFromDate());
+				LocalDateTime toTime = DateConverters.convertToLocalDateTimeMax(searchFilterVo.getToDate());
+				accountingBooks = accountingBookRepo
+						.findByCreatedDateBetweenAndCustomerIdInAndStoreIdAndAccountTypeOrderByLastModifiedDateAsc(
+								fromTime, toTime, userIds, searchFilterVo.getStoreId(), accountType);
 			}
 		}
 
 		/*
 		 * using storeId
 		 */
+
 		else if (searchFilterVo.getFromDate() == null && searchFilterVo.getToDate() == null
 				&& searchFilterVo.getMobileNumber() == null && searchFilterVo.getStoreId() != null) {
-			accountingBooks = accountingBookRepo.findByStoreIdAndAccountTypeAndLedgerLogBooksStatus(
-					searchFilterVo.getStoreId(), accountType, accountStatus);
+			accountingBooks = accountingBookRepo.findByStoreIdAndAccountType(searchFilterVo.getStoreId(), accountType);
 		}
+
 		/*
 		 * using mobile number and storeId
 		 */
+
 		else if (searchFilterVo.getFromDate() == null && searchFilterVo.getToDate() == null
 				&& searchFilterVo.getMobileNumber() != null && searchFilterVo.getStoreId() != null) {
-			
+
 			List<UserDetailsVo> uvo = getUserDetailsFromURM(searchFilterVo.getMobileNumber(), 0L);
-			
 			if (uvo != null) {
-
 				List<Long> userIds = uvo.stream().map(x -> x.getUserId()).collect(Collectors.toList());
-			accountingBooks = accountingBookRepo.findByCustomerIdInAndStoreIdAndAccountTypeAndLedgerLogBooksStatus(
-					userIds, searchFilterVo.getStoreId(), accountType, accountStatus);
-
+				accountingBooks = accountingBookRepo.findByCustomerIdInAndStoreIdAndAccountType(userIds,
+						searchFilterVo.getStoreId(), accountType);
 			}
 		}
 
-		List<AccountingBookVo> notesList = accountingBookMapper.mapEntityToVo(accountingBooks);
+		List<AccountingBookVo> notesList = accountingBookMapper.entityToVo(accountingBooks);
 		return notesList;
+	}
+
+	@Override
+	public List<LedgerLogBookVo> getAllLedgerLogs(SearchFilterVo searchFilterVo, AccountType accountType) {
+
+		List<LedgerLogBook> ledgerLogs = new ArrayList<>();
+		/*
+		 * using from date and storeId
+		 */
+		if (searchFilterVo.getFromDate() != null && searchFilterVo.getToDate() == null
+				&& searchFilterVo.getStoreId() != null && searchFilterVo.getMobileNumber() == null) {
+			LocalDateTime fromTime = DateConverters.convertLocalDateToLocalDateTime(searchFilterVo.getFromDate());
+			LocalDateTime fromTime1 = DateConverters.convertToLocalDateTimeMax(searchFilterVo.getFromDate());
+			ledgerLogs = ledgerLogBookRepo.findByCreatedDateBetweenAndStoreIdAndAccountType(fromTime, fromTime1,
+					searchFilterVo.getStoreId(), accountType);
+
+		}
+
+		/*
+		 * using dates and storeId
+		 */
+		else if (searchFilterVo.getFromDate() != null && searchFilterVo.getToDate() != null
+				&& searchFilterVo.getStoreId() != null && searchFilterVo.getMobileNumber() == null) {
+			LocalDateTime fromTime = DateConverters.convertLocalDateToLocalDateTime(searchFilterVo.getFromDate());
+			LocalDateTime toTime = DateConverters.convertToLocalDateTimeMax(searchFilterVo.getToDate());
+			ledgerLogs = ledgerLogBookRepo.findByCreatedDateBetweenAndStoreIdAndAccountTypeOrderByLastModifiedDateAsc(
+					fromTime, toTime, searchFilterVo.getStoreId(), accountType);
+
+		}
+		/*
+		 * using storeId
+		 */
+
+		else if (searchFilterVo.getFromDate() == null && searchFilterVo.getToDate() == null
+				&& searchFilterVo.getMobileNumber() == null && searchFilterVo.getStoreId() != null) {
+			ledgerLogs = ledgerLogBookRepo.findByStoreIdAndAccountType(searchFilterVo.getStoreId(), accountType);
+		}
+
+		List<LedgerLogBookVo> ledgerList = ledgerLogBookMapper.entityToVo(ledgerLogs);
+		return ledgerList;
 	}
 
 }

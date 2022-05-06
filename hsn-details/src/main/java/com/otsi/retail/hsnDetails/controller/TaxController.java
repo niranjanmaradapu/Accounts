@@ -1,4 +1,5 @@
 package com.otsi.retail.hsnDetails.controller;
+
 /*  
  * controller for addNewTax And updateTax
 */
@@ -42,8 +43,7 @@ public class TaxController {
 	 */
 	@ApiOperation(value = "", notes = "adding tax details", response = TaxVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", 
-			response = TaxVo.class, responseContainer = "String") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = TaxVo.class, responseContainer = "String") })
 	@PostMapping(value = "/addnewtax")
 	public ResponseEntity<?> saveTax(@RequestBody TaxVo taxvo) {
 		log.info("Recieved request to AddNewTax()");
@@ -53,8 +53,7 @@ public class TaxController {
 
 	@ApiOperation(value = "getTax", notes = "fetching tax details using id", response = TaxVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", 
-			response = TaxVo.class, responseContainer = "Object") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = TaxVo.class, responseContainer = "Object") })
 	@GetMapping("/getTax")
 	public GateWayResponse<?> getTax(@RequestParam("id") Long id) {
 		log.info("Recieved request to getTax:" + id);
@@ -68,12 +67,11 @@ public class TaxController {
 
 	@ApiOperation(value = "getTaxDetails", notes = "fetching all tax details", response = TaxVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", 
-			response = TaxVo.class, responseContainer = "List") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = TaxVo.class, responseContainer = "List") })
 	@GetMapping("/getTaxDetails")
-	public GateWayResponse<?> getTaxDetails() {
-		log.info("Received Request to get TaxDetails");
-		List<TaxVo> tax = taxService.getTaxDetails();
+	public GateWayResponse<?> getTaxDetails(@RequestParam(required = false) String taxLabel) {
+		log.info("Received Request to get TaxDetails:"+taxLabel);
+		List<TaxVo> tax = taxService.getTaxDetails(taxLabel);
 		return new GateWayResponse<>("fetching tax details successfully", tax);
 
 	}
@@ -83,8 +81,7 @@ public class TaxController {
 	 */
 	@ApiOperation(value = "updatetax", notes = "updating tax details", response = TaxVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", 
-			response = TaxVo.class, responseContainer = "String") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = TaxVo.class, responseContainer = "String") })
 	@PutMapping(value = "/updatetax")
 	public GateWayResponse<?> updateExistingTax(@RequestBody TaxVo taxvo) throws RecordNotFoundException {
 		log.info("Recieved request to updateExistingTax()");
@@ -95,8 +92,7 @@ public class TaxController {
 
 	@ApiOperation(value = "deleteTax", notes = "deleting tax details", response = TaxVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", 
-			response = TaxVo.class, responseContainer = "String") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = TaxVo.class, responseContainer = "String") })
 	@DeleteMapping("/deleteTax")
 	public GateWayResponse<?> deleteTax(@RequestParam("id") Long id) throws Exception {
 		log.info("Recieved request to deleteTax:" + id);
