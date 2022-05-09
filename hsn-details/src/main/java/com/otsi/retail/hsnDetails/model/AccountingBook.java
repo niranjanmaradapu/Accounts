@@ -30,5 +30,7 @@ public class AccountingBook extends BaseEntity {
 
 	@Enumerated(EnumType.STRING)
 	private AccountType accountType;
+	
+	private Long usedAmount;
 
 }

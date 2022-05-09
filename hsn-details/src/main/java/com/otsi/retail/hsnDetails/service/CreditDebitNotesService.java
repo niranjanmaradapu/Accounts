@@ -1,11 +1,13 @@
 package com.otsi.retail.hsnDetails.service;
 
 import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.otsi.retail.hsnDetails.enums.AccountType;
 import com.otsi.retail.hsnDetails.exceptions.DataNotFoundException;
-import com.otsi.retail.hsnDetails.model.AccountingBook;
 import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
 import com.otsi.retail.hsnDetails.vo.AccountingBookVo;
 import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVo;
@@ -40,9 +42,9 @@ public interface CreditDebitNotesService {
 
 	LedgerLogBookVo update(LedgerLogBookVo ledgerLogBookVo);
 
-	List<AccountingBookVo> getAllNotes(SearchFilterVo searchFilterVo, AccountType accountType);
+	Page<AccountingBookVo> getAllNotes(SearchFilterVo searchFilterVo, Pageable pageable);
 
-	List<LedgerLogBookVo> getAllLedgerLogs(SearchFilterVo searchFilterVo, AccountType accountType);
+	Page<LedgerLogBookVo> getAllLedgerLogs(SearchFilterVo searchFilterVo , Pageable page);
 
 	//List<AccountingBookVo> getAllNotes(SearchFilterVo searchFilterVo, AccountType accountType);
 

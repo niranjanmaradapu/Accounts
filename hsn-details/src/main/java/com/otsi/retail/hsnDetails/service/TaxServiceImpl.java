@@ -16,6 +16,10 @@ import com.otsi.retail.hsnDetails.model.Tax;
 import com.otsi.retail.hsnDetails.repo.TaxRepo;
 import com.otsi.retail.hsnDetails.vo.TaxVo;
 
+/**
+ * @author vasavi
+ *
+ */
 @Component
 public class TaxServiceImpl implements TaxService {
 

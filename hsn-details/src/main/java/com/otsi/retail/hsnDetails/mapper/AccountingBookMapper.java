@@ -57,6 +57,7 @@ public class AccountingBookMapper {
 		accountingBookVo.setStoreId(accountingBook.getStoreId());
 		accountingBookVo.setCreatedDate(accountingBook.getCreatedDate());
 		accountingBookVo.setLastModifiedDate(accountingBook.getLastModifiedDate());
+		accountingBookVo.setUsedAmount(accountingBook.getUsedAmount());
 		return accountingBookVo;
 
 	}

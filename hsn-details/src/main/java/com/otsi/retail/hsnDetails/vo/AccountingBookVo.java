@@ -34,4 +34,6 @@ public class AccountingBookVo extends BaseEntityVo {
 	private LocalDateTime lastModifiedDate;
 	
 	private String customerName;
+	
+	private Long usedAmount;
 }

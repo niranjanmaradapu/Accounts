@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
+
+import com.otsi.retail.hsnDetails.enums.TaxAppliedType;
 import com.otsi.retail.hsnDetails.model.HsnDetails;
 import com.otsi.retail.hsnDetails.vo.HsnDetailsVo;
 
@@ -32,8 +34,8 @@ public class HsnDetailsMapper {
 		hsnDetailsVo.setTaxAppliedType(hsnDetails.getTaxAppliedType());
 		hsnDetailsVo.setTaxAppliesOn(hsnDetails.getTaxAppliesOn());
 		if(hsnDetailsVo.getTaxId()!=null) {
-		hsnDetailsVo.setTaxId(hsnDetails.getTax().getId());
-		}
+			hsnDetailsVo.setTaxId(hsnDetails.getTax().getId());
+			}
 		hsnDetailsVo.setCreatedDate(hsnDetails.getCreatedDate());
 		hsnDetailsVo.setLastModifiedDate(hsnDetails.getLastModifiedDate());
 		hsnDetailsVo.setCreatedBy(hsnDetails.getCreatedBy());

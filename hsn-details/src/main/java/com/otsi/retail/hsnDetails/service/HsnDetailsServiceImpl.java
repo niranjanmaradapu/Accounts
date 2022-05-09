@@ -54,9 +54,6 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	private SlabRepo slabRepo;
 
 	@Autowired
-	private TaxMapper taxMapper;
-
-	@Autowired
 	private SlabMapper slabMapper;
 
 	@PersistenceContext
