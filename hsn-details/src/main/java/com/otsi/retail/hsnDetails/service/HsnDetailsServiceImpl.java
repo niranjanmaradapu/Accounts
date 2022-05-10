@@ -7,12 +7,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.otsi.retail.hsnDetails.enums.Description;
+import com.otsi.retail.hsnDetails.enums.TaxAppliedType;
 import com.otsi.retail.hsnDetails.enums.TaxAppliesOn;
 import com.otsi.retail.hsnDetails.exceptions.DataNotFoundException;
 import com.otsi.retail.hsnDetails.exceptions.DuplicateRecordException;
@@ -52,53 +54,63 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	private SlabRepo slabRepo;
 
 	@Autowired
-	private TaxMapper taxMapper;
-
-	@Autowired
 	private SlabMapper slabMapper;
+
+	@PersistenceContext
+	EntityManager em;
 
 	/*
 	 * save functionality for hsn_details.In this,will save tax and slab in
 	 * hsn_details
 	 */
 	@Override
-	public String hsnSave(HsnDetailsVo hsnDetailsVo) {
+	public HsnDetailsVo hsnSave(HsnDetailsVo hsnDetailsVo,Long userId) {
 		log.debug("debugging hsnSave:" + hsnDetailsVo);
-		validateTaxSlabs(hsnDetailsVo);
+
+		boolean hsncode = hsnDetailsRepo.existsByHsnCode(hsnDetailsVo.getHsnCode());
+		if (hsncode) {
+			throw new DuplicateRecordException("given hsn code already exist " + hsnDetailsVo.getHsnCode());
+		}
+
+		if (hsnDetailsVo.getTaxAppliedType().equals(TaxAppliedType.Priceslab)) {
+			validateTaxSlabs(hsnDetailsVo);
+		}
+
 		List<Slab> slabs = new ArrayList<>();
-		HsnDetails dto = hsnDetailsMapper.mapVoToEntity(hsnDetailsVo);
-		dto.setHsnCode(getSaltString());
-		HsnDetails save = hsnDetailsRepo.save(dto);
+
+		HsnDetails hsnDetails = hsnDetailsMapper.mapVoToEntity(hsnDetailsVo);
+		 hsnDetails.setCreatedBy(userId);
+		 hsnDetails.setModifiedBy(userId);
+		HsnDetails hsnDetailsSave = hsnDetailsRepo.save(hsnDetails);
+		if (hsnDetailsVo.getTaxId() != null) {
+			Optional<Tax> taxOpt = taxRepo.findById(hsnDetailsVo.getTaxId());
+
+			if (hsnDetails.getTaxAppliedType().equals(TaxAppliedType.Hsncode)) {
+
+				hsnDetails.setTax(taxOpt.get());
+			}
+		}
 		// if isSlabBased is true,it will print hsnDetails,slab and tax otherwise,it
 		// will only print hsn and tax details
-		if (hsnDetailsVo.isSlabBased() && !hsnDetailsVo.getSlabVos().isEmpty()) {
-			hsnDetailsVo.getSlabVos().forEach(s -> {
+		if (hsnDetailsVo.getTaxAppliedType().equals(TaxAppliedType.Priceslab) && !hsnDetailsVo.getSlabs().isEmpty()) {
+			hsnDetailsVo.getSlabs().forEach(s -> {
 
 				Slab slab = slabMapper.VoToEntity(s);
-				slab.setHsnDetails(save);
+				if (s.getTaxId() != null) {
+					Optional<Tax> taxOpt = taxRepo.findById(s.getTaxId());
+					slab.setTax(taxOpt.get());
+				}
+				slab.setHsnDetails(hsnDetailsSave);
 				slabs.add(slabRepo.save(slab));
 
 			});
 		}
-		hsnDetailsVo = hsnDetailsMapper.EntityToVo(save);
-		hsnDetailsVo.setSlabVos(slabMapper.EntityToVo(slabs));
-		hsnDetailsVo.setTaxVo(taxMapper.EntityToVo(save.getTax()));
+
+		hsnDetailsVo = hsnDetailsMapper.EntityToVo(hsnDetailsSave);
+		hsnDetailsVo.setSlabs(slabMapper.EntityToVo(slabs));
 		log.warn("we are checking,if hsn details is saved...");
 		log.info("after saving hsn details:" + hsnDetailsVo.toString());
-		return "hsn-details saved succesfully:" + save.getId();
-	}
-
-	protected String getSaltString() {
-		String NUMERIC = "1234567890";
-		StringBuilder salt = new StringBuilder();
-		Random rnd = new Random();
-		while (salt.length() < 8) { // length of the random string.
-			int index = (int) (rnd.nextFloat() * NUMERIC.length());
-			salt.append(NUMERIC.charAt(index));
-		}
-		String saltStr = salt.toString();
-		return saltStr;
-
+		return hsnDetailsVo;
 	}
 
 	/*
@@ -118,16 +130,16 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		// if id is present,it will update data based on id.
 		HsnDetails update = hsnDetailsMapper.mapVoToEntity(vo);
 		HsnDetails save = hsnDetailsRepo.save(update);
-		update.setTax(taxMapper.VoToEntity(vo.getTaxVo()));
 		// here,will loop
-		vo.getSlabVos().stream().forEach(vos -> {
+		Optional<Tax> taxOpt = taxRepo.findById(vo.getTaxId());
+		vo.getSlabs().stream().forEach(vos -> {
 			Slab slab = new Slab();
 			slab.setId(vos.getId());
 			slab.setPriceFrom(vos.getPriceFrom());
 			slab.setPriceTo(vos.getPriceTo());
-			slab.setTax(taxMapper.VoToEntity(vos.getTaxVo()));
+            slab.setTax(taxOpt.get());
 			slab.setHsnDetails(save);
-			Optional<Tax> tax = taxRepo.findById(vos.getTaxVo().getId());
+			Optional<Tax> tax = taxRepo.findById(vos.getId());
 			if (tax.isPresent()) {
 				slab.setTax(tax.get());
 			}
@@ -135,9 +147,10 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 			slabs.add(slab);
 			slabRepo.save(slab);
 		});
+
 		vo = hsnDetailsMapper.EntityToVo(save);
-		vo.setTaxVo(taxMapper.EntityToVo(save.getTax()));
-		vo.setSlabVos(slabMapper.EntityToVo(slabs));
+		vo.setTaxId(save.getTax().getId());
+		vo.setSlabs(slabMapper.EntityToVo(slabs));
 		log.warn("wea re checking if hsn details is updated..");
 		log.info("after updating hsn details:" + vo.toString());
 		return "hsn-details updated successfully:" + save.getId();
@@ -208,20 +221,54 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	 * get functionality for hsn_details
 	 */
 	@Override
-	public List<HsnDetailsVo> getHsnDetails() {
+	public List<HsnDetailsVo> getHsnDetails(String hsnCode, String description, TaxAppliedType taxAppliedType) {
 		log.debug(" debugging getHsnDetails");
 		List<HsnDetails> hsnDetails = new ArrayList<>();
 		List<HsnDetailsVo> voList = new ArrayList<>();
 		// here, find all details through repository
-		hsnDetails = hsnDetailsRepo.findAll();
+		if (hsnCode != null || description != null || taxAppliedType != null) {
+			if (hsnCode != null)
+				hsnDetails = hsnDetailsRepo.findByHsnCode(hsnCode);
+			else if (description != null)
+				hsnDetails = hsnDetailsRepo.findByDescription(description);
+			else if (taxAppliedType != null)
+				hsnDetails = hsnDetailsRepo.findByTaxAppliedType(taxAppliedType);
+		} else {
+			hsnDetails = hsnDetailsRepo.findAll();
+		}
+
 		voList = hsnDetailsMapper.EntityToVo(hsnDetails);
+
 		// here,will loop based on hsn id
 		voList.stream().forEach(t -> {
-			t.setSlabVos(slabMapper.EntityToVo(slabRepo.findByHsnDetailsId(t.getId())));
+			t.setSlabs(slabMapper.EntityToVo(slabRepo.findByHsnDetailsId(t.getId())));
 		});
+
 		log.warn("we are checking if hsn details is fetching...");
 		log.info("after getting hsn details:" + voList);
 		return voList;
+
+	}
+
+	@Override
+	public List<HsnDetailsVo> getAllHsnDetails(String hsnCode) {
+
+		log.debug(" debugging getHsnDetails:" + hsnCode);
+		List<HsnDetails> hsnDetails = new ArrayList<>();
+		List<HsnDetailsVo> voList = new ArrayList<>();
+		// here, find all details through repository
+		hsnDetails = hsnDetailsRepo.findByHsnCode(hsnCode);
+		voList = hsnDetailsMapper.EntityToVo(hsnDetails);
+		// here,will loop based on hsn id
+
+		voList.stream().forEach(t -> {
+			t.setSlabs(slabMapper.EntityToVo(slabRepo.findByHsnDetailsId(t.getId())));
+		});
+
+		log.warn("we are checking if hsn details is fetching...");
+		log.info("after getting hsn details:" + voList);
+		return voList;
+
 	}
 
 	/**
@@ -230,19 +277,21 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	 * @param hsnDetails
 	 * 
 	 */
+
 	private void validateTaxSlabs(HsnDetailsVo hsnDetails) {
-		hsnDetails.getSlabVos().stream().forEach(slabVO -> {
+		hsnDetails.getSlabs().stream().forEach(slabVO -> {
 
 			if (slabVO.getPriceFrom() >= slabVO.getPriceTo()) {
 				throw new InvalidDataException("Invalid slab range price from is greater than price to");
 			}
+
 			List<Slab> slabList = slabRepo.findAll();
 			slabList.stream().forEach(slab -> {
 
 				// check slab already exists with same prices
 				if (slabVO.getPriceFrom() == slab.getPriceFrom() && slabVO.getPriceTo() == slab.getPriceTo()) {
-					log.error("price from and price to is already exists:"
-							+ slabVO.getPriceFrom() + "and" + slabVO.getPriceTo());
+					log.error("price from and price to is already exists:" + slabVO.getPriceFrom() + "and"
+							+ slabVO.getPriceTo());
 					throw new DuplicateRecordException("price from and price to is already exists:"
 							+ slabVO.getPriceFrom() + "and" + slabVO.getPriceTo());
 
@@ -250,8 +299,8 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 
 				// check if priceFrom exits in between other slab range
 				else if (slabVO.getPriceFrom() >= slab.getPriceFrom() && slabVO.getPriceTo() <= slab.getPriceTo()) {
-					log.error("price from  exists in other slab range :"
-							+ slabVO.getPriceFrom() + "and" + slabVO.getPriceTo());
+					log.error("price from  exists in other slab range :" + slabVO.getPriceFrom() + "and"
+							+ slabVO.getPriceTo());
 					throw new DuplicateRecordException("price from  exists in other slab range :"
 							+ slabVO.getPriceFrom() + "and" + slabVO.getPriceTo());
 
@@ -259,8 +308,8 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 
 				// check if priceTo exits in between other slab range
 				else if (slabVO.getPriceTo() >= slab.getPriceFrom() && slabVO.getPriceTo() <= slab.getPriceTo()) {
-					log.error("price to  exists in other slab range :" + slabVO.getPriceFrom()
-					+ "and" + slabVO.getPriceTo());
+					log.error("price to  exists in other slab range :" + slabVO.getPriceFrom() + "and"
+							+ slabVO.getPriceTo());
 					throw new DuplicateRecordException("price to  exists in other slab range :" + slabVO.getPriceFrom()
 							+ "and" + slabVO.getPriceTo());
 
@@ -268,8 +317,8 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 
 				// check if other slabs exits in this range
 				else if (slab.getPriceFrom() >= slabVO.getPriceFrom() && slab.getPriceTo() <= slabVO.getPriceTo()) {
-					log.error(" other slabs exists in the slab range :" + slabVO.getPriceFrom()
-					+ "and" + slabVO.getPriceTo());
+					log.error(" other slabs exists in the slab range :" + slabVO.getPriceFrom() + "and"
+							+ slabVO.getPriceTo());
 					throw new DuplicateRecordException(" other slabs exists in the slab range :" + slabVO.getPriceFrom()
 							+ "and" + slabVO.getPriceTo());
 				}

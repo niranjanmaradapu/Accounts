@@ -1,20 +1,61 @@
 package com.otsi.retail.hsnDetails.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import com.otsi.retail.hsnDetails.exceptions.RecordNotFoundException;
-import com.otsi.retail.hsnDetails.mapper.CreditDebitNotesMapper;
-import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
-import com.otsi.retail.hsnDetails.repo.CreditDebitNotesRepo;
-import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVo;
-import com.otsi.retail.hsnDetails.vo.UpdateCreditRequest;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.otsi.retail.hsnDetails.config.Config;
+import com.otsi.retail.hsnDetails.enums.AccountType;
+import com.otsi.retail.hsnDetails.enums.PaymentStatus;
+import com.otsi.retail.hsnDetails.enums.PaymentType;
+import com.otsi.retail.hsnDetails.exceptions.RecordNotFoundException;
+import com.otsi.retail.hsnDetails.gatewayresponse.GateWayResponse;
+import com.otsi.retail.hsnDetails.mapper.AccountingBookMapper;
+import com.otsi.retail.hsnDetails.mapper.CreditDebitNotesMapper;
+import com.otsi.retail.hsnDetails.mapper.LedgerLogBookMapper;
+import com.otsi.retail.hsnDetails.model.AccountingBook;
+import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
+import com.otsi.retail.hsnDetails.model.LedgerLogBook;
+import com.otsi.retail.hsnDetails.repo.AccountingBookRepo;
+import com.otsi.retail.hsnDetails.repo.CreditDebitNotesRepo;
+import com.otsi.retail.hsnDetails.repo.LedgerLogBookRepo;
+import com.otsi.retail.hsnDetails.util.DateConverters;
+import com.otsi.retail.hsnDetails.vo.AccountingBookVo;
+import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVo;
+import com.otsi.retail.hsnDetails.vo.GetUserRequestVo;
+import com.otsi.retail.hsnDetails.vo.LedgerLogBookVo;
+import com.otsi.retail.hsnDetails.vo.PaymentDetailsVo;
+import com.otsi.retail.hsnDetails.vo.SearchFilterVo;
+import com.otsi.retail.hsnDetails.vo.UpdateCreditRequest;
+import com.otsi.retail.hsnDetails.vo.UserDetailsVo;
+
+/**
+ * @author vasavi
+ *
+ */
 @Component
 public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 
@@ -25,6 +66,24 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 
 	@Autowired
 	private CreditDebitNotesMapper creditDebitNotesMapper;
+
+	@Autowired
+	private AccountingBookMapper accountingBookMapper;
+
+	@Autowired
+	private LedgerLogBookMapper ledgerLogBookMapper;
+
+	@Autowired
+	private AccountingBookRepo accountingBookRepo;
+
+	@Autowired
+	private LedgerLogBookRepo ledgerLogBookRepo;
+
+	@Autowired
+	private RestTemplate restTemplate;
+
+	@Autowired
+	private Config config;
 
 	@Override
 	public String saveCreditDebitNotes(CreditDebitNotesVo creditDebitNotesVo) {
@@ -104,7 +163,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		boolean flag = true;
 		if (updateCreditRequest.getCreditDebit().equals("C")) {
 			CreditDebitNotes cred = creditDebitNotesRepo.findByMobileNumberAndStoreIdAndCreditDebitAndFlag(
-					updateCreditRequest.getMobileNumber(), updateCreditRequest.getStoreId(), updateCreditRequest.getCreditDebit(), flag);
+					updateCreditRequest.getMobileNumber(), updateCreditRequest.getStoreId(),
+					updateCreditRequest.getCreditDebit(), flag);
 
 			if ((cred.getMobileNumber().equals(updateCreditRequest.getMobileNumber()))
 					&& (cred.getStoreId() == updateCreditRequest.getStoreId())
@@ -151,7 +211,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 	@Override
 	public String updateNotes(CreditDebitNotesVo creditDebitNotesVo) {
 		log.debug("debugging updateCreditDebitNotes:" + creditDebitNotesVo);
-		Optional<CreditDebitNotes> notesOpt = creditDebitNotesRepo.findByCreditDebitId(creditDebitNotesVo.getCreditDebitId());
+		Optional<CreditDebitNotes> notesOpt = creditDebitNotesRepo
+				.findByCreditDebitId(creditDebitNotesVo.getCreditDebitId());
 
 		// if id is not present,it will throw custom exception "RecordNotFoundException"
 		if (!notesOpt.isPresent()) {
@@ -186,20 +247,21 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		List<CreditDebitNotes> creditNotes = new ArrayList<>();
 		String creditDebit = "C";
 		boolean flag = true;
-		List<CreditDebitNotes> storeOpt = creditDebitNotesRepo.findAllByStoreIdAndCreditDebitAndFlag(creditNotesVo.getStoreId(),
-				creditDebit, flag);
+		List<CreditDebitNotes> storeOpt = creditDebitNotesRepo
+				.findAllByStoreIdAndCreditDebitAndFlag(creditNotesVo.getStoreId(), creditDebit, flag);
 
 		/*
 		 * using dates and storeId
 		 */
-		if (creditNotesVo.getFromDate() != null && creditNotesVo.getToDate() != null && creditNotesVo.getStoreId() != null
-				&& creditNotesVo.getMobileNumber() == "") {
+		if (creditNotesVo.getFromDate() != null && creditNotesVo.getToDate() != null
+				&& creditNotesVo.getStoreId() != null && creditNotesVo.getMobileNumber() == "") {
 
 			if (storeOpt != null) {
 
 				creditNotes = creditDebitNotesRepo
 						.findByCreatedDateBetweenAndStoreIdAndCreditDebitAndFlagOrderByLastModifiedDateAsc(
-								creditNotesVo.getFromDate(), creditNotesVo.getToDate(), creditNotesVo.getStoreId(), creditDebit, flag);
+								creditNotesVo.getFromDate(), creditNotesVo.getToDate(), creditNotesVo.getStoreId(),
+								creditDebit, flag);
 
 				if (creditNotes.isEmpty()) {
 					log.error("No record found with given information");
@@ -213,16 +275,17 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		 * 
 		 * using dates and mobile number and storeId
 		 */
-		else if (creditNotesVo.getFromDate() != null && creditNotesVo.getToDate() != null && creditNotesVo.getMobileNumber() != null
-				&& creditNotesVo.getStoreId() != null) {
+		else if (creditNotesVo.getFromDate() != null && creditNotesVo.getToDate() != null
+				&& creditNotesVo.getMobileNumber() != null && creditNotesVo.getStoreId() != null) {
 
 			if (storeOpt != null) {
-				List<CreditDebitNotes> mobileOpt = creditDebitNotesRepo.findAllByMobileNumber(creditNotesVo.getMobileNumber());
+				List<CreditDebitNotes> mobileOpt = creditDebitNotesRepo
+						.findAllByMobileNumber(creditNotesVo.getMobileNumber());
 				if (mobileOpt != null) {
 					creditNotes = creditDebitNotesRepo
 							.findByCreatedDateBetweenAndMobileNumberAndStoreIdAndCreditDebitAndFlagOrderByLastModifiedDateAsc(
-									creditNotesVo.getFromDate(), creditNotesVo.getToDate(), creditNotesVo.getMobileNumber(), creditNotesVo.getStoreId(),
-									creditDebit, flag);
+									creditNotesVo.getFromDate(), creditNotesVo.getToDate(),
+									creditNotesVo.getMobileNumber(), creditNotesVo.getStoreId(), creditDebit, flag);
 				} else {
 					log.error("No record found with given productItemId");
 					throw new RecordNotFoundException("No record found with given productItemId");
@@ -233,11 +296,12 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		/*
 		 * using storeId
 		 */
-		else if (creditNotesVo.getFromDate() == null && creditNotesVo.getToDate() == null && creditNotesVo.getMobileNumber() == ""
-				&& creditNotesVo.getStoreId() != null) {
+		else if (creditNotesVo.getFromDate() == null && creditNotesVo.getToDate() == null
+				&& creditNotesVo.getMobileNumber() == "" && creditNotesVo.getStoreId() != null) {
 			if (storeOpt.isEmpty()) {
 				log.error("retail record is not found with storeId:" + creditNotesVo.getStoreId());
-				throw new RecordNotFoundException("retail record is not found with storeId:" + creditNotesVo.getStoreId());
+				throw new RecordNotFoundException(
+						"retail record is not found with storeId:" + creditNotesVo.getStoreId());
 			}
 			if (creditNotesVo.getStoreId() != null) {
 				List<CreditDebitNotesVo> creditList = creditDebitNotesMapper.EntityToVo(storeOpt);
@@ -249,11 +313,12 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		/*
 		 * using mobile number and storeId
 		 */
-		else if (creditNotesVo.getFromDate() == null && creditNotesVo.getToDate() == null && creditNotesVo.getMobileNumber() != null
-				&& creditNotesVo.getStoreId() != null) {
+		else if (creditNotesVo.getFromDate() == null && creditNotesVo.getToDate() == null
+				&& creditNotesVo.getMobileNumber() != null && creditNotesVo.getStoreId() != null) {
 
 			if (storeOpt != null) {
-				CreditDebitNotes mobileOpt = creditDebitNotesRepo.findByMobileNumberAndFlag(creditNotesVo.getMobileNumber(), flag);
+				CreditDebitNotes mobileOpt = creditDebitNotesRepo
+						.findByMobileNumberAndFlag(creditNotesVo.getMobileNumber(), flag);
 				if (mobileOpt == null) {
 					throw new RecordNotFoundException("barcode record is not found");
 
@@ -286,8 +351,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		List<CreditDebitNotes> debitNotes = new ArrayList<>();
 		String creditDebit = "D";
 		boolean flag = true;
-		List<CreditDebitNotes> storeOpt = creditDebitNotesRepo.findAllByStoreIdAndCreditDebitAndFlag(debitNotesVo.getStoreId(),
-				creditDebit, flag);
+		List<CreditDebitNotes> storeOpt = creditDebitNotesRepo
+				.findAllByStoreIdAndCreditDebitAndFlag(debitNotesVo.getStoreId(), creditDebit, flag);
 
 		/*
 		 * using dates and storeId
@@ -299,7 +364,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 
 				debitNotes = creditDebitNotesRepo
 						.findByCreatedDateBetweenAndStoreIdAndCreditDebitAndFlagOrderByLastModifiedDateAsc(
-								debitNotesVo.getFromDate(), debitNotesVo.getToDate(), debitNotesVo.getStoreId(), creditDebit, flag);
+								debitNotesVo.getFromDate(), debitNotesVo.getToDate(), debitNotesVo.getStoreId(),
+								creditDebit, flag);
 
 				if (debitNotes.isEmpty()) {
 					log.error("No record found with given information");
@@ -313,16 +379,17 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		 * 
 		 * using dates and mobile number and storeId
 		 */
-		else if (debitNotesVo.getFromDate() != null && debitNotesVo.getToDate() != null && debitNotesVo.getMobileNumber() != null
-				&& debitNotesVo.getStoreId() != null) {
+		else if (debitNotesVo.getFromDate() != null && debitNotesVo.getToDate() != null
+				&& debitNotesVo.getMobileNumber() != null && debitNotesVo.getStoreId() != null) {
 
 			if (storeOpt != null) {
-				List<CreditDebitNotes> mobileOpt = creditDebitNotesRepo.findAllByMobileNumber(debitNotesVo.getMobileNumber());
+				List<CreditDebitNotes> mobileOpt = creditDebitNotesRepo
+						.findAllByMobileNumber(debitNotesVo.getMobileNumber());
 				if (mobileOpt != null) {
 					debitNotes = creditDebitNotesRepo
 							.findByCreatedDateBetweenAndMobileNumberAndStoreIdAndCreditDebitAndFlagOrderByLastModifiedDateAsc(
-									debitNotesVo.getFromDate(), debitNotesVo.getToDate(), debitNotesVo.getMobileNumber(), debitNotesVo.getStoreId(),
-									creditDebit, flag);
+									debitNotesVo.getFromDate(), debitNotesVo.getToDate(),
+									debitNotesVo.getMobileNumber(), debitNotesVo.getStoreId(), creditDebit, flag);
 				} else {
 					log.error("No record found with given productItemId");
 					throw new RecordNotFoundException("No record found with given productItemId");
@@ -333,11 +400,12 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		/*
 		 * using storeId
 		 */
-		else if (debitNotesVo.getFromDate() == null && debitNotesVo.getToDate() == null && debitNotesVo.getMobileNumber() == ""
-				&& debitNotesVo.getStoreId() != null) {
+		else if (debitNotesVo.getFromDate() == null && debitNotesVo.getToDate() == null
+				&& debitNotesVo.getMobileNumber() == "" && debitNotesVo.getStoreId() != null) {
 			if (storeOpt.isEmpty()) {
 				log.error("retail record is not found with storeId:" + debitNotesVo.getStoreId());
-				throw new RecordNotFoundException("retail record is not found with storeId:" + debitNotesVo.getStoreId());
+				throw new RecordNotFoundException(
+						"retail record is not found with storeId:" + debitNotesVo.getStoreId());
 			}
 			if (debitNotesVo.getStoreId() != null) {
 				List<CreditDebitNotesVo> debitList = creditDebitNotesMapper.EntityToVo(storeOpt);
@@ -349,11 +417,12 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		/*
 		 * using mobile number and storeId
 		 */
-		else if (debitNotesVo.getFromDate() == null && debitNotesVo.getToDate() == null && debitNotesVo.getMobileNumber() != null
-				&& debitNotesVo.getStoreId() != null) {
+		else if (debitNotesVo.getFromDate() == null && debitNotesVo.getToDate() == null
+				&& debitNotesVo.getMobileNumber() != null && debitNotesVo.getStoreId() != null) {
 
 			if (storeOpt != null) {
-				CreditDebitNotes mobileOpt = creditDebitNotesRepo.findByMobileNumberAndFlag(debitNotesVo.getMobileNumber(), flag);
+				CreditDebitNotes mobileOpt = creditDebitNotesRepo
+						.findByMobileNumberAndFlag(debitNotesVo.getMobileNumber(), flag);
 				if (mobileOpt == null) {
 					throw new RecordNotFoundException("barcode record is not found");
 
@@ -381,4 +450,298 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		return debitList;
 	}
 
+	public List<UserDetailsVo> getUserDetailsFromURM(@RequestParam String MobileNumber, @RequestParam Long UserId) {
+
+		// UserDetailsVo vo = new UserDetailsVo();
+		GetUserRequestVo uvo = new GetUserRequestVo();
+		uvo.setPhoneNo(MobileNumber);
+
+		uvo.setId(UserId);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<GetUserRequestVo> entity = new HttpEntity<>(uvo, headers);
+
+		ResponseEntity<?> returnSlipListResponse = restTemplate.exchange(config.getGetCustomerDetailsFromURM(),
+				HttpMethod.POST, entity, GateWayResponse.class);
+
+		ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule())
+				.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
+		GateWayResponse<?> gatewayResponse = mapper.convertValue(returnSlipListResponse.getBody(),
+				GateWayResponse.class);
+
+		List<UserDetailsVo> vo = mapper.convertValue(gatewayResponse.getResult(),
+				new TypeReference<List<UserDetailsVo>>() {
+				});
+
+		return vo;
+
+	}
+
+	@Override
+	public LedgerLogBookVo saveNotes(LedgerLogBookVo ledgerLogBookVo) {
+
+		LedgerLogBook ledgerLogBook = ledgerLogBookMapper.voToEntity(ledgerLogBookVo);
+		LedgerLogBook ledgerLogBookSave = ledgerLogBookRepo.save(ledgerLogBook);
+
+		LedgerLogBookVo ledgerBookVo = ledgerLogBookMapper.entityToVo(ledgerLogBookSave);
+		if (ledgerLogBookVo.getPaymentType().equals(PaymentType.Cash)) {
+			ledgerLogBookSave.setPaymentStatus(PaymentStatus.SUCCESS);
+			LedgerLogBook ledgerBook = ledgerLogBookRepo.save(ledgerLogBook);
+
+			ledgerBookVo = calculateAmount(ledgerBook);
+		}
+
+		return ledgerBookVo;
+
+	}
+
+	private LedgerLogBookVo calculateAmount(LedgerLogBook ledgerLogBook) {
+		AccountingBook accountingBookCustomer = accountingBookRepo
+				.findByCustomerIdAndAccountType(ledgerLogBook.getCustomerId(), ledgerLogBook.getAccountType());
+		if (accountingBookCustomer != null) {
+			accountingBookCustomer.setAmount(accountingBookCustomer.getAmount() + ledgerLogBook.getAmount());
+			AccountingBook accountingBookSave = accountingBookRepo.save(accountingBookCustomer);
+			ledgerLogBook.setAccountingBookId(accountingBookSave.getAccountingBookId());
+
+		} else {
+			AccountingBook accountingBook = new AccountingBook();
+			accountingBook.setAmount(ledgerLogBook.getAmount());
+			accountingBook.setAccountType(ledgerLogBook.getAccountType());
+			accountingBook.setCustomerId(ledgerLogBook.getCustomerId());
+			accountingBook.setStoreId(ledgerLogBook.getStoreId());
+
+			AccountingBook accountingBookSave = accountingBookRepo.save(accountingBook);
+			ledgerLogBook.setAccountingBookId(accountingBookSave.getAccountingBookId());
+		}
+		LedgerLogBook ledgerLogBookSave = ledgerLogBookRepo.save(ledgerLogBook);
+		LedgerLogBookVo ledgerLogBookVo = ledgerLogBookMapper.entityToVo(ledgerLogBookSave);
+		return ledgerLogBookVo;
+
+	}
+
+	@Override
+	public List<AccountingBookVo> getNotes(AccountType accountType, Long storeId) {
+		List<AccountingBook> accountingBookOpt = accountingBookRepo.findByAccountTypeAndStoreId(accountType, storeId);
+		if (accountingBookOpt == null) {
+			log.error("accounting book id  is Not Found:" + accountingBookOpt);
+			throw new RecordNotFoundException("accounting book id  is Not Found:" + accountingBookOpt);
+		}
+		List<AccountingBookVo> accountingBookVos = accountingBookMapper.entityToVo(accountingBookOpt);
+		return accountingBookVos;
+	}
+
+	/*
+	 * @Override public String delete(Long accountingBookId) {
+	 * Optional<AccountingBook> accountingBookOpt =
+	 * accountingBookRepo.findByAccountingBookId(accountingBookId); if
+	 * (!(accountingBookOpt.isPresent())) {
+	 * log.error("accounting book id  is Not Found:" + accountingBookOpt); throw new
+	 * RecordNotFoundException("accounting book id  is Not Found:" +
+	 * accountingBookOpt); } accountingBookRepo.delete(accountingBookOpt.get());
+	 * return ""; }
+	 */
+
+	@Override
+	public LedgerLogBookVo update(LedgerLogBookVo ledgerLogBookVo) {
+
+		LedgerLogBook ledBook = ledgerLogBookRepo.findByLedgerLogBookId(ledgerLogBookVo.getLedgerLogBookId());
+		if (ledBook == null) {
+			throw new RecordNotFoundException("record not found with id:" + ledgerLogBookVo.getLedgerLogBookId());
+		}
+		AccountingBook accountingBookCustomer = accountingBookRepo.findByCustomerIdAndStoreIdAndAccountType(
+				ledgerLogBookVo.getCustomerId(), ledgerLogBookVo.getStoreId(), ledgerLogBookVo.getAccountType());
+		LedgerLogBook ledgerLogBook = ledgerLogBookMapper.voToEntityUpdate(ledBook, ledgerLogBookVo);
+		LedgerLogBook ledgerLogBookSave = ledgerLogBookRepo.save(ledgerLogBook);
+
+		if (accountingBookCustomer != null) {
+			Long paymentValue = 0L;
+			List<LedgerLogBook> ledgerLogAccount = ledgerLogBookRepo
+					.findByAccountingBookId(ledBook.getAccountingBookId());
+			paymentValue = ledgerLogAccount.stream().mapToLong(x -> x.getAmount()).sum();
+			accountingBookCustomer.setAmount(paymentValue);
+			AccountingBook accountingBookSave = accountingBookRepo.save(accountingBookCustomer);
+			ledgerLogBook.setAccountingBookId(accountingBookSave.getAccountingBookId());
+		} else {
+			AccountingBook accountingBook = new AccountingBook();
+			accountingBook.setAccountingBookId(ledgerLogBookSave.getAccountingBookId());
+			accountingBook.setAmount(ledgerLogBookVo.getAmount());
+			accountingBook.setAccountType(ledgerLogBookVo.getAccountType());
+			accountingBook.setCustomerId(ledgerLogBookVo.getCustomerId());
+			accountingBook.setStoreId(ledgerLogBookVo.getStoreId());
+			AccountingBook accountingBookSave = accountingBookRepo.save(accountingBook);
+			ledgerLogBook.setAccountingBookId(accountingBookSave.getAccountingBookId());
+		}
+
+		ledgerLogBookVo = ledgerLogBookMapper.entityToVo(ledgerLogBookSave);
+		return ledgerLogBookVo;
+	}
+
+	@Override
+	public Page<AccountingBookVo> getAllNotes(SearchFilterVo searchFilterVo, Pageable pageable) {
+		Page<AccountingBook> accountingBooks = null;
+		/*
+		 * using from date and storeId
+		 */
+		if (searchFilterVo.getFromDate() != null && searchFilterVo.getToDate() == null
+				&& searchFilterVo.getStoreId() != null && searchFilterVo.getMobileNumber() == null) {
+			LocalDateTime fromTime = DateConverters.convertLocalDateToLocalDateTime(searchFilterVo.getFromDate());
+			LocalDateTime fromTime1 = DateConverters.convertToLocalDateTimeMax(searchFilterVo.getFromDate());
+			accountingBooks = accountingBookRepo.findByCreatedDateBetweenAndStoreIdAndAccountType(fromTime, fromTime1,
+					searchFilterVo.getStoreId(), searchFilterVo.getAccountType(), pageable);
+
+		}
+
+		/*
+		 * using dates and storeId
+		 */
+		else if (searchFilterVo.getFromDate() != null && searchFilterVo.getToDate() != null
+				&& searchFilterVo.getStoreId() != null && searchFilterVo.getMobileNumber() == null) {
+			LocalDateTime fromTime = DateConverters.convertLocalDateToLocalDateTime(searchFilterVo.getFromDate());
+			LocalDateTime toTime = DateConverters.convertToLocalDateTimeMax(searchFilterVo.getToDate());
+			accountingBooks = accountingBookRepo
+					.findByCreatedDateBetweenAndStoreIdAndAccountTypeOrderByLastModifiedDateAsc(fromTime, toTime,
+							searchFilterVo.getStoreId(), searchFilterVo.getAccountType(), pageable);
+
+		}
+
+		/*
+		 * using dates and mobile number and storeId
+		 */
+
+		else if (searchFilterVo.getFromDate() != null && searchFilterVo.getToDate() != null
+				&& searchFilterVo.getMobileNumber() != null && searchFilterVo.getStoreId() != null) {
+
+			List<UserDetailsVo> uvo = getUserDetailsFromURM(searchFilterVo.getMobileNumber(), 0L);
+			if (uvo != null) {
+				List<Long> userIds = uvo.stream().map(user -> user.getUserId()).collect(Collectors.toList());
+				LocalDateTime fromTime = DateConverters.convertLocalDateToLocalDateTime(searchFilterVo.getFromDate());
+				LocalDateTime toTime = DateConverters.convertToLocalDateTimeMax(searchFilterVo.getToDate());
+				accountingBooks = accountingBookRepo
+						.findByCreatedDateBetweenAndCustomerIdInAndStoreIdAndAccountTypeOrderByLastModifiedDateAsc(
+								fromTime, toTime, userIds, searchFilterVo.getStoreId(), searchFilterVo.getAccountType(),
+								pageable);
+			}
+		}
+
+		/*
+		 * using storeId
+		 */
+
+		else if (searchFilterVo.getFromDate() == null && searchFilterVo.getToDate() == null
+				&& searchFilterVo.getMobileNumber() == null && searchFilterVo.getStoreId() != null) {
+			accountingBooks = accountingBookRepo.findByStoreIdAndAccountType(searchFilterVo.getStoreId(),
+					searchFilterVo.getAccountType(), pageable);
+		}
+
+		/*
+		 * using mobile number and storeId
+		 */
+
+		else if (searchFilterVo.getFromDate() == null && searchFilterVo.getToDate() == null
+				&& searchFilterVo.getMobileNumber() != null && searchFilterVo.getStoreId() != null) {
+
+			List<UserDetailsVo> uvo = getUserDetailsFromURM(searchFilterVo.getMobileNumber(), 0L);
+			if (uvo != null) {
+				List<Long> userIds = uvo.stream().map(user -> user.getUserId()).collect(Collectors.toList());
+				accountingBooks = accountingBookRepo.findByCustomerIdInAndStoreIdAndAccountType(userIds,
+						searchFilterVo.getStoreId(), searchFilterVo.getAccountType(), pageable);
+			}
+		}
+		if (accountingBooks != null && accountingBooks.hasContent()) {
+			return accountingBooks.map(accounting -> accountingBookMapper.entityToVo(accounting));
+		} else
+			return Page.empty();
+	}
+
+	@Override
+	public Page<LedgerLogBookVo> getAllLedgerLogs(SearchFilterVo searchFilterVo, Pageable pageable) {
+
+		Page<LedgerLogBook> ledgerLogs;
+		/*
+		 * using from date and storeId
+		 */
+		if (searchFilterVo.getFromDate() != null && searchFilterVo.getToDate() == null
+				&& searchFilterVo.getStoreId() != null && searchFilterVo.getMobileNumber() == null) {
+			LocalDateTime fromTime = DateConverters.convertLocalDateToLocalDateTime(searchFilterVo.getFromDate());
+			LocalDateTime fromTime1 = DateConverters.convertToLocalDateTimeMax(searchFilterVo.getFromDate());
+			ledgerLogs = ledgerLogBookRepo.findByCustomerIdAndCreatedDateBetweenAndStoreIdAndAccountType(
+					searchFilterVo.getCustomerId(), fromTime, fromTime1, searchFilterVo.getStoreId(),
+					searchFilterVo.getAccountType(), pageable);
+
+		}
+
+		/*
+		 * using dates and storeId
+		 */
+		else if (searchFilterVo.getFromDate() != null && searchFilterVo.getToDate() != null
+				&& searchFilterVo.getStoreId() != null && searchFilterVo.getMobileNumber() == null) {
+			LocalDateTime fromTime = DateConverters.convertLocalDateToLocalDateTime(searchFilterVo.getFromDate());
+			LocalDateTime toTime = DateConverters.convertToLocalDateTimeMax(searchFilterVo.getToDate());
+			ledgerLogs = ledgerLogBookRepo
+					.findByCustomerIdAndCreatedDateBetweenAndStoreIdAndAccountTypeOrderByLastModifiedDateAsc(
+							searchFilterVo.getCustomerId(), fromTime, toTime, searchFilterVo.getStoreId(),
+							searchFilterVo.getAccountType(), pageable);
+
+		}
+		/*
+		 * using storeId
+		 */
+
+		else if (searchFilterVo.getStoreId() != null) {
+			ledgerLogs = ledgerLogBookRepo.findByCustomerIdAndStoreIdAndAccountType(searchFilterVo.getCustomerId(),
+					searchFilterVo.getStoreId(), searchFilterVo.getAccountType(), pageable);
+		}
+
+		else
+			ledgerLogs = ledgerLogBookRepo.findByCustomerIdAndAccountType(searchFilterVo.getCustomerId(),
+					searchFilterVo.getAccountType(), pageable);
+
+		if (ledgerLogs.hasContent()) {
+			return ledgerLogs.map(ledgerLog -> ledgerLogBookMapper.entityToVo(ledgerLog));
+		}
+
+		return Page.empty();
+	}
+
+	@RabbitListener(queues = "payment_creditNotes_queue")
+	public void paymentConfirmation(PaymentDetailsVo paymentDetails) {
+
+		// AccountingBook entity =
+		// accountingBookRepo.findByReferenceNumber(paymentDetails.getReferenceNumber());
+
+		LedgerLogBook ledgerbook = ledgerLogBookRepo.findByReferenceNumber(paymentDetails.getReferenceNumber());
+
+		if (ledgerbook != null) {
+			ledgerbook.setPaymentId(paymentDetails.getRazorPayId());
+			ledgerbook.setPaymentStatus(PaymentStatus.INITIATED);
+			ledgerLogBookRepo.save(ledgerbook);
+
+			log.info("save payment details for credit : " + ledgerbook.getReferenceNumber());
+		}
+
+	}
+
+	@Override
+	public Boolean paymentConfirmationFromRazorpay(String razorPayId, boolean payStatus) {
+		if (payStatus) {
+			// todo confirm payment success from razorpay
+			LedgerLogBook ledgerLogBook = ledgerLogBookRepo.findByPaymentId(razorPayId);
+			ledgerLogBook.setPaymentStatus(PaymentStatus.SUCCESS);
+
+			ledgerLogBookRepo.save(ledgerLogBook);
+			LedgerLogBookVo ledgerBookVo = calculateAmount(ledgerLogBook);
+			log.info("update payment details for razorpay Id: " + razorPayId);
+
+		} else {
+			log.info("Payment failed for razoer pay id : " + razorPayId);
+			LedgerLogBook ledgerLogBook = ledgerLogBookRepo.findByPaymentId(razorPayId);
+			ledgerLogBook.setPaymentStatus(PaymentStatus.FAILED);
+			ledgerLogBookRepo.save(ledgerLogBook);
+			//LedgerLogBookVo ledgerBookVo = calculateAmount(ledgerLogBook);
+		}
+		return payStatus;
+
+	}
 }

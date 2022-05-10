@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "slab")
-public class Slab implements Serializable {
+public class Slab extends BaseEntity implements Serializable {
 	/**
 	 * @author vasavi
 	 */

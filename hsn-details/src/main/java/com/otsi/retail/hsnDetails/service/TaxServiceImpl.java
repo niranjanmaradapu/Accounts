@@ -16,6 +16,10 @@ import com.otsi.retail.hsnDetails.model.Tax;
 import com.otsi.retail.hsnDetails.repo.TaxRepo;
 import com.otsi.retail.hsnDetails.vo.TaxVo;
 
+/**
+ * @author vasavi
+ *
+ */
 @Component
 public class TaxServiceImpl implements TaxService {
 
@@ -28,19 +32,15 @@ public class TaxServiceImpl implements TaxService {
 
 	// Method use: add new tax information
 	@Override
-	public String addNewTax(TaxVo taxvo) {
+	public TaxVo saveTax(TaxVo taxvo) {
 		if (taxvo.getCess() == 0 && taxvo.getCgst() == 0 && taxvo.getIgst() == 0 && taxvo.getIgst() == 0
 				|| taxvo.getTaxLabel() == null) {
 			throw new InvalidDataException("please give valid data");
 		}
-		log.debug("debugging hsnSave:" + taxvo);
+		log.debug("debugging saveTax:" + taxvo);
 		Tax tax = taxMapper.VoToEntity(taxvo);
-		Tax taxSave = taxRepo.save(tax);
-
-		log.warn("we are checking if tax is saved...");
-		log.info("tax details  saved successfully:" + taxSave);
-
-		return "tax details  saved successfully:" + taxSave;
+		taxvo=taxMapper.EntityToVo(taxRepo.save(tax));
+		return taxvo;
 
 	}
 
@@ -68,29 +68,37 @@ public class TaxServiceImpl implements TaxService {
 	}
 
 	@Override
-	public Optional<Tax> getTaxById(Long id) {
+	public TaxVo getTaxById(Long id) {
 		log.debug("debugging getTaxById:" + id);
 		Optional<Tax> tax = taxRepo.findById(id);
 		if (!(tax.isPresent())) {
 			log.error("tax  record is not found");
 			throw new RecordNotFoundException("tax record is not found");
 		}
+		TaxVo taxVo=taxMapper.EntityToVo(tax.get());
 		log.warn("we are checking if tax data is fetching by id...");
 		log.info("after fetching tax details:" + tax.toString());
-		return tax;
+		return taxVo;
 
 	}
+
+
 
 	/*
 	 * get functionality for tax_details
 	 */
 	@Override
-	public List<TaxVo> getTaxDetails() {
+	public List<TaxVo> getTaxDetails(String taxLabel) {
 		log.debug("debugging getTaxDetails()");
 		List<Tax> taxs = new ArrayList<>();
 		List<TaxVo> VOList = new ArrayList<>();
+		if(taxLabel != null) {
+		taxs=taxRepo.findByTaxLabel(taxLabel);
+		}
+		else {
 		// here,will find all tax's through taxRepo
 		taxs = taxRepo.findAll();
+		}
 		// here,will map and assign to VOList and return voList
 		VOList = taxMapper.EntityToVo(taxs);
 		log.warn("we are checking if tax details is fetching...");
@@ -109,6 +117,15 @@ public class TaxServiceImpl implements TaxService {
 		log.warn("we are checking if tax is deleted...");
 		log.info("after deleting tax details:" + id);
 		return "tax data deleted succesfully: " + id;
+	}
+	
+	@Override
+	public List<TaxVo> getTaxForGivenIds(List<Long> taxIds) {
+		
+		List<TaxVo> taxVoList = new ArrayList<>();
+		List<Tax> taxs = taxRepo.findByIdIn(taxIds);
+	    taxVoList = taxMapper.EntityToVo(taxs);
+	    return taxVoList;
 	}
 
 }

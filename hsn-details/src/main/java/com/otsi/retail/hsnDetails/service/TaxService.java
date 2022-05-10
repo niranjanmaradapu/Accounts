@@ -11,16 +11,16 @@ import com.otsi.retail.hsnDetails.vo.TaxVo;
 @Service
 public interface TaxService {
 
-	String addNewTax(TaxVo taxvo);
-
 	String updateTax(TaxVo taxvo) throws RecordNotFoundException;
 
-	Optional<Tax> getTaxById(Long id);
+	TaxVo getTaxById(Long id);
+	
+	List<TaxVo> getTaxForGivenIds(List<Long> taxIds);
 
 	String deleteTax(Long id);
 
-	List<TaxVo> getTaxDetails();
+	List<TaxVo> getTaxDetails(String taxLabel);
 
-	
+	TaxVo saveTax(TaxVo taxvo);
 
 }
