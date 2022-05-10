@@ -39,6 +39,34 @@ public class Config {
 	
 	@Value("${razorpay.callback-url:}")
 	private String razorpayCallBackUrl;
+	///////////////////
+	
+	@Value("${payment_creditNotes_queue}")
+	private String payemntCreditnotesQueue;
+	
+	@Value("${payments_exchange}")
+	private String payemntsExchange;
+	
+	@Value("${payments_creditNotes_rk}")
+	private String paymentCreditNotesRK;
+	
+	
+	
+	@Bean
+	public Queue payemntCreditnotesQueue() {
+		return new Queue(payemntCreditnotesQueue);
+	}
+
+	@Bean
+	public DirectExchange payemntsExchange() {
+		return new DirectExchange(payemntsExchange);
+	}
+
+	@Bean
+	public Binding paymentCreditNotesRK(Queue payemntCreditnotesQueue, DirectExchange payemntsExchange) {
+
+		return BindingBuilder.bind(payemntCreditnotesQueue).to(payemntsExchange).with(paymentCreditNotesRK);
+	}
 	
 	@Bean
 	public Queue queue() {

@@ -13,12 +13,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.otsi.retail.paymentgateway.gatewayresponse.GateWayResponse;
 import com.otsi.retail.paymentgateway.service.PaymentGatewayService;
+import com.otsi.retail.paymentgateway.vo.AccountVo;
+import com.otsi.retail.paymentgateway.vo.PaymentDetailsVo;
 import com.razorpay.Order;
 import com.razorpay.Payment;
 
@@ -46,6 +49,16 @@ public class PaymentGatewayController {
 		return new GateWayResponse<String>("order created successfully", payment.toString());
 
 	}
+	@PostMapping("/create_creditdebit_order")
+	@ResponseBody
+	public GateWayResponse<?> createCreditDebitOrder(@RequestBody AccountVo accountVo) throws Exception {
+		log.info("Inside the create order service controller");
+		
+		PaymentDetailsVo payment = paymentGatwayService.createCreditDebitOrder(accountVo);
+		return new GateWayResponse<String>("creditDebitOrder created  successfully", payment.toString());
+
+	}
+	
 
 	@GetMapping("/fetchAllTranx")
 	@ResponseBody
