@@ -20,4 +20,6 @@ public interface TaxRepo extends JpaRepository<Tax, Long> {
 
 	List<Tax> findByTaxLabel(String taxLabel);
 
+	List<Tax> findByIdIn(List<Long> taxIds);
+
 }

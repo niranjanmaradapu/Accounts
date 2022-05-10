@@ -54,20 +54,16 @@ public class TaxController {
 		TaxVo taxSave = taxService.saveTax(taxvo);
 		return ResponseEntity.ok(taxSave);
 	}
-
+	
 	@ApiOperation(value = "getTax", notes = "fetching tax details using id", response = TaxVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = TaxVo.class, responseContainer = "Object") })
 	@GetMapping("/getTax")
 	public GateWayResponse<?> getTax(@RequestParam("id") Long id) {
 		log.info("Recieved request to getTax:" + id);
-		Optional<Tax> tax = taxService.getTaxById(id);
-		return new GateWayResponse<>("fetching tax data details successfully with id", tax);
+		TaxVo tax = taxService.getTaxById(id);
+		return new GateWayResponse<>("fetching tax details successfully with id", tax);
 	}
-
-	/*
-	 * get functionality through service
-	 */
 
 	@ApiOperation(value = "getTaxDetails", notes = "fetching all tax details", response = TaxVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
@@ -80,6 +76,11 @@ public class TaxController {
 
 	}
 
+	/*
+	 * get functionality through service
+	 */
+
+	
 	/*
 	 * update functionality for the Tax with the help of arguments: id,taxvo object
 	 */
@@ -104,5 +105,18 @@ public class TaxController {
 		return new GateWayResponse<>("tax data deleted successfully", deleteTax);
 
 	}
+	
+	@ApiOperation(value = "tax-ids", notes = "get tax for given ids", response = TaxVo.class)
+	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
+			@ApiResponse(code = 200, message = "Successful retrieval", 
+			response = TaxVo.class, responseContainer = "List") })
+	@PostMapping("/tax-ids")
+	public ResponseEntity<?> getTaxForGivenIds(@RequestBody List<Long> taxIds) {
+		
+			log.info("Recieved request to getTaxForGivenIds:" + taxIds);
+			List<TaxVo> taxIdList = taxService.getTaxForGivenIds(taxIds);
+			return ResponseEntity.ok(taxIdList);
+		
+		}
 
 }

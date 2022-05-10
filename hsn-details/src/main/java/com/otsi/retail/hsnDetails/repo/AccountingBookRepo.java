@@ -38,5 +38,8 @@ public interface AccountingBookRepo extends JpaRepository<AccountingBook, Long> 
 
 	List<AccountingBook> findByAccountTypeAndStoreId(AccountType accountType, Long storeId);
 
+	AccountingBook findByCustomerIdAndStoreIdAndAccountType(Long customerId, Long storeId, AccountType accountType);
+
+
 	
 }

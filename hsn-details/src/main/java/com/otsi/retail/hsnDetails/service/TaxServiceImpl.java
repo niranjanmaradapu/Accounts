@@ -68,18 +68,21 @@ public class TaxServiceImpl implements TaxService {
 	}
 
 	@Override
-	public Optional<Tax> getTaxById(Long id) {
+	public TaxVo getTaxById(Long id) {
 		log.debug("debugging getTaxById:" + id);
 		Optional<Tax> tax = taxRepo.findById(id);
 		if (!(tax.isPresent())) {
 			log.error("tax  record is not found");
 			throw new RecordNotFoundException("tax record is not found");
 		}
+		TaxVo taxVo=taxMapper.EntityToVo(tax.get());
 		log.warn("we are checking if tax data is fetching by id...");
 		log.info("after fetching tax details:" + tax.toString());
-		return tax;
+		return taxVo;
 
 	}
+
+
 
 	/*
 	 * get functionality for tax_details
@@ -114,6 +117,15 @@ public class TaxServiceImpl implements TaxService {
 		log.warn("we are checking if tax is deleted...");
 		log.info("after deleting tax details:" + id);
 		return "tax data deleted succesfully: " + id;
+	}
+	
+	@Override
+	public List<TaxVo> getTaxForGivenIds(List<Long> taxIds) {
+		
+		List<TaxVo> taxVoList = new ArrayList<>();
+		List<Tax> taxs = taxRepo.findByIdIn(taxIds);
+	    taxVoList = taxMapper.EntityToVo(taxs);
+	    return taxVoList;
 	}
 
 }

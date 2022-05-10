@@ -3,8 +3,11 @@ package com.otsi.retail.hsnDetails.mapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.stereotype.Component;
 
+import com.otsi.retail.hsnDetails.enums.AccountType;
+import com.otsi.retail.hsnDetails.enums.PaymentStatus;
 import com.otsi.retail.hsnDetails.model.LedgerLogBook;
 import com.otsi.retail.hsnDetails.vo.LedgerLogBookVo;
 
@@ -25,6 +28,14 @@ public class LedgerLogBookMapper {
 		ledgerLogBook.setTransactionType(ledgerLogBookVo.getTransactionType());
 		ledgerLogBook.setAccountType(ledgerLogBookVo.getAccountType());
 		ledgerLogBook.setModifiedBy(ledgerLogBookVo.getModifiedBy());
+		ledgerLogBook.setPaymentType(ledgerLogBookVo.getPaymentType());
+		ledgerLogBook.setPaymentStatus(PaymentStatus.PENDING);
+		if(ledgerLogBookVo.getAccountType().equals(AccountType.CREDIT)) {
+		ledgerLogBook.setReferenceNumber("CR_"+RandomStringUtils.randomAlphanumeric(10));
+		}
+		else
+			ledgerLogBook.setReferenceNumber("DR_"+RandomStringUtils.randomAlphanumeric(10));
+
 		return ledgerLogBook;
 	}
 
@@ -42,6 +53,7 @@ public class LedgerLogBookMapper {
 		ledgerLogBookVo.setLedgerLogBookId(ledgerLogBook.getLedgerLogBookId());
 		ledgerLogBookVo.setComments(ledgerLogBook.getComments());
 		ledgerLogBookVo.setCreatedBy(ledgerLogBook.getCreatedBy());
+		ledgerLogBookVo.setPaymentType(ledgerLogBook.getPaymentType());
 		ledgerLogBookVo.setCreatedDate(ledgerLogBook.getCreatedDate());
 		ledgerLogBookVo.setLastModifiedDate(ledgerLogBook.getCreatedDate());
 		ledgerLogBookVo.setCustomerId(ledgerLogBook.getCustomerId());
@@ -49,6 +61,7 @@ public class LedgerLogBookMapper {
 		ledgerLogBookVo.setTransactionType(ledgerLogBook.getTransactionType());
 		ledgerLogBookVo.setModifiedBy(ledgerLogBook.getModifiedBy());
 		ledgerLogBookVo.setAmount(ledgerLogBook.getAmount());
+		ledgerLogBookVo.setReferenceNumber(ledgerLogBook.getReferenceNumber());
 		ledgerLogBookVo.setAccountingBookId(ledgerLogBook.getAccountingBookId());
 		return ledgerLogBookVo;
 

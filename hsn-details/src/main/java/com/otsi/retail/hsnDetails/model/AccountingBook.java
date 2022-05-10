@@ -32,5 +32,6 @@ public class AccountingBook extends BaseEntity {
 	private AccountType accountType;
 	
 	private Long usedAmount;
+	
 
 }

@@ -220,5 +220,16 @@ public class CreditDebitNotesController {
 		Page<LedgerLogBookVo> ledgerLogs = creditDebitNotesService.getAllLedgerLogs(searchFilterVo, page);
 		return ResponseEntity.ok(ledgerLogs);
 	}
+	
+	@PostMapping("payconfirmation")
+	public ResponseEntity<?> paymentConfirmationFromRazorpay(@RequestParam String razorPayId,
+			@RequestParam boolean payStatus) {
+		log.info("Received payment confirmation for razorpayId :" + razorPayId);
+		
+		Boolean response = creditDebitNotesService.paymentConfirmationFromRazorpay(razorPayId, payStatus);
+		return ResponseEntity.ok(response);
+
+		
+	}
 
 }

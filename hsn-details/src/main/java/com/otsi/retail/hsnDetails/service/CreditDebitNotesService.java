@@ -48,6 +48,7 @@ public interface CreditDebitNotesService {
 
 	//List<AccountingBookVo> getAllNotes(SearchFilterVo searchFilterVo, AccountType accountType);
 
-	
+
+	Boolean paymentConfirmationFromRazorpay(String razorPayId, boolean payStatus);
 
 }

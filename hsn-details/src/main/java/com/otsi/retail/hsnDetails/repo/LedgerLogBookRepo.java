@@ -30,4 +30,8 @@ public interface LedgerLogBookRepo extends JpaRepository<LedgerLogBook, Long> {
 
 	Page<LedgerLogBook> findByCustomerIdAndAccountType(Long customerId, AccountType accountType, Pageable page);
 
+	LedgerLogBook findByPaymentId(String razorPayId);
+
+	LedgerLogBook findByReferenceNumber(String referenceNumber);
+
 }

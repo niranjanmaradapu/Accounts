@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +29,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.otsi.retail.hsnDetails.config.Config;
 import com.otsi.retail.hsnDetails.enums.AccountType;
+import com.otsi.retail.hsnDetails.enums.PaymentStatus;
+import com.otsi.retail.hsnDetails.enums.PaymentType;
 import com.otsi.retail.hsnDetails.exceptions.RecordNotFoundException;
 import com.otsi.retail.hsnDetails.gatewayresponse.GateWayResponse;
 import com.otsi.retail.hsnDetails.mapper.AccountingBookMapper;
@@ -43,6 +47,7 @@ import com.otsi.retail.hsnDetails.vo.AccountingBookVo;
 import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVo;
 import com.otsi.retail.hsnDetails.vo.GetUserRequestVo;
 import com.otsi.retail.hsnDetails.vo.LedgerLogBookVo;
+import com.otsi.retail.hsnDetails.vo.PaymentDetailsVo;
 import com.otsi.retail.hsnDetails.vo.SearchFilterVo;
 import com.otsi.retail.hsnDetails.vo.UpdateCreditRequest;
 import com.otsi.retail.hsnDetails.vo.UserDetailsVo;
@@ -476,25 +481,44 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 
 	@Override
 	public LedgerLogBookVo saveNotes(LedgerLogBookVo ledgerLogBookVo) {
-		AccountingBook accountingBookCustomer = accountingBookRepo.findByCustomerIdAndAccountType(
-				ledgerLogBookVo.getCustomerId(), ledgerLogBookVo.getAccountType());
+
 		LedgerLogBook ledgerLogBook = ledgerLogBookMapper.voToEntity(ledgerLogBookVo);
+		LedgerLogBook ledgerLogBookSave = ledgerLogBookRepo.save(ledgerLogBook);
+
+		LedgerLogBookVo ledgerBookVo = ledgerLogBookMapper.entityToVo(ledgerLogBookSave);
+		if (ledgerLogBookVo.getPaymentType().equals(PaymentType.Cash)) {
+			ledgerLogBookSave.setPaymentStatus(PaymentStatus.SUCCESS);
+			LedgerLogBook ledgerBook = ledgerLogBookRepo.save(ledgerLogBook);
+
+			ledgerBookVo = calculateAmount(ledgerBook);
+		}
+
+		return ledgerBookVo;
+
+	}
+
+	private LedgerLogBookVo calculateAmount(LedgerLogBook ledgerLogBook) {
+		AccountingBook accountingBookCustomer = accountingBookRepo
+				.findByCustomerIdAndAccountType(ledgerLogBook.getCustomerId(), ledgerLogBook.getAccountType());
 		if (accountingBookCustomer != null) {
-			accountingBookCustomer.setAmount(accountingBookCustomer.getAmount() + ledgerLogBookVo.getAmount());
+			accountingBookCustomer.setAmount(accountingBookCustomer.getAmount() + ledgerLogBook.getAmount());
 			AccountingBook accountingBookSave = accountingBookRepo.save(accountingBookCustomer);
 			ledgerLogBook.setAccountingBookId(accountingBookSave.getAccountingBookId());
+
 		} else {
 			AccountingBook accountingBook = new AccountingBook();
-			accountingBook.setAmount(ledgerLogBookVo.getAmount());
-			accountingBook.setAccountType(ledgerLogBookVo.getAccountType());
-			accountingBook.setCustomerId(ledgerLogBookVo.getCustomerId());
-			accountingBook.setStoreId(ledgerLogBookVo.getStoreId());
+			accountingBook.setAmount(ledgerLogBook.getAmount());
+			accountingBook.setAccountType(ledgerLogBook.getAccountType());
+			accountingBook.setCustomerId(ledgerLogBook.getCustomerId());
+			accountingBook.setStoreId(ledgerLogBook.getStoreId());
+
 			AccountingBook accountingBookSave = accountingBookRepo.save(accountingBook);
 			ledgerLogBook.setAccountingBookId(accountingBookSave.getAccountingBookId());
 		}
 		LedgerLogBook ledgerLogBookSave = ledgerLogBookRepo.save(ledgerLogBook);
-		ledgerLogBookVo = ledgerLogBookMapper.entityToVo(ledgerLogBookSave);
+		LedgerLogBookVo ledgerLogBookVo = ledgerLogBookMapper.entityToVo(ledgerLogBookSave);
 		return ledgerLogBookVo;
+
 	}
 
 	@Override
@@ -681,4 +705,43 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		return Page.empty();
 	}
 
+	@RabbitListener(queues = "payment_creditNotes_queue")
+	public void paymentConfirmation(PaymentDetailsVo paymentDetails) {
+
+		// AccountingBook entity =
+		// accountingBookRepo.findByReferenceNumber(paymentDetails.getReferenceNumber());
+
+		LedgerLogBook ledgerbook = ledgerLogBookRepo.findByReferenceNumber(paymentDetails.getReferenceNumber());
+
+		if (ledgerbook != null) {
+			ledgerbook.setPaymentId(paymentDetails.getRazorPayId());
+			ledgerbook.setPaymentStatus(PaymentStatus.INITIATED);
+			ledgerLogBookRepo.save(ledgerbook);
+
+			log.info("save payment details for credit : " + ledgerbook.getReferenceNumber());
+		}
+
+	}
+
+	@Override
+	public Boolean paymentConfirmationFromRazorpay(String razorPayId, boolean payStatus) {
+		if (payStatus) {
+			// todo confirm payment success from razorpay
+			LedgerLogBook ledgerLogBook = ledgerLogBookRepo.findByPaymentId(razorPayId);
+			ledgerLogBook.setPaymentStatus(PaymentStatus.SUCCESS);
+
+			ledgerLogBookRepo.save(ledgerLogBook);
+			LedgerLogBookVo ledgerBookVo = calculateAmount(ledgerLogBook);
+			log.info("update payment details for razorpay Id: " + razorPayId);
+
+		} else {
+			log.info("Payment failed for razoer pay id : " + razorPayId);
+			LedgerLogBook ledgerLogBook = ledgerLogBookRepo.findByPaymentId(razorPayId);
+			ledgerLogBook.setPaymentStatus(PaymentStatus.FAILED);
+			ledgerLogBookRepo.save(ledgerLogBook);
+			//LedgerLogBookVo ledgerBookVo = calculateAmount(ledgerLogBook);
+		}
+		return payStatus;
+
+	}
 }

@@ -13,7 +13,9 @@ public interface TaxService {
 
 	String updateTax(TaxVo taxvo) throws RecordNotFoundException;
 
-	Optional<Tax> getTaxById(Long id);
+	TaxVo getTaxById(Long id);
+	
+	List<TaxVo> getTaxForGivenIds(List<Long> taxIds);
 
 	String deleteTax(Long id);
 

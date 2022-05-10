@@ -9,6 +9,7 @@ import javax.persistence.Table;
 
 import com.otsi.retail.hsnDetails.enums.AccountStatus;
 import com.otsi.retail.hsnDetails.enums.AccountType;
+import com.otsi.retail.hsnDetails.enums.PaymentStatus;
 import com.otsi.retail.hsnDetails.enums.PaymentType;
 
 import lombok.AllArgsConstructor;
@@ -47,5 +48,15 @@ public class LedgerLogBook extends BaseEntity {
 	private PaymentType paymentType;
 
 	private Long accountingBookId;
+	
+    private String paymentId;
+    
+	@Enumerated(EnumType.STRING)
+	private PaymentStatus paymentStatus;
+	
+	private String referenceNumber;
+
+	
+	
 
 }
