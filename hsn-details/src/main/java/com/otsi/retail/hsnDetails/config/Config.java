@@ -29,6 +29,9 @@ public class Config {
 	@Value("${getUserDetails_url}")
 	private String userDetails;
 	
+	@Value("${getCustomerDetails_url}")
+	private String customerDetails;
+	
 	@Value("${getCustomerDetailsFromURM_url}")
 	private String getCustomerDetailsFromURM;
 	
