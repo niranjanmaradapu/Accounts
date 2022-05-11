@@ -55,7 +55,7 @@ public class PaymentGatewayController {
 		log.info("Inside the create order service controller");
 		
 		PaymentDetailsVo payment = paymentGatwayService.createCreditDebitOrder(accountVo);
-		return new GateWayResponse<String>("creditDebitOrder created  successfully", payment.toString());
+		return new GateWayResponse<>("creditDebitOrder created  successfully", payment);
 
 	}
 	
