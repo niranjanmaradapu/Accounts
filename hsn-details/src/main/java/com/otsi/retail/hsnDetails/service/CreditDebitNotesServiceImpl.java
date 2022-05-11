@@ -1,5 +1,7 @@
 package com.otsi.retail.hsnDetails.service;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -7,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -22,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -479,6 +481,27 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 
 	}
 
+	public List<UserDetailsVo> getCustomersForGivenIds(List<Long> userIds) throws URISyntaxException {
+
+		HttpHeaders headers = new HttpHeaders();
+		URI uri = UriComponentsBuilder.fromUri(new URI(config.getCustomerDetails())).build().encode().toUri();
+
+		HttpEntity<List<Long>> request = new HttpEntity<List<Long>>(userIds, headers);
+
+		ResponseEntity<?> newsaleResponse = restTemplate.exchange(uri, HttpMethod.POST, request, GateWayResponse.class);
+
+		System.out.println("Received Request to getUserDetails:" + newsaleResponse);
+		ObjectMapper mapper = new ObjectMapper();
+
+		GateWayResponse<?> gatewayResponse = mapper.convertValue(newsaleResponse.getBody(), GateWayResponse.class);
+
+		List<UserDetailsVo> userDetailsVo = mapper.convertValue(gatewayResponse.getResult(),
+				new TypeReference<List<UserDetailsVo>>() {
+				});
+		return userDetailsVo;
+
+	}
+
 	@Override
 	public LedgerLogBookVo saveNotes(LedgerLogBookVo ledgerLogBookVo) {
 
@@ -585,7 +608,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		 * using from date and storeId
 		 */
 		if (searchFilterVo.getFromDate() != null && searchFilterVo.getToDate() == null
-				&& searchFilterVo.getStoreId() != null && searchFilterVo.getMobileNumber() == null) {
+				&& searchFilterVo.getStoreId() != null && searchFilterVo.getMobileNumber() == null
+				&& searchFilterVo.getAccountType() != null) {
 			LocalDateTime fromTime = DateConverters.convertLocalDateToLocalDateTime(searchFilterVo.getFromDate());
 			LocalDateTime fromTime1 = DateConverters.convertToLocalDateTimeMax(searchFilterVo.getFromDate());
 			accountingBooks = accountingBookRepo.findByCreatedDateBetweenAndStoreIdAndAccountType(fromTime, fromTime1,
@@ -597,7 +621,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		 * using dates and storeId
 		 */
 		else if (searchFilterVo.getFromDate() != null && searchFilterVo.getToDate() != null
-				&& searchFilterVo.getStoreId() != null && searchFilterVo.getMobileNumber() == null) {
+				&& searchFilterVo.getStoreId() != null && searchFilterVo.getMobileNumber() == null
+				&& searchFilterVo.getAccountType() != null) {
 			LocalDateTime fromTime = DateConverters.convertLocalDateToLocalDateTime(searchFilterVo.getFromDate());
 			LocalDateTime toTime = DateConverters.convertToLocalDateTimeMax(searchFilterVo.getToDate());
 			accountingBooks = accountingBookRepo
@@ -611,7 +636,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		 */
 
 		else if (searchFilterVo.getFromDate() != null && searchFilterVo.getToDate() != null
-				&& searchFilterVo.getMobileNumber() != null && searchFilterVo.getStoreId() != null) {
+				&& searchFilterVo.getMobileNumber() != null && searchFilterVo.getStoreId() != null
+				&& searchFilterVo.getAccountType() != null) {
 
 			List<UserDetailsVo> uvo = getUserDetailsFromURM(searchFilterVo.getMobileNumber(), 0L);
 			if (uvo != null) {
@@ -630,7 +656,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		 */
 
 		else if (searchFilterVo.getFromDate() == null && searchFilterVo.getToDate() == null
-				&& searchFilterVo.getMobileNumber() == null && searchFilterVo.getStoreId() != null) {
+				&& searchFilterVo.getMobileNumber() == null && searchFilterVo.getStoreId() != null
+				&& searchFilterVo.getAccountType() != null) {
 			accountingBooks = accountingBookRepo.findByStoreIdAndAccountType(searchFilterVo.getStoreId(),
 					searchFilterVo.getAccountType(), pageable);
 		}
@@ -640,7 +667,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		 */
 
 		else if (searchFilterVo.getFromDate() == null && searchFilterVo.getToDate() == null
-				&& searchFilterVo.getMobileNumber() != null && searchFilterVo.getStoreId() != null) {
+				&& searchFilterVo.getMobileNumber() != null && searchFilterVo.getStoreId() != null
+				&& searchFilterVo.getAccountType() != null) {
 
 			List<UserDetailsVo> uvo = getUserDetailsFromURM(searchFilterVo.getMobileNumber(), 0L);
 			if (uvo != null) {
@@ -650,9 +678,31 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 			}
 		}
 		if (accountingBooks != null && accountingBooks.hasContent()) {
-			return accountingBooks.map(accounting -> accountingBookMapper.entityToVo(accounting));
+			return accountingBooks.map(accounting -> accountMapToVo(accounting));
 		} else
 			return Page.empty();
+	}
+
+	private AccountingBookVo accountMapToVo(AccountingBook accountingBook) {
+		AccountingBookVo accountingBookVo = accountingBookMapper.entityToVo(accountingBook);
+
+		List<AccountingBook> customerIds = accountingBookRepo.findAllByCustomerId(accountingBookVo.getCustomerId());
+		List<Long> userIds = customerIds.stream().map(x -> x.getCustomerId()).distinct().collect(Collectors.toList());
+		List<UserDetailsVo> userDetailsVo = null;
+		try {
+			userDetailsVo = getCustomersForGivenIds(userIds);
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		if (userDetailsVo != null) {
+			userDetailsVo.stream().forEach(x -> {
+				accountingBookVo.setCustomerName(x.getUserName());
+				accountingBookVo.setMobileNumber(x.getPhoneNumber());
+			});
+		}
+
+		return accountingBookVo;
+
 	}
 
 	@Override
@@ -739,7 +789,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 			LedgerLogBook ledgerLogBook = ledgerLogBookRepo.findByPaymentId(razorPayId);
 			ledgerLogBook.setPaymentStatus(PaymentStatus.FAILED);
 			ledgerLogBookRepo.save(ledgerLogBook);
-			//LedgerLogBookVo ledgerBookVo = calculateAmount(ledgerLogBook);
+			// LedgerLogBookVo ledgerBookVo = calculateAmount(ledgerLogBook);
 		}
 		return payStatus;
 

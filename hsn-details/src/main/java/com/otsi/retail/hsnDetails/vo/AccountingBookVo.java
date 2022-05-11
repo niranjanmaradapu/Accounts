@@ -35,5 +35,7 @@ public class AccountingBookVo extends BaseEntityVo {
 	
 	private String customerName;
 	
+	private String mobileNumber;
+	
 	private Long usedAmount;
 }

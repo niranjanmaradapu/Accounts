@@ -17,7 +17,8 @@ public interface AccountingBookRepo extends JpaRepository<AccountingBook, Long> 
 
 	Optional<AccountingBook> findByAccountingBookId(Long accountingBookId);
 
-	//AccountingBook findByCustomerIdAndStoreIdAndAccountType(Long customerId, Long storeId, AccountType accountType);
+	// AccountingBook findByCustomerIdAndStoreIdAndAccountType(Long customerId, Long
+	// storeId, AccountType accountType);
 
 	Page<AccountingBook> findByCreatedDateBetweenAndStoreIdAndAccountType(LocalDateTime fromTime,
 			LocalDateTime fromTime1, Long storeId, AccountType accountType, Pageable pageable);
@@ -40,6 +41,6 @@ public interface AccountingBookRepo extends JpaRepository<AccountingBook, Long> 
 
 	AccountingBook findByCustomerIdAndStoreIdAndAccountType(Long customerId, Long storeId, AccountType accountType);
 
+	List<AccountingBook> findAllByCustomerId(Long customerId);
 
-	
 }
