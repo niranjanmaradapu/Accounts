@@ -8,7 +8,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
+/**
+ * @author vasavi
+ *
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -38,4 +41,6 @@ public class AccountingBookVo extends BaseEntityVo {
 	private String mobileNumber;
 	
 	private Long usedAmount;
+	
+	private Long balanceAmount;
 }

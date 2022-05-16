@@ -2,7 +2,10 @@ package com.otsi.retail.hsnDetails.vo;
 
 import java.time.LocalDateTime;
 import lombok.Data;
-
+/**
+ * @author vasavi
+ *
+ */
 @Data
 public class BaseEntityVo {
 

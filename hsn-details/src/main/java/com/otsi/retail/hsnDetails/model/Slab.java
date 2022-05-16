@@ -19,7 +19,10 @@ import org.hibernate.annotations.OnDeleteAction;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+/**
+ * @author vasavi
+ *
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -21,7 +21,10 @@ import com.otsi.retail.hsnDetails.enums.TaxAppliedType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+/**
+ * @author vasavi
+ *
+ */
 @Entity
 @Table(name = "hsn_details")
 @Data

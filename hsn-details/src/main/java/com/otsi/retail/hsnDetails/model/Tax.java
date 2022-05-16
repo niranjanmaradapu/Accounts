@@ -13,7 +13,10 @@ import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+/**
+ * @author vasavi
+ *
+ */
 @Entity
 @Table(name = "tax")
 @Data

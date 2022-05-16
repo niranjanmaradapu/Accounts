@@ -33,9 +33,12 @@ public class HsnDetailsMapper {
 		hsnDetailsVo.setDescription(hsnDetails.getDescription());
 		hsnDetailsVo.setTaxAppliedType(hsnDetails.getTaxAppliedType());
 		hsnDetailsVo.setTaxAppliesOn(hsnDetails.getTaxAppliesOn());
-		if(hsnDetailsVo.getTaxId()!=null) {
+		if (hsnDetails.getTaxAppliedType().equals(TaxAppliedType.Hsncode)) {
 			hsnDetailsVo.setTaxId(hsnDetails.getTax().getId());
-			}
+		} else if (hsnDetails.getTaxAppliedType().equals(TaxAppliedType.Priceslab)) {
+			hsnDetailsVo.setTaxId(null);
+		}
+
 		hsnDetailsVo.setCreatedDate(hsnDetails.getCreatedDate());
 		hsnDetailsVo.setLastModifiedDate(hsnDetails.getLastModifiedDate());
 		hsnDetailsVo.setCreatedBy(hsnDetails.getCreatedBy());
@@ -74,6 +77,19 @@ public class HsnDetailsMapper {
 	 */
 	public List<HsnDetails> mapVoToEntity(List<HsnDetailsVo> hsnDetailsVos) {
 		return hsnDetailsVos.stream().map(hsnDetailsVo -> mapVoToEntity(hsnDetailsVo)).collect(Collectors.toList());
+
+	}
+
+
+	public HsnDetails voToEntityUpdate(HsnDetailsVo hsnDetailsVo) {
+		HsnDetails hsnDetails = new HsnDetails();
+		
+		hsnDetails.setId(hsnDetailsVo.getId());
+		hsnDetails.setHsnCode(hsnDetailsVo.getHsnCode());
+		hsnDetails.setDescription(hsnDetailsVo.getDescription());
+		hsnDetails.setTaxAppliedType(hsnDetailsVo.getTaxAppliedType());
+		hsnDetails.setTaxAppliesOn(hsnDetailsVo.getTaxAppliesOn());
+		return hsnDetails;
 
 	}
 

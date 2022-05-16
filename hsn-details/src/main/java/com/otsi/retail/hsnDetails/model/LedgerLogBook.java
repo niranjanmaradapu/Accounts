@@ -15,7 +15,10 @@ import com.otsi.retail.hsnDetails.enums.PaymentType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+/**
+ * @author vasavi
+ *
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -29,12 +32,12 @@ public class LedgerLogBook extends BaseEntity {
 
 	@Enumerated(EnumType.STRING)
 	private AccountType transactionType;
-	
+
 	@Enumerated(EnumType.STRING)
 	private AccountType accountType;
 
 	private String comments;
-	
+
 	private Long amount;
 
 	private Long storeId;
@@ -48,15 +51,16 @@ public class LedgerLogBook extends BaseEntity {
 	private PaymentType paymentType;
 
 	private Long accountingBookId;
-	
-    private String paymentId;
-    
+
+	private String paymentId;
+
 	@Enumerated(EnumType.STRING)
 	private PaymentStatus paymentStatus;
-	
+
 	private String referenceNumber;
 
-	
-	
+	private Boolean isReturned;
+
+	private String returnReferenceNumber;
 
 }

@@ -45,6 +45,7 @@ public class HsnDetailsController {
 
 	@Autowired
 	private HsnDetailsService hsnDetailsService;
+	
 
 	/*
 	 * save functionality through service by HsnDetailsVo
@@ -61,6 +62,8 @@ public class HsnDetailsController {
 		return ResponseEntity.ok(hsnSave);
 
 	}
+	
+	
 	/*
 	 * fetch functionality through service by @pathVariable("enumName)
 	 */
@@ -75,6 +78,8 @@ public class HsnDetailsController {
 		return new GateWayResponse<List<EnumVo>>("fetching enum details successfully", enumVo);
 
 	}
+	
+	
 	/*
 	 * update functionality through service by HsnDetailsVo
 	 */
@@ -83,12 +88,13 @@ public class HsnDetailsController {
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = HsnDetailsVo.class, responseContainer = "String") })
 	@PutMapping(value = "/updateHsn")
-	public GateWayResponse<?> updateHsn(@RequestBody HsnDetailsVo vo) {
+	public ResponseEntity<?> updateHsn(@RequestBody HsnDetailsVo vo) {
 		log.info("Received Request to update hsn :" + vo.toString());
-		String hsnUpdate = hsnDetailsService.hsnUpdate(vo);
-		return new GateWayResponse<>("hsn-details updated successfully", hsnUpdate);
+		HsnDetailsVo hsnUpdate = hsnDetailsService.hsnUpdate(vo);
+		return ResponseEntity.ok(hsnUpdate);
 	}
 
+	
 	/*
 	 * delete functionality through service by id
 	 */

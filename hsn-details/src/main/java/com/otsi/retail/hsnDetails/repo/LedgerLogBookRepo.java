@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.otsi.retail.hsnDetails.enums.AccountType;
+import com.otsi.retail.hsnDetails.enums.PaymentStatus;
 import com.otsi.retail.hsnDetails.model.LedgerLogBook;
 
 @Repository
@@ -23,8 +24,8 @@ public interface LedgerLogBookRepo extends JpaRepository<LedgerLogBook, Long> {
 			Long customerId, LocalDateTime fromTime, LocalDateTime toTime, Long storeId, AccountType accountType,
 			Pageable page);
 
-	Page<LedgerLogBook> findByCustomerIdAndStoreIdAndAccountType(Long customerId, Long storeId, AccountType accountType,
-			Pageable page);
+	Page<LedgerLogBook> findByCustomerIdAndStoreIdAndAccountTypeOrderByCreatedDateDesc(Long customerId, Long storeId,
+			AccountType accountType, Pageable pageable);
 
 	List<LedgerLogBook> findByAccountingBookId(Long accountingBookId);
 
@@ -33,5 +34,14 @@ public interface LedgerLogBookRepo extends JpaRepository<LedgerLogBook, Long> {
 	LedgerLogBook findByPaymentId(String razorPayId);
 
 	LedgerLogBook findByReferenceNumber(String referenceNumber);
+
+	LedgerLogBook findTopByCustomerIdInAndStoreIdAndAccountType(List<Long> userIds, Long storeId,
+			AccountType accountType);
+
+	//LedgerLogBook findByCustomerIdAndStoreIdAndAccountType(Long userId, Long storeId, AccountType accountType);
+
+	LedgerLogBook findByCustomerIdAndStoreIdAndAccountType(Long userId, Long storeId, AccountType accountType);
+
+	
 
 }
