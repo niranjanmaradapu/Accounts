@@ -13,6 +13,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
 import com.otsi.retail.hsnDetails.enums.Description;
 import com.otsi.retail.hsnDetails.enums.TaxAppliedType;
 import com.otsi.retail.hsnDetails.enums.TaxAppliesOn;
@@ -130,7 +132,6 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		}
 		// if id is present,it will update data based on id.
 		HsnDetails hsnUpdate = hsnDetailsMapper.voToEntityUpdate(hsnDetailsVo);
-		HsnDetails save = hsnDetailsRepo.save(hsnUpdate);
 		if (hsnDetailsVo.getTaxId() != null) {
 			Optional<Tax> taxOpt = taxRepo.findById(hsnDetailsVo.getTaxId());
 
@@ -139,9 +140,11 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 				hsnUpdate.setTax(taxOpt.get());
 			}
 		}
+		HsnDetails save = hsnDetailsRepo.save(hsnUpdate);
+		
 		// here,will loop
 		
-		if(hsnDetailsVo.getSlabs()!=null) {
+		if(hsnDetailsVo.getSlabs()!=null&&!hsnDetailsVo.getSlabs().isEmpty()) {
 		hsnDetailsVo.getSlabs().stream().forEach(vos -> {
 			Slab slab = new Slab();
 			slab.setId(vos.getId());
