@@ -516,15 +516,6 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		}
 
 		ledgerLogBookVo = ledgerLogBookMapper.entityToVo(ledgerLogBook);
-
-		/*
-		 * if (ledgerLogBookVo.getAccountType().equals(AccountType.DEBIT)) {
-		 * ledgerLogBookSave.setPaymentStatus(PaymentStatus.DEBIT); ledgerLogBookVo =
-		 * calculateAmount(ledgerLogBookSave); } else if
-		 * (ledgerLogBookVo.getPaymentType().equals(PaymentType.Cash)) {
-		 * ledgerLogBookSave.setPaymentStatus(PaymentStatus.SUCCESS); ledgerLogBookVo =
-		 * calculateAmount(ledgerLogBookSave); }
-		 */
 		return ledgerLogBookVo;
 
 	}
@@ -533,7 +524,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		LedgerLogBook ledgerLogBook = ledgerLogBookMapper.voToEntity(ledgerLogBookVo);
 		// when customer credit note is created
 		if (ledgerLogBookVo.getTransactionType().equals(AccountType.CREDIT)) {
-			if (ledgerLogBookVo.getPaymentType().equals(PaymentType.Cash)) {
+			if (ledgerLogBookVo.getPaymentType().equals(PaymentType.Cash)
+					|| ledgerLogBookVo.getPaymentType().equals(PaymentType.RTSlip)) {
 				ledgerLogBook.setPaymentStatus(PaymentStatus.SUCCESS);
 				ledgerLogBookVo = calculateAmount(ledgerLogBook);
 			}
@@ -583,7 +575,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 				ledgerLogBook.setCustomerId(accountingBook.getCustomerId());
 				// to update amount in accounting book
 				accountingBook.setAmount(Math.abs(ledgerLogBookVo.getAmount() - accountingBook.getAmount()));
-				accountingBook = accountingBookRepo.save(accountingBook);
+				accountingBookRepo.save(accountingBook);
 			}
 
 		}
@@ -727,8 +719,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		else if (searchFilterVo.getFromDate() == null && searchFilterVo.getToDate() == null
 				&& searchFilterVo.getMobileNumber() == null && searchFilterVo.getStoreId() != null
 				&& searchFilterVo.getAccountType() != null) {
-			accountingBooks = accountingBookRepo.findByStoreIdAndAccountTypeOrderByCreatedDateDesc(searchFilterVo.getStoreId(),
-					searchFilterVo.getAccountType(), pageable);
+			accountingBooks = accountingBookRepo.findByStoreIdAndAccountTypeOrderByCreatedDateDesc(
+					searchFilterVo.getStoreId(), searchFilterVo.getAccountType(), pageable);
 		}
 
 		/*
@@ -768,8 +760,9 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 				accountingBookVo.setMobileNumber(x.getPhoneNumber());
 			});
 		}
-		if(accountingBookVo.getUsedAmount()!=null) {
-		accountingBookVo.setBalanceAmount(Math.abs(accountingBookVo.getAmount() - accountingBookVo.getUsedAmount()));
+		if (accountingBookVo.getUsedAmount() != null) {
+			accountingBookVo
+					.setBalanceAmount(Math.abs(accountingBookVo.getAmount() - accountingBookVo.getUsedAmount()));
 		}
 		return accountingBookVo;
 
@@ -810,8 +803,9 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		 */
 
 		else if (searchFilterVo.getStoreId() != null) {
-			ledgerLogs = ledgerLogBookRepo.findByCustomerIdAndStoreIdAndAccountTypeOrderByCreatedDateDesc(searchFilterVo.getCustomerId(),
-					searchFilterVo.getStoreId(), searchFilterVo.getAccountType(), pageable);
+			ledgerLogs = ledgerLogBookRepo.findByCustomerIdAndStoreIdAndAccountTypeOrderByCreatedDateDesc(
+					searchFilterVo.getCustomerId(), searchFilterVo.getStoreId(), searchFilterVo.getAccountType(),
+					pageable);
 		}
 
 		else

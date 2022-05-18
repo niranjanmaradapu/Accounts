@@ -25,27 +25,53 @@ public class Config {
 
 	@Value("${getStoreDetails_url}")
 	private String storeDetails;
-	
+
 	@Value("${getUserDetails_url}")
 	private String userDetails;
-	
+
 	@Value("${getCustomerDetails_url}")
 	private String customerDetails;
-	
+
 	@Value("${getCustomerDetailsFromURM_url}")
 	private String getCustomerDetailsFromURM;
-	
-	//for payment
-	
+
+	// for payment
+
 	@Value("${payment_creditNotes_queue}")
 	private String payemntCreditnotesQueue;
-	
+
 	@Value("${payments_exchange}")
 	private String payemntsExchange;
-	
+
 	@Value("${payments_creditNotes_rk}")
 	private String paymentCreditNotesRK;
 	
+    //for accounting
+	@Value("${accounting_queue}")
+	private String accountingQueue;
+
+	@Value("${accounting_exchange}")
+	private String accountingExchange;
+
+	@Value("${accounting_rk}")
+	private String accountingRK;
+
+	@Bean
+	public Queue accountingQueue() {
+		return new Queue(accountingQueue);
+	}
+
+	@Bean
+	public DirectExchange accountingExchange() {
+		return new DirectExchange(accountingExchange);
+	}
+
+	@Bean
+	public Binding bindingAccounting(Queue accountingQueue, DirectExchange accountingExchange) {
+
+		return BindingBuilder.bind(accountingQueue).to(accountingExchange).with(accountingRK);
+	}
+
 	@Bean
 	public Queue payemntCreditnotesQueue() {
 		return new Queue(payemntCreditnotesQueue);
@@ -61,6 +87,7 @@ public class Config {
 
 		return BindingBuilder.bind(payemntCreditnotesQueue).to(payemntsExchange).with(paymentCreditNotesRK);
 	}
+
 	@Bean
 	public MessageConverter messageConverter() {
 		return new Jackson2JsonMessageConverter();
@@ -74,6 +101,35 @@ public class Config {
 		return template;
 
 	}
+	
+	
+	   //return credit save
+		@Value("${return_credit_queue}")
+		private String creditNotesQueue;
 
+		@Value("${return_credit_exchange}")
+		private String creditNotesExchange;
+
+		@Value("${return_credit_rk}")
+		private String creditnotesRK; 
+		
+	   @Bean
+	   public Queue creditNotesQueue() {
+			return new Queue(creditNotesQueue);
+		}
+
+		@Bean
+		public DirectExchange creditNotesExchange() {
+			return new DirectExchange(creditNotesExchange);
+		}
+
+		@Bean
+		public Binding bindingcreditnotes(Queue creditNotesQueue,
+				DirectExchange creditNotesExchange) {
+
+			return BindingBuilder.bind(creditNotesQueue).to(creditNotesExchange)
+					.with(creditnotesRK);
+		}
+		
 
 }

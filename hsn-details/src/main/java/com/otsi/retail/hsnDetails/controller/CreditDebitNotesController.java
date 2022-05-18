@@ -4,11 +4,13 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.otsi.retail.hsnDetails.config.Config;
 import com.otsi.retail.hsnDetails.enums.AccountType;
 import com.otsi.retail.hsnDetails.gatewayresponse.GateWayResponse;
 import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
@@ -47,7 +50,6 @@ public class CreditDebitNotesController {
 
 	@Autowired
 	private CreditDebitNotesService creditDebitNotesService;
-	
 
 	@ApiOperation(value = "saveCreditDebitNotes", notes = "saving credit/debit notes", response = CreditDebitNotesVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
@@ -59,7 +61,6 @@ public class CreditDebitNotesController {
 		return new GateWayResponse<>("saved notes successfully", debitNotesSave);
 
 	}
-	
 
 	@ApiOperation(value = "getCreditNotes", notes = "fetching credit notes using customerId", response = CreditDebitNotesVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
@@ -72,7 +73,6 @@ public class CreditDebitNotesController {
 		return new GateWayResponse<>("fetching  notes successfully with id", mobNo);
 	}
 
-	
 	@ApiOperation(value = "getAllCreditDebitNotes", notes = "fetching all credit and debit notes", response = CreditDebitNotes.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotes.class, responseContainer = "List") })
@@ -83,7 +83,6 @@ public class CreditDebitNotesController {
 		return new GateWayResponse<>("fetching all  notes sucessfully", allCreditDebitNotes);
 
 	}
-	
 
 	@ApiOperation(value = "saveListCreditDebitNotes", notes = "adding bulk of credit and debit notes", response = CreditDebitNotesVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
@@ -95,7 +94,6 @@ public class CreditDebitNotesController {
 		return new GateWayResponse<>("saving list of notes", saveVoList);
 
 	}
-	
 
 	@ApiOperation(value = "updateCreditDebitNotes", notes = "updating credit/debit notes", response = CreditDebitNotesVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
@@ -107,7 +105,6 @@ public class CreditDebitNotesController {
 		return new GateWayResponse<>("updated notes successfully", updateNotes);
 
 	}
-	
 
 	@ApiOperation(value = "updateNotes", notes = "updating credit/debit notes from newsale", response = CreditDebitNotesVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
@@ -119,7 +116,6 @@ public class CreditDebitNotesController {
 		return new GateWayResponse<>("updated notes successfully", updateNotes);
 
 	}
-	
 
 	@ApiOperation(value = "deleteCreditDebitNotes", notes = "deleting credit/debit notes using id", response = CreditDebitNotesVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
@@ -132,7 +128,6 @@ public class CreditDebitNotesController {
 
 	}
 
-	
 	@ApiOperation(value = "getAllCreditNotes", notes = "fetching all credit notes", response = CreditDebitNotesVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotesVo.class, responseContainer = "List") })
@@ -143,7 +138,6 @@ public class CreditDebitNotesController {
 		return new GateWayResponse<>("fetching all credit notes details sucessfully", allCreditNotes);
 	}
 
-	
 	@ApiOperation(value = "getAllDebitNotes", notes = "fetching all debit notes", response = CreditDebitNotesVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotesVo.class, responseContainer = "List") })
@@ -154,7 +148,6 @@ public class CreditDebitNotesController {
 		return new GateWayResponse<>("fetching all debit notes details sucessfully", allDebitNotes);
 	}
 
-	
 	@ApiOperation(value = "save", notes = "saving credit/debit notes", response = AccountingBookVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = AccountingBookVo.class, responseContainer = "String") })
@@ -175,13 +168,18 @@ public class CreditDebitNotesController {
 		return ResponseEntity.ok(notesSave);
 
 	}
-	
+
+	@RabbitListener(queues = "return_credit_queue")
+	public void returnCreditNotes(@Payload LedgerLogBookVo ledgerLogBookVo) {
+		saveNotes(ledgerLogBookVo);
+	}
 
 	@ApiOperation(value = "sale", notes = "saving credit/debit notes", response = AccountingBookVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = AccountingBookVo.class, responseContainer = "String") })
 	@PostMapping("/sale")
-	public ResponseEntity<?> sale(@RequestBody LedgerLogBookVo ledgerLogBookVo) {
+	@RabbitListener(queues = "accounting_queue")
+	public void sale(@RequestBody LedgerLogBookVo ledgerLogBookVo) {
 		log.info("Received Request to saveNote : " + ledgerLogBookVo);
 
 		if (StringUtils.isEmpty(ledgerLogBookVo.getAccountType())) {
@@ -194,12 +192,9 @@ public class CreditDebitNotesController {
 				ledgerLogBookVo.setTransactionType(AccountType.CREDIT);
 			}
 		}
-		LedgerLogBookVo notesSave = creditDebitNotesService.saveNotes(ledgerLogBookVo);
-		return ResponseEntity.ok(notesSave);
-
+		creditDebitNotesService.saveNotes(ledgerLogBookVo);
 	}
 
-	
 	@ApiOperation(value = "getNotes", notes = "fetching notes using account type and storeId", response = AccountingBookVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = AccountingBookVo.class, responseContainer = "List") })
@@ -211,7 +206,6 @@ public class CreditDebitNotesController {
 		return ResponseEntity.ok(accountingBookVo);
 	}
 
-	
 	@ApiOperation(value = "update", notes = "updating credit/debit notes from newsale", response = AccountingBookVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = AccountingBookVo.class, responseContainer = "String") })
@@ -223,7 +217,6 @@ public class CreditDebitNotesController {
 
 	}
 
-	
 	/*
 	 * @ApiOperation(value = "delete", notes =
 	 * "deleting credit/debit notes using id", response = AccountingBookVo.class)
@@ -253,7 +246,6 @@ public class CreditDebitNotesController {
 		return ResponseEntity.ok(allNotes);
 	}
 
-	
 	/**
 	 * 
 	 * @param searchFilterVo
@@ -272,7 +264,6 @@ public class CreditDebitNotesController {
 		return ResponseEntity.ok(ledgerLogs);
 	}
 
-	
 	@PostMapping("payconfirmation")
 	public ResponseEntity<?> paymentConfirmationFromRazorpay(@RequestParam String razorPayId,
 			@RequestParam boolean payStatus) {
@@ -283,5 +274,4 @@ public class CreditDebitNotesController {
 
 	}
 
-	
 }
