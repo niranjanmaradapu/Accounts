@@ -21,11 +21,11 @@ jobs:
     runs-on: ubuntu-latest
     env: 
       MODULE_NAME: hsn-details
-      
+
     steps:
       - uses: actions/checkout@v3
         with:
-          repository: 'niranjanmaradapu/Accounts/hsn-details' 
+          repository: 'niranjanmaradapu/Accounts' 
           ref: DevOps
       - name: Set up Maven
         uses: stCarolas/setup-maven@v4
@@ -69,7 +69,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          repository: 'niranjanmaradapu/Accounts/hsn-details'
+          repository: 'niranjanmaradapu/Accounts'
           ref: DevOps         
       - name: AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
