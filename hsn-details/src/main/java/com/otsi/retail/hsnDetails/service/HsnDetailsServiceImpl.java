@@ -13,6 +13,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
 import com.otsi.retail.hsnDetails.enums.Description;
 import com.otsi.retail.hsnDetails.enums.TaxAppliedType;
 import com.otsi.retail.hsnDetails.enums.TaxAppliesOn;
@@ -81,7 +83,7 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		HsnDetails hsnDetails = hsnDetailsMapper.mapVoToEntity(hsnDetailsVo);
 		 hsnDetails.setCreatedBy(userId);
 		 hsnDetails.setModifiedBy(userId);
-		HsnDetails hsnDetailsSave = hsnDetailsRepo.save(hsnDetails);
+		
 		if (hsnDetailsVo.getTaxId() != null) {
 			Optional<Tax> taxOpt = taxRepo.findById(hsnDetailsVo.getTaxId());
 
@@ -90,6 +92,7 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 				hsnDetails.setTax(taxOpt.get());
 			}
 		}
+		HsnDetails hsnDetailsSave = hsnDetailsRepo.save(hsnDetails);
 		// if isSlabBased is true,it will print hsnDetails,slab and tax otherwise,it
 		// will only print hsn and tax details
 		if (hsnDetailsVo.getTaxAppliedType().equals(TaxAppliedType.Priceslab) && !hsnDetailsVo.getSlabs().isEmpty()) {
@@ -117,43 +120,52 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	 * update functionality for hsn_details
 	 */
 	@Override
-	public String hsnUpdate(HsnDetailsVo vo) {
-		log.debug(" debugging hsnUpdate:" + vo);
+	public HsnDetailsVo hsnUpdate(HsnDetailsVo hsnDetailsVo) {
+		log.debug(" debugging hsnUpdate:" + hsnDetailsVo);
 		List<Slab> slabs = new ArrayList<>();
 
-		Optional<HsnDetails> dto = hsnDetailsRepo.findById(vo.getId());
+		Optional<HsnDetails> dto = hsnDetailsRepo.findById(hsnDetailsVo.getId());
 		// if id is not present,it will throw custom exception "RecordNotFoundException"
 		if (!dto.isPresent()) {
 			log.error("Record Not Found");
 			throw new RecordNotFoundException("Record Not Found");
 		}
 		// if id is present,it will update data based on id.
-		HsnDetails update = hsnDetailsMapper.mapVoToEntity(vo);
-		HsnDetails save = hsnDetailsRepo.save(update);
+		HsnDetails hsnUpdate = hsnDetailsMapper.voToEntityUpdate(hsnDetailsVo);
+		if (hsnDetailsVo.getTaxId() != null) {
+			Optional<Tax> taxOpt = taxRepo.findById(hsnDetailsVo.getTaxId());
+
+			if (hsnDetailsVo.getTaxAppliedType().equals(TaxAppliedType.Hsncode)) {
+
+				hsnUpdate.setTax(taxOpt.get());
+			}
+		}
+		HsnDetails save = hsnDetailsRepo.save(hsnUpdate);
+		
 		// here,will loop
-		Optional<Tax> taxOpt = taxRepo.findById(vo.getTaxId());
-		vo.getSlabs().stream().forEach(vos -> {
+		
+		if(hsnDetailsVo.getSlabs()!=null&&!hsnDetailsVo.getSlabs().isEmpty()) {
+		hsnDetailsVo.getSlabs().stream().forEach(vos -> {
 			Slab slab = new Slab();
 			slab.setId(vos.getId());
 			slab.setPriceFrom(vos.getPriceFrom());
 			slab.setPriceTo(vos.getPriceTo());
-            slab.setTax(taxOpt.get());
 			slab.setHsnDetails(save);
-			Optional<Tax> tax = taxRepo.findById(vos.getId());
-			if (tax.isPresent()) {
-				slab.setTax(tax.get());
+			if(vos.getTaxId()!=null) {
+				Optional<Tax> taxOpt = taxRepo.findById(vos.getTaxId());
+				slab.setTax(taxOpt.get());
 			}
 			vos.setId(slab.getId());
-			slabs.add(slab);
-			slabRepo.save(slab);
+			slabs.add(slabRepo.save(slab));
 		});
-
-		vo = hsnDetailsMapper.EntityToVo(save);
-		vo.setTaxId(save.getTax().getId());
-		vo.setSlabs(slabMapper.EntityToVo(slabs));
-		log.warn("wea re checking if hsn details is updated..");
-		log.info("after updating hsn details:" + vo.toString());
-		return "hsn-details updated successfully:" + save.getId();
+		hsnDetailsVo.setSlabs(slabMapper.EntityToVo(slabs));
+		}
+		hsnDetailsVo = hsnDetailsMapper.EntityToVo(save);
+		if (hsnDetailsVo.getTaxId() != null) {
+		hsnDetailsVo.setTaxId(save.getTax().getId());
+		}
+		log.info("after updating hsn details:" + hsnDetailsVo.toString());
+		return hsnDetailsVo;
 	}
 
 	/*

@@ -25,7 +25,9 @@ public class SlabMapper {
 		slabVo.setId(slab.getId());
 		slabVo.setPriceFrom(slab.getPriceFrom());
 		slabVo.setPriceTo(slab.getPriceTo());
+		if(slab.getTax()!=null) {
 		slabVo.setTaxId(slab.getTax().getId());
+		}
 		slabVo.setCreatedDate(slab.getCreatedDate());
 		slabVo.setLastModifiedDate(slab.getLastModifiedDate());
 		slabVo.setCreatedBy(slab.getCreatedBy());

@@ -30,6 +30,7 @@ public class ReportController {
 	@Autowired
 	private ReportService reportService;
 	
+	
 	@ApiOperation(value = "debitNotesByStores", notes = "fetching debit notes by stores", response = ReportsVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", 
@@ -41,6 +42,7 @@ public class ReportController {
 		return new GateWayResponse<>("fetching all debitnotes sucessfully", allCreditDebitNotes);
 
 	}
+	
 
 	@ApiOperation(value = "usedAndBalancedAmountByStores", notes = "fetching used amount and balanced amount by stores", response = ReportsVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),

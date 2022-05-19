@@ -55,6 +55,7 @@ public class TaxController {
 		return ResponseEntity.ok(taxSave);
 	}
 	
+	
 	@ApiOperation(value = "getTax", notes = "fetching tax details using id", response = TaxVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = TaxVo.class, responseContainer = "Object") })
@@ -65,6 +66,7 @@ public class TaxController {
 		return new GateWayResponse<>("fetching tax details successfully with id", tax);
 	}
 
+	
 	@ApiOperation(value = "getTaxDetails", notes = "fetching all tax details", response = TaxVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = TaxVo.class, responseContainer = "List") })
@@ -76,6 +78,7 @@ public class TaxController {
 
 	}
 
+	
 	/*
 	 * get functionality through service
 	 */
@@ -94,6 +97,7 @@ public class TaxController {
 		return new GateWayResponse<>("updated tax successfully", updateTax);
 
 	}
+	
 
 	@ApiOperation(value = "deleteTax", notes = "deleting tax details", response = TaxVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
@@ -105,6 +109,7 @@ public class TaxController {
 		return new GateWayResponse<>("tax data deleted successfully", deleteTax);
 
 	}
+	
 	
 	@ApiOperation(value = "tax-ids", notes = "get tax for given ids", response = TaxVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),

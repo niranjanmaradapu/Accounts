@@ -20,7 +20,7 @@ public interface HsnDetailsService {
 
 	HsnDetailsVo hsnSave(HsnDetailsVo hsnDetailsVo, Long userId);
 
-	String hsnUpdate(HsnDetailsVo vo);
+	HsnDetailsVo hsnUpdate(HsnDetailsVo vo);
 
 	List<EnumVo> getEnums(String enumName);
 

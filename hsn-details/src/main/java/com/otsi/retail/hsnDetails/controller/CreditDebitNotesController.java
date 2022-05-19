@@ -4,10 +4,14 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +20,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.otsi.retail.hsnDetails.config.Config;
 import com.otsi.retail.hsnDetails.enums.AccountType;
 import com.otsi.retail.hsnDetails.gatewayresponse.GateWayResponse;
 import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
@@ -141,15 +148,51 @@ public class CreditDebitNotesController {
 		return new GateWayResponse<>("fetching all debit notes details sucessfully", allDebitNotes);
 	}
 
-	@ApiOperation(value = "saveNotes", notes = "saving credit/debit notes", response = AccountingBookVo.class)
+	@ApiOperation(value = "save", notes = "saving credit/debit notes", response = AccountingBookVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = AccountingBookVo.class, responseContainer = "String") })
 	@PostMapping("/save")
 	public ResponseEntity<?> saveNotes(@RequestBody LedgerLogBookVo ledgerLogBookVo) {
 		log.info("Received Request to saveNotes : " + ledgerLogBookVo);
+		if (StringUtils.isEmpty(ledgerLogBookVo.getAccountType())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "acounting type is required");
+		}
+		if (ledgerLogBookVo.getAccountType().equals(AccountType.CREDIT)) {
+			ledgerLogBookVo.setTransactionType(AccountType.CREDIT);
+		} else {
+			if (ledgerLogBookVo.getAccountType().equals(AccountType.DEBIT)) {
+				ledgerLogBookVo.setTransactionType(AccountType.DEBIT);
+			}
+		}
 		LedgerLogBookVo notesSave = creditDebitNotesService.saveNotes(ledgerLogBookVo);
 		return ResponseEntity.ok(notesSave);
 
+	}
+
+	@RabbitListener(queues = "return_credit_queue")
+	public void returnCreditNotes(@Payload LedgerLogBookVo ledgerLogBookVo) {
+		saveNotes(ledgerLogBookVo);
+	}
+
+	@ApiOperation(value = "sale", notes = "saving credit/debit notes", response = AccountingBookVo.class)
+	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
+			@ApiResponse(code = 200, message = "Successful retrieval", response = AccountingBookVo.class, responseContainer = "String") })
+	@PostMapping("/sale")
+	@RabbitListener(queues = "accounting_queue")
+	public void sale(@RequestBody LedgerLogBookVo ledgerLogBookVo) {
+		log.info("Received Request to saveNote : " + ledgerLogBookVo);
+
+		if (StringUtils.isEmpty(ledgerLogBookVo.getAccountType())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "acounting type is required");
+		}
+		if (ledgerLogBookVo.getAccountType().equals(AccountType.CREDIT)) {
+			ledgerLogBookVo.setTransactionType(AccountType.DEBIT);
+		} else {
+			if (ledgerLogBookVo.getAccountType().equals(AccountType.DEBIT)) {
+				ledgerLogBookVo.setTransactionType(AccountType.CREDIT);
+			}
+		}
+		creditDebitNotesService.saveNotes(ledgerLogBookVo);
 	}
 
 	@ApiOperation(value = "getNotes", notes = "fetching notes using account type and storeId", response = AccountingBookVo.class)
@@ -220,16 +263,15 @@ public class CreditDebitNotesController {
 		Page<LedgerLogBookVo> ledgerLogs = creditDebitNotesService.getAllLedgerLogs(searchFilterVo, page);
 		return ResponseEntity.ok(ledgerLogs);
 	}
-	
+
 	@PostMapping("payconfirmation")
 	public ResponseEntity<?> paymentConfirmationFromRazorpay(@RequestParam String razorPayId,
 			@RequestParam boolean payStatus) {
 		log.info("Received payment confirmation for razorpayId :" + razorPayId);
-		
+
 		Boolean response = creditDebitNotesService.paymentConfirmationFromRazorpay(razorPayId, payStatus);
 		return ResponseEntity.ok(response);
 
-		
 	}
 
 }

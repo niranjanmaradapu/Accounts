@@ -10,7 +10,10 @@ import com.otsi.retail.hsnDetails.enums.AccountType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+/**
+ * @author vasavi
+ *
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -452,20 +453,18 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		return debitList;
 	}
 
-	public List<UserDetailsVo> getUserDetailsFromURM(@RequestParam String MobileNumber, @RequestParam Long UserId) {
+	public UserDetailsVo getUserDetailsFromURM(@RequestParam String mobileNumber) {
 
-		// UserDetailsVo vo = new UserDetailsVo();
-		GetUserRequestVo uvo = new GetUserRequestVo();
-		uvo.setPhoneNo(MobileNumber);
-
-		uvo.setId(UserId);
+		GetUserRequestVo userRequestVo = new GetUserRequestVo();
+		userRequestVo.setPhoneNo(mobileNumber);
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		HttpEntity<GetUserRequestVo> entity = new HttpEntity<>(uvo, headers);
+		HttpEntity<GetUserRequestVo> entity = new HttpEntity<>(userRequestVo, headers);
 
-		ResponseEntity<?> returnSlipListResponse = restTemplate.exchange(config.getGetCustomerDetailsFromURM(),
-				HttpMethod.POST, entity, GateWayResponse.class);
+		ResponseEntity<?> returnSlipListResponse = restTemplate.exchange(
+				config.getGetCustomerDetailsFromURM() + "?mobileNumber=" + mobileNumber, HttpMethod.GET, entity,
+				GateWayResponse.class);
 
 		ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule())
 				.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
@@ -473,11 +472,11 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		GateWayResponse<?> gatewayResponse = mapper.convertValue(returnSlipListResponse.getBody(),
 				GateWayResponse.class);
 
-		List<UserDetailsVo> vo = mapper.convertValue(gatewayResponse.getResult(),
-				new TypeReference<List<UserDetailsVo>>() {
+		UserDetailsVo userDetailsVo = mapper.convertValue(gatewayResponse.getResult(),
+				new TypeReference<UserDetailsVo>() {
 				});
 
-		return vo;
+		return userDetailsVo;
 
 	}
 
@@ -504,20 +503,84 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 
 	@Override
 	public LedgerLogBookVo saveNotes(LedgerLogBookVo ledgerLogBookVo) {
+		LedgerLogBook ledgerLogBook = null;
+		// to accounting type credit
+		if (ledgerLogBookVo.getAccountType().equals(AccountType.CREDIT)) {
+			ledgerLogBook = processCreditAccounting(ledgerLogBookVo);
 
-		LedgerLogBook ledgerLogBook = ledgerLogBookMapper.voToEntity(ledgerLogBookVo);
-		LedgerLogBook ledgerLogBookSave = ledgerLogBookRepo.save(ledgerLogBook);
+		}
+		// to do accounting type debit
+		else if (ledgerLogBookVo.getAccountType().equals(AccountType.DEBIT)) {
+			ledgerLogBook = processDebitAccounting(ledgerLogBookVo);
 
-		LedgerLogBookVo ledgerBookVo = ledgerLogBookMapper.entityToVo(ledgerLogBookSave);
-		if (ledgerLogBookVo.getPaymentType().equals(PaymentType.Cash)) {
-			ledgerLogBookSave.setPaymentStatus(PaymentStatus.SUCCESS);
-			LedgerLogBook ledgerBook = ledgerLogBookRepo.save(ledgerLogBook);
-
-			ledgerBookVo = calculateAmount(ledgerBook);
 		}
 
-		return ledgerBookVo;
+		ledgerLogBookVo = ledgerLogBookMapper.entityToVo(ledgerLogBook);
+		return ledgerLogBookVo;
 
+	}
+
+	private LedgerLogBook processCreditAccounting(LedgerLogBookVo ledgerLogBookVo) {
+		LedgerLogBook ledgerLogBook = ledgerLogBookMapper.voToEntity(ledgerLogBookVo);
+		// when customer credit note is created
+		if (ledgerLogBookVo.getTransactionType().equals(AccountType.CREDIT)) {
+			if (ledgerLogBookVo.getPaymentType().equals(PaymentType.Cash)
+					|| ledgerLogBookVo.getPaymentType().equals(PaymentType.RTSlip)) {
+				ledgerLogBook.setPaymentStatus(PaymentStatus.SUCCESS);
+				ledgerLogBookVo = calculateAmount(ledgerLogBook);
+			}
+		}
+
+		else if (ledgerLogBookVo.getTransactionType().equals(AccountType.DEBIT)) {
+			// when the customer used the credit amount
+			UserDetailsVo userDetailsVo = getUserDetailsFromURM(ledgerLogBookVo.getMobileNumber());
+			if (userDetailsVo != null) {
+				AccountingBook accountingBook = accountingBookRepo.findByCustomerIdAndStoreIdAndAccountType(
+						userDetailsVo.getUserId(), ledgerLogBookVo.getStoreId(), ledgerLogBookVo.getAccountType());
+
+				ledgerLogBook.setPaymentStatus(PaymentStatus.DEBIT);
+				ledgerLogBook.setReferenceNumber("DR_" + RandomStringUtils.randomAlphanumeric(10));
+				ledgerLogBook.setCustomerId(userDetailsVo.getUserId());
+				ledgerLogBook.setAccountingBookId(accountingBook.getAccountingBookId());
+				// to update used amount in accounting book
+				if (accountingBook.getUsedAmount() == null) {
+					accountingBook.setUsedAmount(ledgerLogBookVo.getAmount());
+				} else {
+					accountingBook.setUsedAmount(accountingBook.getUsedAmount() + ledgerLogBookVo.getAmount());
+				}
+				accountingBookRepo.save(accountingBook);
+			}
+
+		}
+		ledgerLogBook = ledgerLogBookRepo.save(ledgerLogBook);
+
+		return ledgerLogBook;
+	}
+
+	private LedgerLogBook processDebitAccounting(LedgerLogBookVo ledgerLogBookVo) {
+		LedgerLogBook ledgerLogBook = ledgerLogBookMapper.voToEntity(ledgerLogBookVo);
+		// when the customer debit note is created from sale
+		if (ledgerLogBookVo.getTransactionType().equals(AccountType.DEBIT)) {
+			ledgerLogBook.setPaymentStatus(PaymentStatus.DEBIT);
+			ledgerLogBookVo = calculateAmount(ledgerLogBook);
+		}
+
+		else if (ledgerLogBookVo.getTransactionType().equals(AccountType.CREDIT)) {
+			UserDetailsVo userDetailsVo = getUserDetailsFromURM(ledgerLogBookVo.getMobileNumber());
+			if (userDetailsVo != null) {
+				AccountingBook accountingBook = accountingBookRepo.findByCustomerIdAndStoreIdAndAccountType(
+						userDetailsVo.getUserId(), ledgerLogBookVo.getStoreId(), ledgerLogBookVo.getAccountType());
+				ledgerLogBook.setAccountingBookId(accountingBook.getAccountingBookId());
+				ledgerLogBook.setReferenceNumber("CR_" + RandomStringUtils.randomAlphanumeric(10));
+				ledgerLogBook.setCustomerId(accountingBook.getCustomerId());
+				// to update amount in accounting book
+				accountingBook.setAmount(Math.abs(ledgerLogBookVo.getAmount() - accountingBook.getAmount()));
+				accountingBookRepo.save(accountingBook);
+			}
+
+		}
+		ledgerLogBook = ledgerLogBookRepo.save(ledgerLogBook);
+		return ledgerLogBook;
 	}
 
 	private LedgerLogBookVo calculateAmount(LedgerLogBook ledgerLogBook) {
@@ -534,7 +597,6 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 			accountingBook.setAccountType(ledgerLogBook.getAccountType());
 			accountingBook.setCustomerId(ledgerLogBook.getCustomerId());
 			accountingBook.setStoreId(ledgerLogBook.getStoreId());
-
 			AccountingBook accountingBookSave = accountingBookRepo.save(accountingBook);
 			ledgerLogBook.setAccountingBookId(accountingBookSave.getAccountingBookId());
 		}
@@ -605,7 +667,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 	public Page<AccountingBookVo> getAllNotes(SearchFilterVo searchFilterVo, Pageable pageable) {
 		Page<AccountingBook> accountingBooks = null;
 		/*
-		 * using from date and storeId
+		 * using from date and accountType and storeId
 		 */
 		if (searchFilterVo.getFromDate() != null && searchFilterVo.getToDate() == null
 				&& searchFilterVo.getStoreId() != null && searchFilterVo.getMobileNumber() == null
@@ -618,7 +680,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		}
 
 		/*
-		 * using dates and storeId
+		 * using dates and accountType and storeId
 		 */
 		else if (searchFilterVo.getFromDate() != null && searchFilterVo.getToDate() != null
 				&& searchFilterVo.getStoreId() != null && searchFilterVo.getMobileNumber() == null
@@ -632,48 +694,46 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		}
 
 		/*
-		 * using dates and mobile number and storeId
+		 * using dates and mobile number and accountType and storeId
 		 */
 
 		else if (searchFilterVo.getFromDate() != null && searchFilterVo.getToDate() != null
 				&& searchFilterVo.getMobileNumber() != null && searchFilterVo.getStoreId() != null
 				&& searchFilterVo.getAccountType() != null) {
 
-			List<UserDetailsVo> uvo = getUserDetailsFromURM(searchFilterVo.getMobileNumber(), 0L);
-			if (uvo != null) {
-				List<Long> userIds = uvo.stream().map(user -> user.getUserId()).collect(Collectors.toList());
+			UserDetailsVo userDetailsVo = getUserDetailsFromURM(searchFilterVo.getMobileNumber());
+			if (userDetailsVo != null) {
 				LocalDateTime fromTime = DateConverters.convertLocalDateToLocalDateTime(searchFilterVo.getFromDate());
 				LocalDateTime toTime = DateConverters.convertToLocalDateTimeMax(searchFilterVo.getToDate());
 				accountingBooks = accountingBookRepo
-						.findByCreatedDateBetweenAndCustomerIdInAndStoreIdAndAccountTypeOrderByLastModifiedDateAsc(
-								fromTime, toTime, userIds, searchFilterVo.getStoreId(), searchFilterVo.getAccountType(),
-								pageable);
+						.findByCreatedDateBetweenAndCustomerIdAndStoreIdAndAccountTypeOrderByLastModifiedDateAsc(
+								fromTime, toTime, userDetailsVo.getUserId(), searchFilterVo.getStoreId(),
+								searchFilterVo.getAccountType(), pageable);
 			}
 		}
 
 		/*
-		 * using storeId
+		 * using storeId and account type
 		 */
 
 		else if (searchFilterVo.getFromDate() == null && searchFilterVo.getToDate() == null
 				&& searchFilterVo.getMobileNumber() == null && searchFilterVo.getStoreId() != null
 				&& searchFilterVo.getAccountType() != null) {
-			accountingBooks = accountingBookRepo.findByStoreIdAndAccountType(searchFilterVo.getStoreId(),
-					searchFilterVo.getAccountType(), pageable);
+			accountingBooks = accountingBookRepo.findByStoreIdAndAccountTypeOrderByCreatedDateDesc(
+					searchFilterVo.getStoreId(), searchFilterVo.getAccountType(), pageable);
 		}
 
 		/*
-		 * using mobile number and storeId
+		 * using mobile number and accountType and storeId
 		 */
 
 		else if (searchFilterVo.getFromDate() == null && searchFilterVo.getToDate() == null
 				&& searchFilterVo.getMobileNumber() != null && searchFilterVo.getStoreId() != null
 				&& searchFilterVo.getAccountType() != null) {
 
-			List<UserDetailsVo> uvo = getUserDetailsFromURM(searchFilterVo.getMobileNumber(), 0L);
-			if (uvo != null) {
-				List<Long> userIds = uvo.stream().map(user -> user.getUserId()).collect(Collectors.toList());
-				accountingBooks = accountingBookRepo.findByCustomerIdInAndStoreIdAndAccountType(userIds,
+			UserDetailsVo userDetailsVo = getUserDetailsFromURM(searchFilterVo.getMobileNumber());
+			if (userDetailsVo != null) {
+				accountingBooks = accountingBookRepo.findByCustomerIdAndStoreIdAndAccountType(userDetailsVo.getUserId(),
 						searchFilterVo.getStoreId(), searchFilterVo.getAccountType(), pageable);
 			}
 		}
@@ -700,7 +760,10 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 				accountingBookVo.setMobileNumber(x.getPhoneNumber());
 			});
 		}
-
+		if (accountingBookVo.getUsedAmount() != null) {
+			accountingBookVo
+					.setBalanceAmount(Math.abs(accountingBookVo.getAmount() - accountingBookVo.getUsedAmount()));
+		}
 		return accountingBookVo;
 
 	}
@@ -740,8 +803,9 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		 */
 
 		else if (searchFilterVo.getStoreId() != null) {
-			ledgerLogs = ledgerLogBookRepo.findByCustomerIdAndStoreIdAndAccountType(searchFilterVo.getCustomerId(),
-					searchFilterVo.getStoreId(), searchFilterVo.getAccountType(), pageable);
+			ledgerLogs = ledgerLogBookRepo.findByCustomerIdAndStoreIdAndAccountTypeOrderByCreatedDateDesc(
+					searchFilterVo.getCustomerId(), searchFilterVo.getStoreId(), searchFilterVo.getAccountType(),
+					pageable);
 		}
 
 		else
@@ -794,4 +858,5 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		return payStatus;
 
 	}
+
 }

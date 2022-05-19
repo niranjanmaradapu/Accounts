@@ -46,9 +46,6 @@ public interface CreditDebitNotesService {
 
 	Page<LedgerLogBookVo> getAllLedgerLogs(SearchFilterVo searchFilterVo , Pageable page);
 
-	//List<AccountingBookVo> getAllNotes(SearchFilterVo searchFilterVo, AccountType accountType);
-
-
 	Boolean paymentConfirmationFromRazorpay(String razorPayId, boolean payStatus);
 
 }
