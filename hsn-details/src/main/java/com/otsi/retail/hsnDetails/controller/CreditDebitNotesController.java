@@ -180,9 +180,8 @@ public class CreditDebitNotesController {
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = AccountingBookVo.class, responseContainer = "String") })
 	@PostMapping("/sale")
-	@RabbitListener(queues = "accounting_queue")
-	public void sale(@RequestBody LedgerLogBookVo ledgerLogBookVo) {
-		log.info("Received Request to saveNote : " + ledgerLogBookVo);
+	public ResponseEntity<?> sale(@RequestBody LedgerLogBookVo ledgerLogBookVo) {
+		log.info("Received Request to sale : " + ledgerLogBookVo);
 
 		if (StringUtils.isEmpty(ledgerLogBookVo.getAccountType())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "acounting type is required");
@@ -194,7 +193,13 @@ public class CreditDebitNotesController {
 				ledgerLogBookVo.setTransactionType(AccountType.CREDIT);
 			}
 		}
-		creditDebitNotesService.saveNotes(ledgerLogBookVo);
+		LedgerLogBookVo ledgerLogBookSave=creditDebitNotesService.saveNotes(ledgerLogBookVo);
+		return ResponseEntity.ok(ledgerLogBookSave);
+	}
+	
+	@RabbitListener(queues = "accounting_queue")
+	private void creditUsedFromNewsale(LedgerLogBookVo ledgerLogBookVo) {
+		sale(ledgerLogBookVo);
 	}
 
 	@ApiOperation(value = "getNotes", notes = "fetching notes using account type and storeId", response = AccountingBookVo.class)

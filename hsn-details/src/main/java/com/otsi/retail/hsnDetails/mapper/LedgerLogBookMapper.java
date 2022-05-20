@@ -36,10 +36,10 @@ public class LedgerLogBookMapper {
 		ledgerLogBook.setStatus(AccountStatus.ACTIVE);
 		ledgerLogBook.setPaymentStatus(PaymentStatus.PENDING);
 		if(ledgerLogBookVo.getAccountType().equals(AccountType.CREDIT)) {
-		ledgerLogBook.setReferenceNumber("CR_"+RandomStringUtils.randomAlphanumeric(10));
+		ledgerLogBook.setReferenceNumber("CR"+RandomStringUtils.randomAlphanumeric(10));
 		}
 		else
-			ledgerLogBook.setReferenceNumber("DR_"+RandomStringUtils.randomAlphanumeric(10));
+			ledgerLogBook.setReferenceNumber("DB"+RandomStringUtils.randomAlphanumeric(10));
 
 		return ledgerLogBook;
 	}
