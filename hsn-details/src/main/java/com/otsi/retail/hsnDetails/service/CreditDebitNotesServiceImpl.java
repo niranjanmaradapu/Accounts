@@ -456,14 +456,15 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 	public UserDetailsVo getUserDetailsFromURM(@RequestParam String mobileNumber) {
 
 		GetUserRequestVo userRequestVo = new GetUserRequestVo();
-		userRequestVo.setPhoneNo(mobileNumber);
+		String phoneNumber="+"+mobileNumber.trim();
+		userRequestVo.setPhoneNo(phoneNumber);
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<GetUserRequestVo> entity = new HttpEntity<>(userRequestVo, headers);
 
 		ResponseEntity<?> returnSlipListResponse = restTemplate.exchange(
-				config.getGetCustomerDetailsFromURM() + "?mobileNumber=" + mobileNumber, HttpMethod.GET, entity,
+				config.getGetCustomerDetailsFromURM() + "?mobileNumber=" + phoneNumber, HttpMethod.GET, entity,
 				GateWayResponse.class);
 
 		ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule())
