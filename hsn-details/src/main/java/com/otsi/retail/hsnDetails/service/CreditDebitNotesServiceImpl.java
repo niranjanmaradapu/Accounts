@@ -535,8 +535,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 			// when the customer used the credit amount
 			UserDetailsVo userDetailsVo = getUserDetailsFromURM(ledgerLogBookVo.getMobileNumber());
 			if (userDetailsVo != null) {
-				AccountingBook accountingBook = accountingBookRepo.findByCustomerIdAndStoreIdAndAccountType(
-						userDetailsVo.getUserId(), ledgerLogBookVo.getStoreId(), ledgerLogBookVo.getAccountType());
+				AccountingBook accountingBook = accountingBookRepo.findByCustomerIdAndAccountType(
+						userDetailsVo.getUserId(), ledgerLogBookVo.getAccountType());
 
 				ledgerLogBook.setPaymentStatus(PaymentStatus.DEBIT);
 				ledgerLogBook.setReferenceNumber("DR_" + RandomStringUtils.randomAlphanumeric(10));
@@ -547,6 +547,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 					accountingBook.setUsedAmount(ledgerLogBookVo.getAmount());
 				} else {
 					accountingBook.setUsedAmount(accountingBook.getUsedAmount() + ledgerLogBookVo.getAmount());
+					accountingBook.setLastModifiedDate(LocalDateTime.now());
 				}
 				accountingBookRepo.save(accountingBook);
 			}

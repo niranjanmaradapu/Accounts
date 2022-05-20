@@ -19,8 +19,8 @@ public interface TaxService {
 
 	String deleteTax(Long id);
 
-	List<TaxVo> getTaxDetails(String taxLabel);
+	List<TaxVo> getTaxDetails(String taxLabel, Long clientId);
 
-	TaxVo saveTax(TaxVo taxvo);
+	TaxVo saveTax(TaxVo taxvo, Long clientId);
 
 }

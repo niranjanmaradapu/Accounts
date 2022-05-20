@@ -18,7 +18,7 @@ import com.otsi.retail.hsnDetails.vo.HsnDetailsVo;
 @Service
 public interface HsnDetailsService {
 
-	HsnDetailsVo hsnSave(HsnDetailsVo hsnDetailsVo, Long userId);
+	HsnDetailsVo hsnSave(HsnDetailsVo hsnDetailsVo, Long userId,Long clientId);
 
 	HsnDetailsVo hsnUpdate(HsnDetailsVo vo);
 
@@ -26,7 +26,7 @@ public interface HsnDetailsService {
 
 	String hsnDelete(long id);
 
-	List<HsnDetailsVo> getHsnDetails(String hsnCode, String description, TaxAppliedType taxAppliedType);
+	List<HsnDetailsVo> getHsnDetails(String hsnCode, String description, TaxAppliedType taxAppliedType, Long clientId);
 
 	List<HsnDetailsVo> getAllHsnDetails(String hsnCode);
 

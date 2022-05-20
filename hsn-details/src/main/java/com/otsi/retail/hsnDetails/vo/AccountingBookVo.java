@@ -43,4 +43,6 @@ public class AccountingBookVo extends BaseEntityVo {
 	private Long usedAmount;
 	
 	private Long balanceAmount;
+	
+	private Long clientId;
 }

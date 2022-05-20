@@ -28,4 +28,8 @@ public interface HsnDetailsRepo extends JpaRepository<HsnDetails, Long> {
 
 	List<HsnDetails> findByTaxAppliedType(TaxAppliedType taxAppliedType);
 
+	List<HsnDetails> findByHsnCodeAndClientId(String hsnCode, Long clientId);
+
+	List<HsnDetails> findByClientId(Long clientId);
+
 }

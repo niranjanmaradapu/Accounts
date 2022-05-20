@@ -159,9 +159,11 @@ public class CreditDebitNotesController {
 		}
 		if (ledgerLogBookVo.getAccountType().equals(AccountType.CREDIT)) {
 			ledgerLogBookVo.setTransactionType(AccountType.CREDIT);
+		
 		} else {
 			if (ledgerLogBookVo.getAccountType().equals(AccountType.DEBIT)) {
 				ledgerLogBookVo.setTransactionType(AccountType.DEBIT);
+				
 			}
 		}
 		LedgerLogBookVo notesSave = creditDebitNotesService.saveNotes(ledgerLogBookVo);

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,9 +50,9 @@ public class TaxController {
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = TaxVo.class, responseContainer = "String") })
 	@PostMapping(value = "/addnewtax")
-	public ResponseEntity<?> saveTax(@RequestBody TaxVo taxvo) {
+	public ResponseEntity<?> saveTax(@RequestBody TaxVo taxvo,@RequestHeader("clientId") Long clientId) {
 		log.info("Recieved request to AddNewTax()");
-		TaxVo taxSave = taxService.saveTax(taxvo);
+		TaxVo taxSave = taxService.saveTax(taxvo,clientId);
 		return ResponseEntity.ok(taxSave);
 	}
 	
@@ -71,9 +72,9 @@ public class TaxController {
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = TaxVo.class, responseContainer = "List") })
 	@GetMapping("/getTaxDetails")
-	public GateWayResponse<?> getTaxDetails(@RequestParam(required = false) String taxLabel) {
+	public GateWayResponse<?> getTaxDetails(@RequestParam(required = false) String taxLabel,@RequestHeader("clientId") Long clientId) {
 		log.info("Received Request to get TaxDetails:"+taxLabel);
-		List<TaxVo> tax = taxService.getTaxDetails(taxLabel);
+		List<TaxVo> tax = taxService.getTaxDetails(taxLabel,clientId);
 		return new GateWayResponse<>("fetching tax details successfully", tax);
 
 	}

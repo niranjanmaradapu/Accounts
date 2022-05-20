@@ -66,7 +66,7 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	 * hsn_details
 	 */
 	@Override
-	public HsnDetailsVo hsnSave(HsnDetailsVo hsnDetailsVo,Long userId) {
+	public HsnDetailsVo hsnSave(HsnDetailsVo hsnDetailsVo,Long userId,Long clientId) {
 		log.debug("debugging hsnSave:" + hsnDetailsVo);
 
 		boolean hsncode = hsnDetailsRepo.existsByHsnCode(hsnDetailsVo.getHsnCode());
@@ -83,7 +83,7 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		HsnDetails hsnDetails = hsnDetailsMapper.mapVoToEntity(hsnDetailsVo);
 		 hsnDetails.setCreatedBy(userId);
 		 hsnDetails.setModifiedBy(userId);
-		
+		 hsnDetails.setClientId(clientId);
 		if (hsnDetailsVo.getTaxId() != null) {
 			Optional<Tax> taxOpt = taxRepo.findById(hsnDetailsVo.getTaxId());
 
@@ -233,19 +233,23 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	 * get functionality for hsn_details
 	 */
 	@Override
-	public List<HsnDetailsVo> getHsnDetails(String hsnCode, String description, TaxAppliedType taxAppliedType) {
+	public List<HsnDetailsVo> getHsnDetails(String hsnCode, String description, TaxAppliedType taxAppliedType, Long clientId) {
 		log.debug(" debugging getHsnDetails");
 		List<HsnDetails> hsnDetails = new ArrayList<>();
 		List<HsnDetailsVo> voList = new ArrayList<>();
 		// here, find all details through repository
 		if (hsnCode != null || description != null || taxAppliedType != null) {
 			if (hsnCode != null)
-				hsnDetails = hsnDetailsRepo.findByHsnCode(hsnCode);
+				//hsnDetails = hsnDetailsRepo.findByHsnCode(hsnCode);
+			    hsnDetails=hsnDetailsRepo.findByHsnCodeAndClientId(hsnCode,clientId);
 			else if (description != null)
 				hsnDetails = hsnDetailsRepo.findByDescription(description);
 			else if (taxAppliedType != null)
 				hsnDetails = hsnDetailsRepo.findByTaxAppliedType(taxAppliedType);
-		} else {
+		} else if(clientId!=null){
+			hsnDetails = hsnDetailsRepo.findByClientId(clientId);
+		}
+		else {
 			hsnDetails = hsnDetailsRepo.findAll();
 		}
 

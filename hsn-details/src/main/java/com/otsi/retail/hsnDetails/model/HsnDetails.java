@@ -53,6 +53,6 @@ public class HsnDetails extends BaseEntity implements Serializable {
 	@Column(name = "clientId")
 	private Long clientId;
 	@JoinColumn(name = "tax_id")
-	@OneToOne(cascade = { CascadeType.MERGE, CascadeType.REFRESH })
+	@OneToOne
 	private Tax tax;
 }
