@@ -119,8 +119,9 @@ public class HsnDetailsController {
 	@GetMapping("/getHsnDetails")
 	public GateWayResponse<?> getHsnDetails(@RequestParam(required = false) String hsnCode,
 			@RequestParam(required = false) String description,
-			@RequestParam(required = false) TaxAppliedType taxAppliedType,@RequestHeader("clientId") Long clientId) {
+			@RequestParam(required = false) TaxAppliedType taxAppliedType,@RequestHeader(required = false) Long clientId) {
 		log.info("Received Request to get HsnDetails");
+		log.info("clientId is:"+clientId);
 		List<HsnDetailsVo> hsnDetails = hsnDetailsService.getHsnDetails(hsnCode,description,taxAppliedType,clientId);
 		return new GateWayResponse<>("fetching all hsn-details", hsnDetails);
 

@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,13 +51,12 @@ public class TaxController {
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = TaxVo.class, responseContainer = "String") })
 	@PostMapping(value = "/addnewtax")
-	public ResponseEntity<?> saveTax(@RequestBody TaxVo taxvo,@RequestHeader("clientId") Long clientId) {
+	public ResponseEntity<?> saveTax(@RequestBody TaxVo taxvo, @RequestHeader("clientId") Long clientId) {
 		log.info("Recieved request to AddNewTax()");
-		TaxVo taxSave = taxService.saveTax(taxvo,clientId);
+		TaxVo taxSave = taxService.saveTax(taxvo, clientId);
 		return ResponseEntity.ok(taxSave);
 	}
-	
-	
+
 	@ApiOperation(value = "getTax", notes = "fetching tax details using id", response = TaxVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = TaxVo.class, responseContainer = "Object") })
@@ -67,24 +67,22 @@ public class TaxController {
 		return new GateWayResponse<>("fetching tax details successfully with id", tax);
 	}
 
-	
 	@ApiOperation(value = "getTaxDetails", notes = "fetching all tax details", response = TaxVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = TaxVo.class, responseContainer = "List") })
 	@GetMapping("/getTaxDetails")
-	public GateWayResponse<?> getTaxDetails(@RequestParam(required = false) String taxLabel,@RequestHeader("clientId") Long clientId) {
-		log.info("Received Request to get TaxDetails:"+taxLabel);
-		List<TaxVo> tax = taxService.getTaxDetails(taxLabel,clientId);
+	public GateWayResponse<?> getTaxDetails(@RequestParam(required = false) String taxLabel,
+			@RequestHeader(required = false) Long clientId) {
+		log.info("Received Request to get TaxDetails:" + taxLabel);
+		List<TaxVo> tax = taxService.getTaxDetails(taxLabel, clientId);
 		return new GateWayResponse<>("fetching tax details successfully", tax);
 
 	}
 
-	
 	/*
 	 * get functionality through service
 	 */
 
-	
 	/*
 	 * update functionality for the Tax with the help of arguments: id,taxvo object
 	 */
@@ -98,7 +96,6 @@ public class TaxController {
 		return new GateWayResponse<>("updated tax successfully", updateTax);
 
 	}
-	
 
 	@ApiOperation(value = "deleteTax", notes = "deleting tax details", response = TaxVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
@@ -110,19 +107,17 @@ public class TaxController {
 		return new GateWayResponse<>("tax data deleted successfully", deleteTax);
 
 	}
-	
-	
+
 	@ApiOperation(value = "tax-ids", notes = "get tax for given ids", response = TaxVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", 
-			response = TaxVo.class, responseContainer = "List") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = TaxVo.class, responseContainer = "List") })
 	@PostMapping("/tax-ids")
 	public ResponseEntity<?> getTaxForGivenIds(@RequestBody List<Long> taxIds) {
-		
-			log.info("Recieved request to getTaxForGivenIds:" + taxIds);
-			List<TaxVo> taxIdList = taxService.getTaxForGivenIds(taxIds);
-			return ResponseEntity.ok(taxIdList);
-		
-		}
+
+		log.info("Recieved request to getTaxForGivenIds:" + taxIds);
+		List<TaxVo> taxIdList = taxService.getTaxForGivenIds(taxIds);
+		return ResponseEntity.ok(taxIdList);
+
+	}
 
 }

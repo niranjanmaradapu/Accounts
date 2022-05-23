@@ -26,8 +26,11 @@ public interface HsnDetailsService {
 
 	String hsnDelete(long id);
 
-	List<HsnDetailsVo> getHsnDetails(String hsnCode, String description, TaxAppliedType taxAppliedType, Long clientId);
 
 	List<HsnDetailsVo> getAllHsnDetails(String hsnCode);
+
+	//List<HsnDetailsVo> getHsnDetails(String hsnCode, String description, TaxAppliedType taxAppliedType);
+
+	List<HsnDetailsVo> getHsnDetails(String hsnCode, String description, TaxAppliedType taxAppliedType, Long clientId);
 
 }
