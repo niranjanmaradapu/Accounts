@@ -26,4 +26,6 @@ logging:
    file:
      name: C:\Users\ADMIN\Desktop\logs\payment-gateway.log
    level:
-     com.otsi.retail.paymentgateway.service: DEBUG   
+     com.otsi.retail.paymentgateway.service: DEBUG
+razorpay:
+  callback-url: http://14.98.164.17:9097/paymentgateway/razorpay
