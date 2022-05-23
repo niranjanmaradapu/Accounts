@@ -86,6 +86,7 @@ public class HsnDetailsMapper {
 		
 		hsnDetails.setId(hsnDetailsVo.getId());
 		hsnDetails.setHsnCode(hsnDetailsVo.getHsnCode());
+		hsnDetails.setClientId(hsnDetailsVo.getClientId());
 		hsnDetails.setDescription(hsnDetailsVo.getDescription());
 		hsnDetails.setTaxAppliedType(hsnDetailsVo.getTaxAppliedType());
 		hsnDetails.setTaxAppliesOn(hsnDetailsVo.getTaxAppliesOn());

@@ -55,10 +55,10 @@ public class HsnDetailsController {
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = HsnDetailsVo.class, responseContainer = "String") })
 	@PostMapping("/save")
-	public ResponseEntity<?> saveHsn(@RequestBody HsnDetailsVo hsnDetailsVo,@RequestHeader("userId") Long userId) {
+	public ResponseEntity<?> saveHsn(@RequestBody HsnDetailsVo hsnDetailsVo,@RequestHeader("userId") Long userId,@RequestHeader("clientId") Long clientId) {
 		
 		log.info("Received Request to add new hsn : " + hsnDetailsVo.toString());
-		HsnDetailsVo hsnSave = hsnDetailsService.hsnSave(hsnDetailsVo,userId);
+		HsnDetailsVo hsnSave = hsnDetailsService.hsnSave(hsnDetailsVo,userId,clientId);
 		return ResponseEntity.ok(hsnSave);
 
 	}
@@ -119,9 +119,10 @@ public class HsnDetailsController {
 	@GetMapping("/getHsnDetails")
 	public GateWayResponse<?> getHsnDetails(@RequestParam(required = false) String hsnCode,
 			@RequestParam(required = false) String description,
-			@RequestParam(required = false) TaxAppliedType taxAppliedType) {
+			@RequestParam(required = false) TaxAppliedType taxAppliedType,@RequestHeader(required = false) Long clientId) {
 		log.info("Received Request to get HsnDetails");
-		List<HsnDetailsVo> hsnDetails = hsnDetailsService.getHsnDetails(hsnCode,description,taxAppliedType);
+		log.info("clientId is:"+clientId);
+		List<HsnDetailsVo> hsnDetails = hsnDetailsService.getHsnDetails(hsnCode,description,taxAppliedType,clientId);
 		return new GateWayResponse<>("fetching all hsn-details", hsnDetails);
 
 	}

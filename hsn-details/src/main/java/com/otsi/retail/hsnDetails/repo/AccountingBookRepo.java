@@ -23,14 +23,18 @@ public interface AccountingBookRepo extends JpaRepository<AccountingBook, Long> 
 	Page<AccountingBook> findByCreatedDateBetweenAndStoreIdAndAccountType(LocalDateTime fromTime,
 			LocalDateTime fromTime1, Long storeId, AccountType accountType, Pageable pageable);
 
-	Page<AccountingBook> findByCreatedDateBetweenAndStoreIdAndAccountTypeOrderByLastModifiedDateAsc(
-			LocalDateTime fromTime, LocalDateTime toTime, Long storeId, AccountType accountType, Pageable pageable);
-
+	/*
+	 * Page<AccountingBook>
+	 * findByCreatedDateBetweenAndStoreIdAndAccountTypeOrderByLastModifiedDateAsc(
+	 * LocalDateTime fromTime, LocalDateTime toTime, Long storeId, AccountType
+	 * accountType, Pageable pageable);
+	 */
 	Page<AccountingBook> findByCreatedDateBetweenAndCustomerIdAndStoreIdAndAccountTypeOrderByLastModifiedDateAsc(
 			LocalDateTime fromTime, LocalDateTime toTime, Long userId, Long storeId, AccountType accountType,
 			Pageable pageable);
 
-	//Page<AccountingBook> findByStoreIdAndAccountType(Long storeId, AccountType accountType, Pageable pageable);
+	// Page<AccountingBook> findByStoreIdAndAccountType(Long storeId, AccountType
+	// accountType, Pageable pageable);
 
 	Page<AccountingBook> findByCustomerIdAndStoreIdAndAccountType(Long userId, Long storeId, AccountType accountType,
 			Pageable pageable);
@@ -45,5 +49,8 @@ public interface AccountingBookRepo extends JpaRepository<AccountingBook, Long> 
 
 	Page<AccountingBook> findByStoreIdAndAccountTypeOrderByCreatedDateDesc(Long storeId, AccountType accountType,
 			Pageable pageable);
+
+	Page<AccountingBook> findByLastModifiedDateBetweenAndStoreIdAndAccountTypeOrderByLastModifiedDateDesc(
+			LocalDateTime fromTime, LocalDateTime toTime, Long storeId, AccountType accountType, Pageable pageable);
 
 }

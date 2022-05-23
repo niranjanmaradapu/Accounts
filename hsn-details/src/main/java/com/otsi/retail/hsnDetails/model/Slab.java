@@ -42,7 +42,7 @@ public class Slab extends BaseEntity implements Serializable {
 	@Column(name = "price_to")
 	private double priceTo;
 	@JoinColumn(name = "tax_id")
-	@OneToOne(cascade = {CascadeType.MERGE,CascadeType.REFRESH})
+	@OneToOne
 	private Tax tax;
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	@ManyToOne(cascade = CascadeType.ALL)

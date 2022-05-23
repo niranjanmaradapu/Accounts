@@ -36,5 +36,7 @@ public class AccountingBook extends BaseEntity {
 	
 	private Long usedAmount;
 	
+	private Long clientId;
+	
 
 }

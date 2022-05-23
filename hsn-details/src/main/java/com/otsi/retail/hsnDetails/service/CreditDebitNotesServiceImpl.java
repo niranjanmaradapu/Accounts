@@ -456,14 +456,15 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 	public UserDetailsVo getUserDetailsFromURM(@RequestParam String mobileNumber) {
 
 		GetUserRequestVo userRequestVo = new GetUserRequestVo();
-		userRequestVo.setPhoneNo(mobileNumber);
+		String phoneNumber="+"+mobileNumber.trim();
+		userRequestVo.setPhoneNo(phoneNumber);
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<GetUserRequestVo> entity = new HttpEntity<>(userRequestVo, headers);
 
 		ResponseEntity<?> returnSlipListResponse = restTemplate.exchange(
-				config.getGetCustomerDetailsFromURM() + "?mobileNumber=" + mobileNumber, HttpMethod.GET, entity,
+				config.getGetCustomerDetailsFromURM() + "?mobileNumber=" + phoneNumber, HttpMethod.GET, entity,
 				GateWayResponse.class);
 
 		ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule())
@@ -535,11 +536,11 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 			// when the customer used the credit amount
 			UserDetailsVo userDetailsVo = getUserDetailsFromURM(ledgerLogBookVo.getMobileNumber());
 			if (userDetailsVo != null) {
-				AccountingBook accountingBook = accountingBookRepo.findByCustomerIdAndStoreIdAndAccountType(
-						userDetailsVo.getUserId(), ledgerLogBookVo.getStoreId(), ledgerLogBookVo.getAccountType());
+				AccountingBook accountingBook = accountingBookRepo.findByCustomerIdAndAccountType(
+						userDetailsVo.getUserId(), ledgerLogBookVo.getAccountType());
 
 				ledgerLogBook.setPaymentStatus(PaymentStatus.DEBIT);
-				ledgerLogBook.setReferenceNumber("DR_" + RandomStringUtils.randomAlphanumeric(10));
+				ledgerLogBook.setReferenceNumber("DB" + RandomStringUtils.randomAlphanumeric(10));
 				ledgerLogBook.setCustomerId(userDetailsVo.getUserId());
 				ledgerLogBook.setAccountingBookId(accountingBook.getAccountingBookId());
 				// to update used amount in accounting book
@@ -547,6 +548,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 					accountingBook.setUsedAmount(ledgerLogBookVo.getAmount());
 				} else {
 					accountingBook.setUsedAmount(accountingBook.getUsedAmount() + ledgerLogBookVo.getAmount());
+					accountingBook.setLastModifiedDate(LocalDateTime.now());
 				}
 				accountingBookRepo.save(accountingBook);
 			}
@@ -566,17 +568,21 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		}
 
 		else if (ledgerLogBookVo.getTransactionType().equals(AccountType.CREDIT)) {
-			UserDetailsVo userDetailsVo = getUserDetailsFromURM(ledgerLogBookVo.getMobileNumber());
-			if (userDetailsVo != null) {
+			//UserDetailsVo userDetailsVo = getUserDetailsFromURM(ledgerLogBookVo.getMobileNumber());
+			//if (userDetailsVo != null) {
 				AccountingBook accountingBook = accountingBookRepo.findByCustomerIdAndStoreIdAndAccountType(
-						userDetailsVo.getUserId(), ledgerLogBookVo.getStoreId(), ledgerLogBookVo.getAccountType());
+						ledgerLogBookVo.getCustomerId(), ledgerLogBookVo.getStoreId(), ledgerLogBookVo.getAccountType());
+				if(ledgerLogBookVo.getPaymentType().equals(PaymentType.Cash)) {
+					ledgerLogBook.setPaymentStatus(PaymentStatus.SUCCESS);
+				}
 				ledgerLogBook.setAccountingBookId(accountingBook.getAccountingBookId());
-				ledgerLogBook.setReferenceNumber("CR_" + RandomStringUtils.randomAlphanumeric(10));
+				ledgerLogBook.setReferenceNumber("CR" + RandomStringUtils.randomAlphanumeric(10));
 				ledgerLogBook.setCustomerId(accountingBook.getCustomerId());
-				// to update amount in accounting book
+				// to update deducted amount in accounting book
 				accountingBook.setAmount(Math.abs(ledgerLogBookVo.getAmount() - accountingBook.getAmount()));
+				accountingBook.setLastModifiedDate(LocalDateTime.now());
 				accountingBookRepo.save(accountingBook);
-			}
+			//}
 
 		}
 		ledgerLogBook = ledgerLogBookRepo.save(ledgerLogBook);
@@ -588,6 +594,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 				.findByCustomerIdAndAccountType(ledgerLogBook.getCustomerId(), ledgerLogBook.getAccountType());
 		if (accountingBookCustomer != null) {
 			accountingBookCustomer.setAmount(accountingBookCustomer.getAmount() + ledgerLogBook.getAmount());
+			accountingBookCustomer.setLastModifiedDate(LocalDateTime.now());
 			AccountingBook accountingBookSave = accountingBookRepo.save(accountingBookCustomer);
 			ledgerLogBook.setAccountingBookId(accountingBookSave.getAccountingBookId());
 
@@ -688,7 +695,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 			LocalDateTime fromTime = DateConverters.convertLocalDateToLocalDateTime(searchFilterVo.getFromDate());
 			LocalDateTime toTime = DateConverters.convertToLocalDateTimeMax(searchFilterVo.getToDate());
 			accountingBooks = accountingBookRepo
-					.findByCreatedDateBetweenAndStoreIdAndAccountTypeOrderByLastModifiedDateAsc(fromTime, toTime,
+					.findByLastModifiedDateBetweenAndStoreIdAndAccountTypeOrderByLastModifiedDateDesc(fromTime, toTime,
 							searchFilterVo.getStoreId(), searchFilterVo.getAccountType(), pageable);
 
 		}

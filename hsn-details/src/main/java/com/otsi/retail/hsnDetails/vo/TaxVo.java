@@ -42,5 +42,7 @@ public class TaxVo {
 	private Long modifiedBy;
 
 	private LocalDateTime lastModifiedDate;
+	
+	private Long clientId;
 
 }

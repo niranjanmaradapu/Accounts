@@ -17,9 +17,11 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-    
-     #######################------Eureka server related propertises-------########################
-
+  rabbitmq:
+      host: localhost
+      port: 5672
+      username: guest
+      password: guest 
 eureka:
   client:
     register-with-eureka: true

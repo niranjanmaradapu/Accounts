@@ -41,4 +41,6 @@ public class LedgerLogBookVo extends BaseEntityVo {
 	private String returnReferenceNumber;
 	
 	private String mobileNumber;
+	
+	private Long clientId;
 }

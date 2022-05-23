@@ -18,7 +18,7 @@ spring:  application:    name: hsn-details-service
       host: localhost
       port: 5672
       username: guest
-      password: guest  
+      password: guest
      #######################------Eureka server related propertises-------########################
 eureka:
   client:

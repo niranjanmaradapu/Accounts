@@ -43,5 +43,6 @@ public class Tax extends BaseEntity implements Serializable {
 	@Column(name = "cess")
 	private float cess;
 	
+	private Long clientId;
 	
 }

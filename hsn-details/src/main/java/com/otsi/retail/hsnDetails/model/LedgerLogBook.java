@@ -62,5 +62,7 @@ public class LedgerLogBook extends BaseEntity {
 	private Boolean isReturned;
 
 	private String returnReferenceNumber;
+	
+	private Long clientId;
 
 }
