@@ -8,17 +8,14 @@ import lombok.Data;
 @Data
 public class ReportsVo {
 
-	@ApiModelProperty(value = "debit amount of the customer", name = "dAmount",required = true)
-	private Long dAmount;
-
 	@ApiModelProperty(value = "id of the store", name = "storeId",required = true)
 	private Long storeId;
 
 	@ApiModelProperty(value = "amount of the customer either c/d", name = "actualAmount",required = true)
-	private Long actualAmount;
+	private Long amount;
 
 	@ApiModelProperty(value = "trnsaction amount of the customer either c/d", name = "transactionAmount",required = true)
-	private Long transactionAmount;
+	private Long usedAmount;
 	
 	@ApiModelProperty(value = "name of the store", name = "name",required = true)
 	private String name;

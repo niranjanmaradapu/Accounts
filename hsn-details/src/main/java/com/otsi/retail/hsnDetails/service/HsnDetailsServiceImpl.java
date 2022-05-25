@@ -7,13 +7,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import com.otsi.retail.hsnDetails.enums.Description;
 import com.otsi.retail.hsnDetails.enums.TaxAppliedType;
@@ -24,7 +27,6 @@ import com.otsi.retail.hsnDetails.exceptions.InvalidDataException;
 import com.otsi.retail.hsnDetails.exceptions.RecordNotFoundException;
 import com.otsi.retail.hsnDetails.mapper.HsnDetailsMapper;
 import com.otsi.retail.hsnDetails.mapper.SlabMapper;
-import com.otsi.retail.hsnDetails.mapper.TaxMapper;
 import com.otsi.retail.hsnDetails.model.HsnDetails;
 import com.otsi.retail.hsnDetails.model.Slab;
 import com.otsi.retail.hsnDetails.model.Tax;
@@ -234,39 +236,31 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	 * get functionality for hsn_details
 	 */
 	@Override
-	public List<HsnDetailsVo> getHsnDetails(String hsnCode, String description, TaxAppliedType taxAppliedType,
-			Long clientId) {
+	public Page<HsnDetailsVo> getHsnDetails(String hsnCode, String description, TaxAppliedType taxAppliedType,
+			Long clientId, Pageable pageable) {
 		log.debug(" debugging getHsnDetails");
 		log.info("clientId:" + clientId);
-		List<HsnDetails> hsnDetails = new ArrayList<>();
-		List<HsnDetailsVo> voList = new ArrayList<>();
+		Page<HsnDetails> hsnDetails = null;
 		// here, find all details through repository
 		if (hsnCode != null || description != null || taxAppliedType != null) {
 			if (hsnCode != null)
 				// hsnDetails = hsnDetailsRepo.findByHsnCode(hsnCode);
-				hsnDetails = hsnDetailsRepo.findByHsnCodeAndClientId(hsnCode, clientId);
+				hsnDetails = hsnDetailsRepo.findByHsnCodeAndClientId(hsnCode, clientId, pageable);
 			else if (description != null)
-				hsnDetails = hsnDetailsRepo.findByDescription(description);
+				hsnDetails = hsnDetailsRepo.findByDescription(description, pageable);
 			else if (taxAppliedType != null)
-				hsnDetails = hsnDetailsRepo.findByTaxAppliedType(taxAppliedType);
+				hsnDetails = hsnDetailsRepo.findByTaxAppliedType(taxAppliedType, pageable);
 		} else if (clientId != null) {
-			hsnDetails = hsnDetailsRepo.findByClientId(clientId);
+			hsnDetails = hsnDetailsRepo.findByClientId(clientId, pageable);
 		}
+		return hsnDetails.map(hsnDetail -> hsnMapToVo(hsnDetail));
 
-		else {
-			hsnDetails = hsnDetailsRepo.findAll();
-		}
+	}
 
-		voList = hsnDetailsMapper.EntityToVo(hsnDetails);
-
-		// here,will loop based on hsn id
-		voList.stream().forEach(t -> {
-			t.setSlabs(slabMapper.EntityToVo(slabRepo.findByHsnDetailsId(t.getId())));
-		});
-
-		log.warn("we are checking if hsn details is fetching...");
-		log.info("after getting hsn details:" + voList);
-		return voList;
+	private HsnDetailsVo hsnMapToVo(HsnDetails hsnDetails) {
+		HsnDetailsVo hsnDetailsVo = hsnDetailsMapper.EntityToVo(hsnDetails);
+		hsnDetailsVo.setSlabs(slabMapper.EntityToVo(slabRepo.findByHsnDetailsId(hsnDetails.getId())));
+		return hsnDetailsVo;
 
 	}
 

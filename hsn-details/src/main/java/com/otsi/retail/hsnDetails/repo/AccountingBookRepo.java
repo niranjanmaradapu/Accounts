@@ -53,4 +53,8 @@ public interface AccountingBookRepo extends JpaRepository<AccountingBook, Long> 
 	Page<AccountingBook> findByLastModifiedDateBetweenAndStoreIdAndAccountTypeOrderByLastModifiedDateDesc(
 			LocalDateTime fromTime, LocalDateTime toTime, Long storeId, AccountType accountType, Pageable pageable);
 
+	List<AccountingBook> findByAccountType(AccountType accountType);
+
+	List<AccountingBook> findByStoreIdAndUsedAmount(long id, Long usedAmount);
+
 }

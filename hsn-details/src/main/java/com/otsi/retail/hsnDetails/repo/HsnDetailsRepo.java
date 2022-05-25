@@ -5,6 +5,8 @@ package com.otsi.retail.hsnDetails.repo;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -24,12 +26,12 @@ public interface HsnDetailsRepo extends JpaRepository<HsnDetails, Long> {
 
 	boolean existsByHsnCode(String hsnCode);
 
-	List<HsnDetails> findByDescription(String description);
+	Page<HsnDetails> findByClientId(Long clientId, Pageable pageable);
 
-	List<HsnDetails> findByTaxAppliedType(TaxAppliedType taxAppliedType);
+	Page<HsnDetails> findByHsnCodeAndClientId(String hsnCode, Long clientId, Pageable pageable);
 
-	List<HsnDetails> findByHsnCodeAndClientId(String hsnCode, Long clientId);
+	Page<HsnDetails> findByDescription(String description, Pageable pageable);
 
-	List<HsnDetails> findByClientId(Long clientId);
+	Page<HsnDetails> findByTaxAppliedType(TaxAppliedType taxAppliedType, Pageable pageable);
 
 }

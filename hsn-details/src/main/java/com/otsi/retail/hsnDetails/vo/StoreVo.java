@@ -40,7 +40,7 @@ public class StoreVo {
 	@JsonIgnore
 	private String modifiedBy;
 	@JsonIgnore
-	private boolean isActive;
+	private Boolean isActive;
 
 	@JsonIgnore
 	@OneToOne
