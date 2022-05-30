@@ -4,6 +4,7 @@
 package com.otsi.retail.hsnDetails.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,7 +46,6 @@ public class HsnDetailsController {
 
 	@Autowired
 	private HsnDetailsService hsnDetailsService;
-	
 
 	/*
 	 * save functionality through service by HsnDetailsVo
@@ -55,15 +55,15 @@ public class HsnDetailsController {
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = HsnDetailsVo.class, responseContainer = "String") })
 	@PostMapping("/save")
-	public ResponseEntity<?> saveHsn(@RequestBody HsnDetailsVo hsnDetailsVo,@RequestHeader("userId") Long userId,@RequestHeader("clientId") Long clientId) {
-		
+	public ResponseEntity<?> saveHsn(@RequestBody HsnDetailsVo hsnDetailsVo, @RequestHeader("userId") Long userId,
+			@RequestHeader("clientId") Long clientId) {
+
 		log.info("Received Request to add new hsn : " + hsnDetailsVo.toString());
-		HsnDetailsVo hsnSave = hsnDetailsService.hsnSave(hsnDetailsVo,userId,clientId);
+		HsnDetailsVo hsnSave = hsnDetailsService.hsnSave(hsnDetailsVo, userId, clientId);
 		return ResponseEntity.ok(hsnSave);
 
 	}
-	
-	
+
 	/*
 	 * fetch functionality through service by @pathVariable("enumName)
 	 */
@@ -78,8 +78,7 @@ public class HsnDetailsController {
 		return new GateWayResponse<List<EnumVo>>("fetching enum details successfully", enumVo);
 
 	}
-	
-	
+
 	/*
 	 * update functionality through service by HsnDetailsVo
 	 */
@@ -94,7 +93,6 @@ public class HsnDetailsController {
 		return ResponseEntity.ok(hsnUpdate);
 	}
 
-	
 	/*
 	 * delete functionality through service by id
 	 */
@@ -119,15 +117,16 @@ public class HsnDetailsController {
 	@GetMapping("/getHsnDetails")
 	public GateWayResponse<?> getHsnDetails(@RequestParam(required = false) String hsnCode,
 			@RequestParam(required = false) String description,
-			@RequestParam(required = false) TaxAppliedType taxAppliedType,@RequestHeader(required = false) Long clientId) {
+			@RequestParam(required = false) TaxAppliedType taxAppliedType,
+			@RequestHeader(required = false) Long clientId) {
 		log.info("Received Request to get HsnDetails");
-		log.info("clientId is:"+clientId);
-		List<HsnDetailsVo> hsnDetails = hsnDetailsService.getHsnDetails(hsnCode,description,taxAppliedType,clientId);
+		log.info("clientId is:" + clientId);
+		List<HsnDetailsVo> hsnDetails = hsnDetailsService.getHsnDetails(hsnCode, description, taxAppliedType, clientId);
 		return new GateWayResponse<>("fetching all hsn-details", hsnDetails);
 
 	}
 
-	@ApiOperation(value = "getHsnDetails", notes = "fetching hsn-details", response = HsnDetailsVo.class)
+	@ApiOperation(value = "/getAllHsnDetails", notes = "fetching hsn-details", response = HsnDetailsVo.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", response = HsnDetailsVo.class, responseContainer = "List") })
 	@GetMapping("/getAllHsnDetails")
@@ -137,5 +136,16 @@ public class HsnDetailsController {
 		return new GateWayResponse<>("fetching all hsn-details", hsnDetails);
 
 	}
+
+	@ApiOperation(value = "/code", notes = "fetching hsn-details", response = HsnDetailsVo.class)
+	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
+			@ApiResponse(code = 200, message = "Successful retrieval", response = HsnDetailsVo.class, responseContainer = "List") })
+	@GetMapping("/code")
+	public ResponseEntity<?> getHsnDetailsByCode(@RequestParam("hsnCode") String hsnCode,
+			@RequestParam(value ="itemPrice" , required = false) Float itemPrice, @RequestHeader Long clientId) {
+		log.info("Received Request to get HsnDetails");
+		Map<String, Float> taxValues = hsnDetailsService.getHsnDetails(hsnCode, itemPrice, clientId);
+		return ResponseEntity.ok(taxValues);
+	}                 
 
 }

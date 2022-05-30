@@ -4,6 +4,7 @@
 package com.otsi.retail.hsnDetails.repo;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,7 +29,7 @@ public interface HsnDetailsRepo extends JpaRepository<HsnDetails, Long> {
 
 	List<HsnDetails> findByTaxAppliedType(TaxAppliedType taxAppliedType);
 
-	List<HsnDetails> findByHsnCodeAndClientId(String hsnCode, Long clientId);
+	Optional<HsnDetails> findByHsnCodeAndClientId(String hsnCode, Long clientId);
 
 	List<HsnDetails> findByClientId(Long clientId);
 

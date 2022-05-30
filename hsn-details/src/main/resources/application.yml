@@ -5,7 +5,7 @@ spring:  application:    name: hsn-details-service
   datasource:
     url: jdbc:postgresql://localhost:5432/accounting
     username: postgres
-    password: Vasavi
+    password: Otsi@123
     
   jpa:
     properties:
@@ -33,7 +33,7 @@ eureka:
 
 logging:
     file:
-      name: C:/Users/ADMIN/Desktop/logs/hsn-details.log
+      name: C:/logs/hsn-details.log
     level:
       com.otsi.retail.hsnDetails.service: DEBUG  
     

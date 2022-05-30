@@ -6,11 +6,6 @@ package com.otsi.retail.hsnDetails.vo;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.persistence.Column;
-
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-
 import com.otsi.retail.hsnDetails.enums.TaxAppliedType;
 
 import io.swagger.annotations.ApiModel;

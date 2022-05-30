@@ -5,6 +5,8 @@
 package com.otsi.retail.hsnDetails.service;
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import com.otsi.retail.hsnDetails.enums.TaxAppliedType;
 import com.otsi.retail.hsnDetails.vo.EnumVo;
@@ -32,5 +34,7 @@ public interface HsnDetailsService {
 	//List<HsnDetailsVo> getHsnDetails(String hsnCode, String description, TaxAppliedType taxAppliedType);
 
 	List<HsnDetailsVo> getHsnDetails(String hsnCode, String description, TaxAppliedType taxAppliedType, Long clientId);
+
+	Map<String, Float> getHsnDetails(String hsnCode, Float itemPrice, Long storeId);
 
 }

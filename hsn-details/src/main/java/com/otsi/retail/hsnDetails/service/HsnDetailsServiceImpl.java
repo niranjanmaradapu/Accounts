@@ -5,26 +5,29 @@ package com.otsi.retail.hsnDetails.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.otsi.retail.hsnDetails.enums.Description;
 import com.otsi.retail.hsnDetails.enums.TaxAppliedType;
 import com.otsi.retail.hsnDetails.enums.TaxAppliesOn;
 import com.otsi.retail.hsnDetails.exceptions.DataNotFoundException;
 import com.otsi.retail.hsnDetails.exceptions.DuplicateRecordException;
-import com.otsi.retail.hsnDetails.exceptions.InvalidDataException;
 import com.otsi.retail.hsnDetails.exceptions.RecordNotFoundException;
 import com.otsi.retail.hsnDetails.mapper.HsnDetailsMapper;
 import com.otsi.retail.hsnDetails.mapper.SlabMapper;
-import com.otsi.retail.hsnDetails.mapper.TaxMapper;
 import com.otsi.retail.hsnDetails.model.HsnDetails;
 import com.otsi.retail.hsnDetails.model.Slab;
 import com.otsi.retail.hsnDetails.model.Tax;
@@ -242,10 +245,12 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		List<HsnDetailsVo> voList = new ArrayList<>();
 		// here, find all details through repository
 		if (hsnCode != null || description != null || taxAppliedType != null) {
-			if (hsnCode != null)
-				// hsnDetails = hsnDetailsRepo.findByHsnCode(hsnCode);
-				hsnDetails = hsnDetailsRepo.findByHsnCodeAndClientId(hsnCode, clientId);
-			else if (description != null)
+			if (hsnCode != null) {
+				Optional<HsnDetails> hsn = hsnDetailsRepo.findByHsnCodeAndClientId(hsnCode, clientId);
+				if (hsn.isPresent()) {
+					hsnDetails.add(hsn.get());
+				}
+			} else if (description != null)
 				hsnDetails = hsnDetailsRepo.findByDescription(description);
 			else if (taxAppliedType != null)
 				hsnDetails = hsnDetailsRepo.findByTaxAppliedType(taxAppliedType);
@@ -291,6 +296,59 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 
 	}
 
+	@Override
+	public Map<String, Float> getHsnDetails(String hsnCode, Float itemPrice, Long clientId) {
+		Optional<HsnDetails> hsnDetailsOptional = hsnDetailsRepo.findByHsnCodeAndClientId(hsnCode, clientId);
+		Map<String, Float> taxMap = new HashMap<>();
+		Tax tax = null;
+		if (hsnDetailsOptional.isPresent()) {
+			HsnDetails hsnDetails = hsnDetailsOptional.get();
+			if (hsnDetails.getTaxAppliedType().equals(TaxAppliedType.Hsncode)) {
+				tax = hsnDetails.getTax();
+			}
+
+			else if (hsnDetails.getTaxAppliedType().equals(TaxAppliedType.Priceslab) && itemPrice != null) {
+				List<Slab> slabs = slabRepo.findByHsnDetailsId(hsnDetails.getId());
+				for (Slab slab : slabs) {
+					if (itemPrice >= slab.getPriceFrom() && itemPrice <= slab.getPriceTo()) {
+						tax = slab.getTax();
+						break;
+					}
+				}
+			}
+			if (tax != null) {
+				taxMap.put("cgstPercent", tax.getCgst());
+				taxMap.put("sgstPercent", tax.getSgst());
+				taxMap.put("igstPercent", tax.getIgst());
+				taxMap.put("cessPercent", tax.getCess());
+				// if tax is included
+				if (true) {
+					taxMap.put("cgstValue", (tax.getCgst() > 0 ? (itemPrice * tax.getCgst()) / 100 : 0));
+					taxMap.put("sgstValue", (tax.getSgst() > 0 ? (itemPrice * tax.getSgst()) / 100 : 0));
+					taxMap.put("igstValue", (tax.getIgst() > 0 ? (itemPrice * tax.getIgst()) / 100 : 0));
+					taxMap.put("cessValue", (tax.getCess() > 0 ? (itemPrice * tax.getCess()) / 100 : 0));
+					taxMap.put("intrastate",
+							itemPrice - taxMap.get("sgstValue") - taxMap.get("cgstValue") - taxMap.get("cessValue"));
+					taxMap.put("interstate", itemPrice - taxMap.get("igstValue") - taxMap.get("cessValue"));
+
+				}
+				// if tax is excluded
+				else {
+					taxMap.put("cgstValue", (tax.getCgst() > 0 ? (itemPrice * tax.getCgst()) / 100 : 0));
+					taxMap.put("sgstValue", (tax.getSgst() > 0 ? (itemPrice * tax.getSgst()) / 100 : 0));
+					taxMap.put("igstValue", (tax.getIgst() > 0 ? (itemPrice * tax.getIgst()) / 100 : 0));
+					taxMap.put("cessValue", (tax.getCess() > 0 ? (itemPrice * tax.getCess()) / 100 : 0));
+					taxMap.put("intrastate",
+							itemPrice + taxMap.get("sgstValue") + taxMap.get("cgstValue") + taxMap.get("cessValue"));
+					taxMap.put("interstate", itemPrice + taxMap.get("igstValue") + taxMap.get("cessValue"));
+
+				}
+			}
+		}
+		return taxMap;
+
+	}
+
 	/**
 	 * validate tax slab
 	 * 
@@ -302,7 +360,8 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		hsnDetails.getSlabs().stream().forEach(slabVO -> {
 
 			if (slabVO.getPriceFrom() >= slabVO.getPriceTo()) {
-				throw new InvalidDataException("Invalid slab range price from is greater than price to");
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+						"Invalid slab range price from is greater than price to");
 			}
 
 			List<Slab> slabList = slabRepo.findAll();
