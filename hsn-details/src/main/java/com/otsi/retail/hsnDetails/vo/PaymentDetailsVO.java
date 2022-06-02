@@ -3,7 +3,7 @@ package com.otsi.retail.hsnDetails.vo;
 import lombok.Data;
 
 @Data
-public class PaymentDetailsVo {
+public class PaymentDetailsVO {
 	
 	private String ReferenceNumber;
 

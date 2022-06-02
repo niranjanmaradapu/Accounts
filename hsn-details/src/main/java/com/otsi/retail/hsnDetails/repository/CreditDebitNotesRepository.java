@@ -1,4 +1,4 @@
-package com.otsi.retail.hsnDetails.repo;
+package com.otsi.retail.hsnDetails.repository;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -31,9 +31,9 @@ import com.otsi.retail.hsnDetails.mapper.SlabMapper;
 import com.otsi.retail.hsnDetails.model.HsnDetails;
 import com.otsi.retail.hsnDetails.model.Slab;
 import com.otsi.retail.hsnDetails.model.Tax;
-import com.otsi.retail.hsnDetails.repo.HsnDetailsRepository;
-import com.otsi.retail.hsnDetails.repo.SlabRepository;
-import com.otsi.retail.hsnDetails.repo.TaxRepository;
+import com.otsi.retail.hsnDetails.repository.HsnDetailsRepository;
+import com.otsi.retail.hsnDetails.repository.SlabRepository;
+import com.otsi.retail.hsnDetails.repository.TaxRepository;
 import com.otsi.retail.hsnDetails.vo.EnumVo;
 import com.otsi.retail.hsnDetails.vo.HsnDetailsVO;
 

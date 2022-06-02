@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.otsi.retail.hsnDetails.gatewayresponse.GateWayResponse;
 import com.otsi.retail.hsnDetails.service.ReportService;
-import com.otsi.retail.hsnDetails.vo.ReportsVo;
+import com.otsi.retail.hsnDetails.vo.ReportsVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -31,27 +31,27 @@ public class ReportController {
 	private ReportService reportService;
 	
 	
-	@ApiOperation(value = "debitNotesByStores", notes = "fetching debit notes by stores", response = ReportsVo.class)
+	@ApiOperation(value = "debitNotesByStores", notes = "fetching debit notes by stores", response = ReportsVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", 
-			response = ReportsVo.class, responseContainer = "List") })
+			response = ReportsVO.class, responseContainer = "List") })
 	@GetMapping("/debitNotesByStores")
 	public GateWayResponse<?> debitNotesByStores() {
 		log.info("Received Request to debitNotesByStores");
-		List<ReportsVo> allCreditDebitNotes = reportService.debitNotesByStores();
+		List<ReportsVO> allCreditDebitNotes = reportService.debitNotesByStores();
 		return new GateWayResponse<>("fetching all debitnotes sucessfully", allCreditDebitNotes);
 
 	}
 	
 
-	@ApiOperation(value = "usedAndBalancedAmountByStores", notes = "fetching used amount and balanced amount by stores", response = ReportsVo.class)
+	@ApiOperation(value = "usedAndBalancedAmountByStores", notes = "fetching used amount and balanced amount by stores", response = ReportsVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 			@ApiResponse(code = 200, message = "Successful retrieval", 
-			response = ReportsVo.class, responseContainer = "List") })
+			response = ReportsVO.class, responseContainer = "List") })
 	@GetMapping("/usedAndBalancedAmountByStores")
 	public GateWayResponse<?> usedAndBalancedAmountByStores() {
 		log.info("Received Request to usedAndBalancedAmountByStores");
-		List<ReportsVo> allCreditDebitNotes = reportService.usedAndBalancedAmountByStores();
+		List<ReportsVO> allCreditDebitNotes = reportService.usedAndBalancedAmountByStores();
 		return new GateWayResponse<>("fetching all creditnotes sucessfully", allCreditDebitNotes);
 
 	}

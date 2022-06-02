@@ -1,7 +1,7 @@
 /**
  * repository for Slab
  */
-package com.otsi.retail.hsnDetails.repo;
+package com.otsi.retail.hsnDetails.repository;
 
 import java.util.List;
 

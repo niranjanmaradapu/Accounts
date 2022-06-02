@@ -44,15 +44,15 @@ import com.otsi.retail.hsnDetails.mapper.LedgerLogBookMapper;
 import com.otsi.retail.hsnDetails.model.AccountingBook;
 import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
 import com.otsi.retail.hsnDetails.model.LedgerLogBook;
-import com.otsi.retail.hsnDetails.repo.AccountingBookRepository;
-import com.otsi.retail.hsnDetails.repo.CreditDebitNotesRepository;
-import com.otsi.retail.hsnDetails.repo.LedgerLogBookRepository;
+import com.otsi.retail.hsnDetails.repository.AccountingBookRepository;
+import com.otsi.retail.hsnDetails.repository.CreditDebitNotesRepository;
+import com.otsi.retail.hsnDetails.repository.LedgerLogBookRepository;
 import com.otsi.retail.hsnDetails.util.DateConverters;
 import com.otsi.retail.hsnDetails.vo.AccountingBookVO;
 import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVO;
 import com.otsi.retail.hsnDetails.vo.GetUserRequestVO;
 import com.otsi.retail.hsnDetails.vo.LedgerLogBookVO;
-import com.otsi.retail.hsnDetails.vo.PaymentDetailsVo;
+import com.otsi.retail.hsnDetails.vo.PaymentDetailsVO;
 import com.otsi.retail.hsnDetails.vo.SearchFilterVO;
 import com.otsi.retail.hsnDetails.vo.UpdateCreditRequest;
 import com.otsi.retail.hsnDetails.vo.UserDetailsVO;
@@ -836,7 +836,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 	}
 
 	@RabbitListener(queues = "payment_creditNotes_queue")
-	public void paymentConfirmation(PaymentDetailsVo paymentDetails) {
+	public void paymentConfirmation(PaymentDetailsVO paymentDetails) {
 
 		// AccountingBook entity =
 		// AccountingBookRepository.findByReferenceNumber(paymentDetails.getReferenceNumber());

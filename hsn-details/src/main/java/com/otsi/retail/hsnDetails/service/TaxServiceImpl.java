@@ -14,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.otsi.retail.hsnDetails.exceptions.RecordNotFoundException;
 import com.otsi.retail.hsnDetails.mapper.TaxMapper;
 import com.otsi.retail.hsnDetails.model.Tax;
-import com.otsi.retail.hsnDetails.repo.TaxRepository;
+import com.otsi.retail.hsnDetails.repository.TaxRepository;
 import com.otsi.retail.hsnDetails.vo.TaxVO;
 
 /**

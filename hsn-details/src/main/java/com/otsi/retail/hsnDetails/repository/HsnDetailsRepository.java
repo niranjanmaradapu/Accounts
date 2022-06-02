@@ -1,7 +1,7 @@
 /**
  * repository for Hsn_details
  */
-package com.otsi.retail.hsnDetails.repo;
+package com.otsi.retail.hsnDetails.repository;
 
 import java.util.List;
 import java.util.Optional;

@@ -18,8 +18,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.otsi.retail.hsnDetails.config.Config;
 import com.otsi.retail.hsnDetails.gatewayresponse.GateWayResponse;
 import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
-import com.otsi.retail.hsnDetails.repo.CreditDebitNotesRepository;
-import com.otsi.retail.hsnDetails.vo.ReportsVo;
+import com.otsi.retail.hsnDetails.repository.CreditDebitNotesRepository;
+import com.otsi.retail.hsnDetails.vo.ReportsVO;
 import com.otsi.retail.hsnDetails.vo.StoreVO;
 
 /**
@@ -39,9 +39,9 @@ public class ReportServiceImpl implements ReportService {
 	private Config config;
 
 	@Override
-	public List<ReportsVo> debitNotesByStores() {
+	public List<ReportsVO> debitNotesByStores() {
 		String creditDebit = "D";
-		List<ReportsVo> reports = new ArrayList<>();
+		List<ReportsVO> reports = new ArrayList<>();
 		List<CreditDebitNotes> allNotes = creditDebitNotesRepo.findByCreditDebit(creditDebit);
 		List<Long> storeIds = allNotes.stream().map(x -> x.getStoreId()).distinct().collect(Collectors.toList());
 		List<StoreVO> svos = new ArrayList<>();
@@ -54,7 +54,7 @@ public class ReportServiceImpl implements ReportService {
 		svos.stream().forEach(x -> {
 			List<CreditDebitNotes> store = creditDebitNotesRepo.findByStoreIdAndCreditDebit(x.getId(), creditDebit);
 			long amount = store.stream().mapToLong(a -> a.getActualAmount()).sum();
-			ReportsVo report = new ReportsVo();
+			ReportsVO report = new ReportsVO();
 			report.setDAmount(amount);
 			report.setStoreId(x.getId());
 			report.setName(x.getName());
@@ -65,9 +65,9 @@ public class ReportServiceImpl implements ReportService {
 	}
 
 	@Override
-	public List<ReportsVo> usedAndBalancedAmountByStores() {
+	public List<ReportsVO> usedAndBalancedAmountByStores() {
 		String creditDebit = "C";
-		List<ReportsVo> reports = new ArrayList<>();
+		List<ReportsVO> reports = new ArrayList<>();
 		List<CreditDebitNotes> allNotes = creditDebitNotesRepo.findByCreditDebit(creditDebit);
 
 		List<Long> storeIds = allNotes.stream().map(x -> x.getStoreId()).distinct().collect(Collectors.toList());
@@ -85,7 +85,7 @@ public class ReportServiceImpl implements ReportService {
 
 			List<CreditDebitNotes> store1 = creditDebitNotesRepo.findByStoreIdAndFlag(x.getId(), Boolean.TRUE);
 			long actualAmount = store1.stream().mapToLong(r -> r.getActualAmount()).sum();
-			ReportsVo report = new ReportsVo();
+			ReportsVO report = new ReportsVO();
 			report.setActualAmount(actualAmount);
 			report.setTransactionAmount(transactionAmount);
 			report.setStoreId(x.getId());
