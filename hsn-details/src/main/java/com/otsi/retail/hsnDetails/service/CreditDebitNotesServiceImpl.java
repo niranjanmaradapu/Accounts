@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,11 +18,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -572,6 +573,9 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 			//if (userDetailsVo != null) {
 				AccountingBook accountingBook = accountingBookRepo.findByCustomerIdAndStoreIdAndAccountType(
 						ledgerLogBookVo.getCustomerId(), ledgerLogBookVo.getStoreId(), ledgerLogBookVo.getAccountType());
+				if (accountingBook.getAmount() == 0) {
+					throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No Due for this Customer");
+				}
 				if(ledgerLogBookVo.getPaymentType().equals(PaymentType.Cash)) {
 					ledgerLogBook.setPaymentStatus(PaymentStatus.SUCCESS);
 				}
