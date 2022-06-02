@@ -1,26 +1,25 @@
 package com.otsi.retail.hsnDetails.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+
 import com.otsi.retail.hsnDetails.exceptions.RecordNotFoundException;
-import com.otsi.retail.hsnDetails.model.Tax;
-import com.otsi.retail.hsnDetails.vo.TaxVo;
+import com.otsi.retail.hsnDetails.vo.TaxVO;
 
 @Service
 public interface TaxService {
 
-	String updateTax(TaxVo taxvo) throws RecordNotFoundException;
+	String updateTax(TaxVO taxvo) throws RecordNotFoundException;
 
-	TaxVo getTaxById(Long id);
+	TaxVO getTaxById(Long id);
 	
-	List<TaxVo> getTaxForGivenIds(List<Long> taxIds);
+	List<TaxVO> getTaxForGivenIds(List<Long> taxIds);
 
 	String deleteTax(Long id);
 
-	List<TaxVo> getTaxDetails(String taxLabel, Long clientId);
+	List<TaxVO> getTaxDetails(String taxLabel, Long clientId);
 
-	TaxVo saveTax(TaxVo taxvo, Long clientId);
+	TaxVO saveTax(TaxVO taxvo, Long clientId);
 
 }

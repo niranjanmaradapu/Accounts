@@ -10,7 +10,7 @@ import lombok.Data;
  *
  */
 @Data
-public class LedgerLogBookVo extends BaseEntityVo {
+public class LedgerLogBookVO extends BaseEntityVO {
 
 	private Long ledgerLogBookId;
 

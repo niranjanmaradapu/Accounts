@@ -9,42 +9,42 @@ import org.springframework.stereotype.Service;
 import com.otsi.retail.hsnDetails.enums.AccountType;
 import com.otsi.retail.hsnDetails.exceptions.DataNotFoundException;
 import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
-import com.otsi.retail.hsnDetails.vo.AccountingBookVo;
-import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVo;
-import com.otsi.retail.hsnDetails.vo.LedgerLogBookVo;
-import com.otsi.retail.hsnDetails.vo.SearchFilterVo;
+import com.otsi.retail.hsnDetails.vo.AccountingBookVO;
+import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVO;
+import com.otsi.retail.hsnDetails.vo.LedgerLogBookVO;
+import com.otsi.retail.hsnDetails.vo.SearchFilterVO;
 import com.otsi.retail.hsnDetails.vo.UpdateCreditRequest;
 
 @Service
 public interface CreditDebitNotesService {
 
-	String saveCreditDebitNotes(CreditDebitNotesVo debitNotesVo) throws DataNotFoundException;
+	String saveCreditDebitNotes(CreditDebitNotesVO debitNotesVo) throws DataNotFoundException;
 
-	List<CreditDebitNotesVo> getCreditNotes(String mobileNumber, Long customerId);
+	List<CreditDebitNotesVO> getCreditNotes(String mobileNumber, Long customerId);
 
 	List<CreditDebitNotes> getAllCreditDebitNotes();
 
-	List<CreditDebitNotesVo> saveListCreditDebitNotes(List<CreditDebitNotesVo> debitNotesVos);
+	List<CreditDebitNotesVO> saveListCreditDebitNotes(List<CreditDebitNotesVO> debitNotesVos);
 
 	String deleteCreditDebitNotes(Long creditDebitId);
 
-	List<CreditDebitNotesVo> getAllCreditNotes(CreditDebitNotesVo vo);
+	List<CreditDebitNotesVO> getAllCreditNotes(CreditDebitNotesVO vo);
 
-	List<CreditDebitNotesVo> getAllDebitNotes(CreditDebitNotesVo vo);
+	List<CreditDebitNotesVO> getAllDebitNotes(CreditDebitNotesVO vo);
 
 	String updateCreditDebitNotes(UpdateCreditRequest notesVo);
 
-	String updateNotes(CreditDebitNotesVo vo);
+	String updateNotes(CreditDebitNotesVO vo);
 
-	LedgerLogBookVo saveNotes(LedgerLogBookVo ledgerLogBookVo);
+	LedgerLogBookVO saveNotes(LedgerLogBookVO ledgerLogBookVo);
 
-	List<AccountingBookVo> getNotes(AccountType accountType, Long storeId);
+	List<AccountingBookVO> getNotes(AccountType accountType, Long storeId);
 
-	LedgerLogBookVo update(LedgerLogBookVo ledgerLogBookVo);
+	LedgerLogBookVO update(LedgerLogBookVO ledgerLogBookVo);
 
-	Page<AccountingBookVo> getAllNotes(SearchFilterVo searchFilterVo, Pageable pageable);
+	Page<AccountingBookVO> getAllNotes(SearchFilterVO searchFilterVo, Pageable pageable);
 
-	Page<LedgerLogBookVo> getAllLedgerLogs(SearchFilterVo searchFilterVo , Pageable page);
+	Page<LedgerLogBookVO> getAllLedgerLogs(SearchFilterVO searchFilterVo , Pageable page);
 
 	Boolean paymentConfirmationFromRazorpay(String razorPayId, boolean payStatus);
 

@@ -16,7 +16,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class AccountingBookVo extends BaseEntityVo {
+public class AccountingBookVO extends BaseEntityVO {
 
 	private Long accountingBookId;
 

@@ -41,17 +41,23 @@ public class HsnDetails extends BaseEntity implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "hsn_id")
 	private long id;
+	
 	@Column(name = "hsn_code")
 	private String hsnCode;
+	
 	@Column(name = "decsription")
 	private String description;
+	
 	@Column(name = "tax_applies_on")
 	private String taxAppliesOn;
+	
 	@Column(name = "taxAppliedType")
 	@Enumerated(EnumType.STRING)
 	private TaxAppliedType taxAppliedType; 
+	
 	@Column(name = "clientId")
 	private Long clientId;
+	
 	@JoinColumn(name = "tax_id")
 	@OneToOne
 	private Tax tax;

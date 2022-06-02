@@ -15,7 +15,7 @@ import lombok.Data;
  */
 @ApiModel
 @Data
-public class SlabVo {
+public class SlabVO {
 
 	private long id;
 	

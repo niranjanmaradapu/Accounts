@@ -13,7 +13,7 @@ import com.otsi.retail.hsnDetails.enums.AccountType;
 import com.otsi.retail.hsnDetails.model.AccountingBook;
 
 @Repository
-public interface AccountingBookRepo extends JpaRepository<AccountingBook, Long> {
+public interface AccountingBookRepository extends JpaRepository<AccountingBook, Long> {
 
 	Optional<AccountingBook> findByAccountingBookId(Long accountingBookId);
 

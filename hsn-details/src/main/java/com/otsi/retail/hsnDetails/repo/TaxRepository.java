@@ -16,7 +16,7 @@ import com.otsi.retail.hsnDetails.model.Tax;
  *
  */
 @Repository
-public interface TaxRepo extends JpaRepository<Tax, Long> {
+public interface TaxRepository extends JpaRepository<Tax, Long> {
 
 	List<Tax> findByTaxLabel(String taxLabel);
 

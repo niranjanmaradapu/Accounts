@@ -15,7 +15,7 @@ import com.otsi.retail.hsnDetails.model.Slab;
  *
  */
 @Repository
-public interface SlabRepo extends JpaRepository<Slab, Long> {
+public interface SlabRepository extends JpaRepository<Slab, Long> {
 
 	List<Slab> findByHsnDetailsId(Long id);
 

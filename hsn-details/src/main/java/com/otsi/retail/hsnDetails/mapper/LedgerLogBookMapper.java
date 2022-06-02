@@ -3,8 +3,6 @@ package com.otsi.retail.hsnDetails.mapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.persistence.criteria.Predicate.BooleanOperator;
-
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +10,7 @@ import com.otsi.retail.hsnDetails.enums.AccountStatus;
 import com.otsi.retail.hsnDetails.enums.AccountType;
 import com.otsi.retail.hsnDetails.enums.PaymentStatus;
 import com.otsi.retail.hsnDetails.model.LedgerLogBook;
-import com.otsi.retail.hsnDetails.vo.LedgerLogBookVo;
+import com.otsi.retail.hsnDetails.vo.LedgerLogBookVO;
 
 @Component
 public class LedgerLogBookMapper {
@@ -22,7 +20,7 @@ public class LedgerLogBookMapper {
 	 * 
 	 */
 
-	public LedgerLogBook voToEntity(LedgerLogBookVo ledgerLogBookVo) {
+	public LedgerLogBook voToEntity(LedgerLogBookVO ledgerLogBookVo) {
 		LedgerLogBook ledgerLogBook = new LedgerLogBook();
 		ledgerLogBook.setCreatedBy(ledgerLogBookVo.getCreatedBy());
 		ledgerLogBook.setCustomerId(ledgerLogBookVo.getCustomerId());
@@ -44,7 +42,7 @@ public class LedgerLogBookMapper {
 		return ledgerLogBook;
 	}
 
-	public List<LedgerLogBook> voToEntity(List<LedgerLogBookVo> ledgerLogBookVos) {
+	public List<LedgerLogBook> voToEntity(List<LedgerLogBookVO> ledgerLogBookVos) {
 		return ledgerLogBookVos.stream().map(ledgerLogBookVo -> voToEntity(ledgerLogBookVo))
 				.collect(Collectors.toList());
 	}
@@ -53,8 +51,8 @@ public class LedgerLogBookMapper {
 	 * 
 	 */
 
-	public LedgerLogBookVo entityToVo(LedgerLogBook ledgerLogBook) {
-		LedgerLogBookVo ledgerLogBookVo = new LedgerLogBookVo();
+	public LedgerLogBookVO entityToVo(LedgerLogBook ledgerLogBook) {
+		LedgerLogBookVO ledgerLogBookVo = new LedgerLogBookVO();
 		ledgerLogBookVo.setLedgerLogBookId(ledgerLogBook.getLedgerLogBookId());
 		ledgerLogBookVo.setComments(ledgerLogBook.getComments());
 		ledgerLogBookVo.setCreatedBy(ledgerLogBook.getCreatedBy());
@@ -75,11 +73,11 @@ public class LedgerLogBookMapper {
 
 	}
 
-	public List<LedgerLogBookVo> entityToVo(List<LedgerLogBook> ledgerLogBooks) {
+	public List<LedgerLogBookVO> entityToVo(List<LedgerLogBook> ledgerLogBooks) {
 		return ledgerLogBooks.stream().map(ledgerLogBook -> entityToVo(ledgerLogBook)).collect(Collectors.toList());
 	}
 	
-	public LedgerLogBook voToEntityUpdate(LedgerLogBook ledgerLogBook,LedgerLogBookVo ledgerLogBookVo) {
+	public LedgerLogBook voToEntityUpdate(LedgerLogBook ledgerLogBook,LedgerLogBookVO ledgerLogBookVo) {
 		ledgerLogBook.setLedgerLogBookId(ledgerLogBookVo.getLedgerLogBookId());
 		ledgerLogBook.setCreatedBy(ledgerLogBookVo.getCreatedBy());
 		ledgerLogBook.setCreatedDate(ledgerLogBookVo.getCreatedDate());

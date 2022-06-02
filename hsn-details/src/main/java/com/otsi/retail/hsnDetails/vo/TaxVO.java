@@ -16,7 +16,7 @@ import lombok.Data;
 
 @ApiModel
 @Data
-public class TaxVo {
+public class TaxVO {
 
 	private Long id;
 

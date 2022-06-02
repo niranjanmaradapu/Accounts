@@ -7,7 +7,7 @@ import com.otsi.retail.hsnDetails.enums.AccountType;
 import lombok.Data;
 
 @Data
-public class SearchFilterVo {
+public class SearchFilterVO {
 
 	private Long storeId;
 

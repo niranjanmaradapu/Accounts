@@ -31,11 +31,11 @@ import com.otsi.retail.hsnDetails.mapper.SlabMapper;
 import com.otsi.retail.hsnDetails.model.HsnDetails;
 import com.otsi.retail.hsnDetails.model.Slab;
 import com.otsi.retail.hsnDetails.model.Tax;
-import com.otsi.retail.hsnDetails.repo.HsnDetailsRepo;
-import com.otsi.retail.hsnDetails.repo.SlabRepo;
-import com.otsi.retail.hsnDetails.repo.TaxRepo;
+import com.otsi.retail.hsnDetails.repo.HsnDetailsRepository;
+import com.otsi.retail.hsnDetails.repo.SlabRepository;
+import com.otsi.retail.hsnDetails.repo.TaxRepository;
 import com.otsi.retail.hsnDetails.vo.EnumVo;
-import com.otsi.retail.hsnDetails.vo.HsnDetailsVo;
+import com.otsi.retail.hsnDetails.vo.HsnDetailsVO;
 
 /**
  * @author vasavi
@@ -47,16 +47,16 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	private Logger log = LogManager.getLogger(HsnDetailsServiceImpl.class);
 
 	@Autowired
-	private HsnDetailsRepo hsnDetailsRepo;
+	private HsnDetailsRepository hsnDetailsRepository;
 
 	@Autowired
 	private HsnDetailsMapper hsnDetailsMapper;
 
 	@Autowired
-	private TaxRepo taxRepo;
+	private TaxRepository taxRepository;
 
 	@Autowired
-	private SlabRepo slabRepo;
+	private SlabRepository slabRepository;
 
 	@Autowired
 	private SlabMapper slabMapper;
@@ -69,12 +69,12 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	 * hsn_details
 	 */
 	@Override
-	public HsnDetailsVo hsnSave(HsnDetailsVo hsnDetailsVo, Long userId, Long clientId) {
+	public HsnDetailsVO hsnSave(HsnDetailsVO hsnDetailsVo, Long userId, Long clientId) {
 		log.debug("debugging hsnSave:" + hsnDetailsVo);
 
-		boolean hsncode = hsnDetailsRepo.existsByHsnCode(hsnDetailsVo.getHsnCode());
+		boolean hsncode = hsnDetailsRepository.existsByHsnCode(hsnDetailsVo.getHsnCode());
 		if (hsncode) {
-			throw new DuplicateRecordException("given hsn code already exist " + hsnDetailsVo.getHsnCode());
+			throw new DuplicateRecordException("HSN code already exist " + hsnDetailsVo.getHsnCode());
 		}
 
 		if (hsnDetailsVo.getTaxAppliedType().equals(TaxAppliedType.Priceslab)) {
@@ -88,34 +88,32 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		hsnDetails.setModifiedBy(userId);
 		hsnDetails.setClientId(clientId);
 		if (hsnDetailsVo.getTaxId() != null) {
-			Optional<Tax> taxOpt = taxRepo.findById(hsnDetailsVo.getTaxId());
+			Optional<Tax> taxOpt = taxRepository.findById(hsnDetailsVo.getTaxId());
 
 			if (hsnDetails.getTaxAppliedType().equals(TaxAppliedType.Hsncode)) {
 
 				hsnDetails.setTax(taxOpt.get());
 			}
 		}
-		HsnDetails hsnDetailsSave = hsnDetailsRepo.save(hsnDetails);
+		HsnDetails hsnDetailsSave = hsnDetailsRepository.save(hsnDetails);
 		// if isSlabBased is true,it will print hsnDetails,slab and tax otherwise,it
 		// will only print hsn and tax details
 		if (hsnDetailsVo.getTaxAppliedType().equals(TaxAppliedType.Priceslab) && !hsnDetailsVo.getSlabs().isEmpty()) {
-			hsnDetailsVo.getSlabs().forEach(s -> {
+			hsnDetailsVo.getSlabs().forEach(slabVO -> {
 
-				Slab slab = slabMapper.VoToEntity(s);
-				if (s.getTaxId() != null) {
-					Optional<Tax> taxOpt = taxRepo.findById(s.getTaxId());
+				Slab slab = slabMapper.voToEntity(slabVO);
+				if (slabVO.getTaxId() != null) {
+					Optional<Tax> taxOpt = taxRepository.findById(slabVO.getTaxId());
 					slab.setTax(taxOpt.get());
 				}
 				slab.setHsnDetails(hsnDetailsSave);
-				slabs.add(slabRepo.save(slab));
+				slabs.add(slabRepository.save(slab));
 
 			});
 		}
 
-		hsnDetailsVo = hsnDetailsMapper.EntityToVo(hsnDetailsSave);
-		hsnDetailsVo.setSlabs(slabMapper.EntityToVo(slabs));
-		log.warn("we are checking,if hsn details is saved...");
-		log.info("after saving hsn details:" + hsnDetailsVo.toString());
+		hsnDetailsVo = hsnDetailsMapper.entityToVO(hsnDetailsSave);
+		hsnDetailsVo.setSlabs(slabMapper.entityToVO(slabs));
 		return hsnDetailsVo;
 	}
 
@@ -123,11 +121,11 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	 * update functionality for hsn_details
 	 */
 	@Override
-	public HsnDetailsVo hsnUpdate(HsnDetailsVo hsnDetailsVo) {
+	public HsnDetailsVO hsnUpdate(HsnDetailsVO hsnDetailsVo) {
 		log.debug(" debugging hsnUpdate:" + hsnDetailsVo);
 		List<Slab> slabs = new ArrayList<>();
 
-		Optional<HsnDetails> dto = hsnDetailsRepo.findById(hsnDetailsVo.getId());
+		Optional<HsnDetails> dto = hsnDetailsRepository.findById(hsnDetailsVo.getId());
 		// if id is not present,it will throw custom exception "RecordNotFoundException"
 		if (!dto.isPresent()) {
 			log.error("Record Not Found");
@@ -137,14 +135,14 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		HsnDetails hsnUpdate = hsnDetailsMapper.voToEntityUpdate(hsnDetailsVo);
 		hsnUpdate.setClientId(dto.get().getClientId());
 		if (hsnDetailsVo.getTaxId() != null) {
-			Optional<Tax> taxOpt = taxRepo.findById(hsnDetailsVo.getTaxId());
+			Optional<Tax> taxOpt = taxRepository.findById(hsnDetailsVo.getTaxId());
 
 			if (hsnDetailsVo.getTaxAppliedType().equals(TaxAppliedType.Hsncode)) {
 
 				hsnUpdate.setTax(taxOpt.get());
 			}
 		}
-		HsnDetails save = hsnDetailsRepo.save(hsnUpdate);
+		HsnDetails save = hsnDetailsRepository.save(hsnUpdate);
 
 		// here,will loop
 
@@ -156,15 +154,15 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 				slab.setPriceTo(vos.getPriceTo());
 				slab.setHsnDetails(save);
 				if (vos.getTaxId() != null) {
-					Optional<Tax> taxOpt = taxRepo.findById(vos.getTaxId());
+					Optional<Tax> taxOpt = taxRepository.findById(vos.getTaxId());
 					slab.setTax(taxOpt.get());
 				}
 				vos.setId(slab.getId());
-				slabs.add(slabRepo.save(slab));
+				slabs.add(slabRepository.save(slab));
 			});
-			hsnDetailsVo.setSlabs(slabMapper.EntityToVo(slabs));
+			hsnDetailsVo.setSlabs(slabMapper.entityToVO(slabs));
 		}
-		hsnDetailsVo = hsnDetailsMapper.EntityToVo(save);
+		hsnDetailsVo = hsnDetailsMapper.entityToVO(save);
 		if (hsnDetailsVo.getTaxId() != null) {
 			hsnDetailsVo.setTaxId(save.getTax().getId());
 		}
@@ -220,13 +218,13 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	@Override
 	public String hsnDelete(long id) {
 		log.debug(" debugging hsnDelete:" + id);
-		Optional<HsnDetails> hsnOpt = hsnDetailsRepo.findById(id);
+		Optional<HsnDetails> hsnOpt = hsnDetailsRepository.findById(id);
 		// if id is present,it will delete that id information only
 		if (!hsnOpt.isPresent()) {
 			log.error("hsn details not found with id");
 			throw new RecordNotFoundException("hsn details not found with id: " + id);
 		} else {
-			hsnDetailsRepo.delete(hsnOpt.get());
+			hsnDetailsRepository.delete(hsnOpt.get());
 			log.warn("we are checking if hsn is deleted based on id...");
 			log.info("deleted succesfully:" + id);
 			return "deleted successfully with id:" + id;
@@ -237,36 +235,36 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	 * get functionality for hsn_details
 	 */
 	@Override
-	public List<HsnDetailsVo> getHsnDetails(String hsnCode, String description, TaxAppliedType taxAppliedType,
+	public List<HsnDetailsVO> getHsnDetails(String hsnCode, String description, TaxAppliedType taxAppliedType,
 			Long clientId) {
 		log.debug(" debugging getHsnDetails");
 		log.info("clientId:" + clientId);
 		List<HsnDetails> hsnDetails = new ArrayList<>();
-		List<HsnDetailsVo> voList = new ArrayList<>();
+		List<HsnDetailsVO> voList = new ArrayList<>();
 		// here, find all details through repository
 		if (hsnCode != null || description != null || taxAppliedType != null) {
 			if (hsnCode != null) {
-				Optional<HsnDetails> hsn = hsnDetailsRepo.findByHsnCodeAndClientId(hsnCode, clientId);
+				Optional<HsnDetails> hsn = hsnDetailsRepository.findByHsnCodeAndClientId(hsnCode, clientId);
 				if (hsn.isPresent()) {
 					hsnDetails.add(hsn.get());
 				}
 			} else if (description != null)
-				hsnDetails = hsnDetailsRepo.findByDescription(description);
+				hsnDetails = hsnDetailsRepository.findByDescription(description);
 			else if (taxAppliedType != null)
-				hsnDetails = hsnDetailsRepo.findByTaxAppliedType(taxAppliedType);
+				hsnDetails = hsnDetailsRepository.findByTaxAppliedType(taxAppliedType);
 		} else if (clientId != null) {
-			hsnDetails = hsnDetailsRepo.findByClientId(clientId);
+			hsnDetails = hsnDetailsRepository.findByClientId(clientId);
 		}
 
 		else {
-			hsnDetails = hsnDetailsRepo.findAll();
+			hsnDetails = hsnDetailsRepository.findAll();
 		}
 
-		voList = hsnDetailsMapper.EntityToVo(hsnDetails);
+		voList = hsnDetailsMapper.entityToVO(hsnDetails);
 
 		// here,will loop based on hsn id
 		voList.stream().forEach(t -> {
-			t.setSlabs(slabMapper.EntityToVo(slabRepo.findByHsnDetailsId(t.getId())));
+			t.setSlabs(slabMapper.entityToVO(slabRepository.findByHsnDetailsId(t.getId())));
 		});
 
 		log.warn("we are checking if hsn details is fetching...");
@@ -276,18 +274,18 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	}
 
 	@Override
-	public List<HsnDetailsVo> getAllHsnDetails(String hsnCode) {
+	public List<HsnDetailsVO> getAllHsnDetails(String hsnCode) {
 
 		log.debug(" debugging getHsnDetails:" + hsnCode);
 		List<HsnDetails> hsnDetails = new ArrayList<>();
-		List<HsnDetailsVo> voList = new ArrayList<>();
+		List<HsnDetailsVO> voList = new ArrayList<>();
 		// here, find all details through repository
-		hsnDetails = hsnDetailsRepo.findByHsnCode(hsnCode);
-		voList = hsnDetailsMapper.EntityToVo(hsnDetails);
+		hsnDetails = hsnDetailsRepository.findByHsnCode(hsnCode);
+		voList = hsnDetailsMapper.entityToVO(hsnDetails);
 		// here,will loop based on hsn id
 
 		voList.stream().forEach(t -> {
-			t.setSlabs(slabMapper.EntityToVo(slabRepo.findByHsnDetailsId(t.getId())));
+			t.setSlabs(slabMapper.entityToVO(slabRepository.findByHsnDetailsId(t.getId())));
 		});
 
 		log.warn("we are checking if hsn details is fetching...");
@@ -298,7 +296,7 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 
 	@Override
 	public Map<String, Float> getHsnDetails(String hsnCode, Float itemPrice, Long clientId) {
-		Optional<HsnDetails> hsnDetailsOptional = hsnDetailsRepo.findByHsnCodeAndClientId(hsnCode, clientId);
+		Optional<HsnDetails> hsnDetailsOptional = hsnDetailsRepository.findByHsnCodeAndClientId(hsnCode, clientId);
 		Map<String, Float> taxMap = new HashMap<>();
 		Tax tax = null;
 		if (hsnDetailsOptional.isPresent()) {
@@ -308,7 +306,7 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 			}
 
 			else if (hsnDetails.getTaxAppliedType().equals(TaxAppliedType.Priceslab) && itemPrice != null) {
-				List<Slab> slabs = slabRepo.findByHsnDetailsId(hsnDetails.getId());
+				List<Slab> slabs = slabRepository.findByHsnDetailsId(hsnDetails.getId());
 				for (Slab slab : slabs) {
 					if (itemPrice >= slab.getPriceFrom() && itemPrice <= slab.getPriceTo()) {
 						tax = slab.getTax();
@@ -332,7 +330,7 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 					taxMap.put("interstate", itemPrice - taxMap.get("igstValue") - taxMap.get("cessValue"));
 
 				}
-				// if tax is excluded
+				// todo if tax is excluded
 				else {
 					taxMap.put("cgstValue", (tax.getCgst() > 0 ? (itemPrice * tax.getCgst()) / 100 : 0));
 					taxMap.put("sgstValue", (tax.getSgst() > 0 ? (itemPrice * tax.getSgst()) / 100 : 0));
@@ -356,7 +354,7 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	 * 
 	 */
 
-	private void validateTaxSlabs(HsnDetailsVo hsnDetails) {
+	private void validateTaxSlabs(HsnDetailsVO hsnDetails) {
 		hsnDetails.getSlabs().stream().forEach(slabVO -> {
 
 			if (slabVO.getPriceFrom() >= slabVO.getPriceTo()) {
@@ -364,7 +362,7 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 						"Invalid slab range price from is greater than price to");
 			}
 
-			List<Slab> slabList = slabRepo.findAll();
+			List<Slab> slabList = slabRepository.findAll();
 			slabList.stream().forEach(slab -> {
 
 				// check slab already exists with same prices

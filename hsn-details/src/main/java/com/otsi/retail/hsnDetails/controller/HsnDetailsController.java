@@ -25,7 +25,7 @@ import com.otsi.retail.hsnDetails.enums.TaxAppliedType;
 import com.otsi.retail.hsnDetails.gatewayresponse.GateWayResponse;
 import com.otsi.retail.hsnDetails.service.HsnDetailsService;
 import com.otsi.retail.hsnDetails.vo.EnumVo;
-import com.otsi.retail.hsnDetails.vo.HsnDetailsVo;
+import com.otsi.retail.hsnDetails.vo.HsnDetailsVO;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -51,15 +51,15 @@ public class HsnDetailsController {
 	 * save functionality through service by HsnDetailsVo
 	 */
 
-	@ApiOperation(value = "", notes = "saving hsn details", response = HsnDetailsVo.class)
+	@ApiOperation(value = "", notes = "saving hsn details", response = HsnDetailsVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = HsnDetailsVo.class, responseContainer = "String") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = HsnDetailsVO.class, responseContainer = "String") })
 	@PostMapping("/save")
-	public ResponseEntity<?> saveHsn(@RequestBody HsnDetailsVo hsnDetailsVo, @RequestHeader("userId") Long userId,
+	public ResponseEntity<?> saveHsn(@RequestBody HsnDetailsVO hsnDetailsVo, @RequestHeader("userId") Long userId,
 			@RequestHeader("clientId") Long clientId) {
 
 		log.info("Received Request to add new hsn : " + hsnDetailsVo.toString());
-		HsnDetailsVo hsnSave = hsnDetailsService.hsnSave(hsnDetailsVo, userId, clientId);
+		HsnDetailsVO hsnSave = hsnDetailsService.hsnSave(hsnDetailsVo, userId, clientId);
 		return ResponseEntity.ok(hsnSave);
 
 	}
@@ -83,22 +83,22 @@ public class HsnDetailsController {
 	 * update functionality through service by HsnDetailsVo
 	 */
 
-	@ApiOperation(value = "updateHsn", notes = "updating hsn details", response = HsnDetailsVo.class)
+	@ApiOperation(value = "updateHsn", notes = "updating hsn details", response = HsnDetailsVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = HsnDetailsVo.class, responseContainer = "String") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = HsnDetailsVO.class, responseContainer = "String") })
 	@PutMapping(value = "/updateHsn")
-	public ResponseEntity<?> updateHsn(@RequestBody HsnDetailsVo vo) {
+	public ResponseEntity<?> updateHsn(@RequestBody HsnDetailsVO vo) {
 		log.info("Received Request to update hsn :" + vo.toString());
-		HsnDetailsVo hsnUpdate = hsnDetailsService.hsnUpdate(vo);
+		HsnDetailsVO hsnUpdate = hsnDetailsService.hsnUpdate(vo);
 		return ResponseEntity.ok(hsnUpdate);
 	}
 
 	/*
 	 * delete functionality through service by id
 	 */
-	@ApiOperation(value = "deleteHsn", notes = "delete hsn details", response = HsnDetailsVo.class)
+	@ApiOperation(value = "deleteHsn", notes = "delete hsn details", response = HsnDetailsVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = HsnDetailsVo.class, responseContainer = "String") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = HsnDetailsVO.class, responseContainer = "String") })
 	@DeleteMapping("/deleteHsn")
 	public GateWayResponse<?> deleteHsn(@RequestParam long id) {
 		log.info("Received Request to delete hsn :" + id);
@@ -111,9 +111,9 @@ public class HsnDetailsController {
 	 * fetch functionality through service
 	 */
 
-	@ApiOperation(value = "getHsnDetails", notes = "fetching hsn-details", response = HsnDetailsVo.class)
+	@ApiOperation(value = "getHsnDetails", notes = "fetching hsn-details", response = HsnDetailsVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = HsnDetailsVo.class, responseContainer = "List") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = HsnDetailsVO.class, responseContainer = "List") })
 	@GetMapping("/getHsnDetails")
 	public GateWayResponse<?> getHsnDetails(@RequestParam(required = false) String hsnCode,
 			@RequestParam(required = false) String description,
@@ -121,25 +121,25 @@ public class HsnDetailsController {
 			@RequestHeader(required = false) Long clientId) {
 		log.info("Received Request to get HsnDetails");
 		log.info("clientId is:" + clientId);
-		List<HsnDetailsVo> hsnDetails = hsnDetailsService.getHsnDetails(hsnCode, description, taxAppliedType, clientId);
+		List<HsnDetailsVO> hsnDetails = hsnDetailsService.getHsnDetails(hsnCode, description, taxAppliedType, clientId);
 		return new GateWayResponse<>("fetching all hsn-details", hsnDetails);
 
 	}
 
-	@ApiOperation(value = "/getAllHsnDetails", notes = "fetching hsn-details", response = HsnDetailsVo.class)
+	@ApiOperation(value = "/getAllHsnDetails", notes = "fetching hsn-details", response = HsnDetailsVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = HsnDetailsVo.class, responseContainer = "List") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = HsnDetailsVO.class, responseContainer = "List") })
 	@GetMapping("/getAllHsnDetails")
 	public GateWayResponse<?> getAllHsnDetails(@RequestParam("hsnCode") String hsnCode) {
 		log.info("Received Request to get HsnDetails");
-		List<HsnDetailsVo> hsnDetails = hsnDetailsService.getAllHsnDetails(hsnCode);
+		List<HsnDetailsVO> hsnDetails = hsnDetailsService.getAllHsnDetails(hsnCode);
 		return new GateWayResponse<>("fetching all hsn-details", hsnDetails);
 
 	}
 
-	@ApiOperation(value = "/code", notes = "fetching hsn-details", response = HsnDetailsVo.class)
+	@ApiOperation(value = "/code", notes = "fetching hsn-details", response = HsnDetailsVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = HsnDetailsVo.class, responseContainer = "List") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = HsnDetailsVO.class, responseContainer = "List") })
 	@GetMapping("/code")
 	public ResponseEntity<?> getHsnDetailsByCode(@RequestParam("hsnCode") String hsnCode,
 			@RequestParam(value ="itemPrice" , required = false) Float itemPrice, @RequestHeader Long clientId) {

@@ -6,12 +6,12 @@ package com.otsi.retail.hsnDetails.mapper;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import org.springframework.beans.BeanUtils;
+
 import org.springframework.stereotype.Component;
 
 import com.otsi.retail.hsnDetails.enums.TaxAppliedType;
 import com.otsi.retail.hsnDetails.model.HsnDetails;
-import com.otsi.retail.hsnDetails.vo.HsnDetailsVo;
+import com.otsi.retail.hsnDetails.vo.HsnDetailsVO;
 
 /**
  * @author vasavi
@@ -25,9 +25,9 @@ public class HsnDetailsMapper {
 	 * 
 	 */
 
-	public HsnDetailsVo EntityToVo(HsnDetails hsnDetails) {
+	public HsnDetailsVO entityToVO(HsnDetails hsnDetails) {
 
-		HsnDetailsVo hsnDetailsVo = new HsnDetailsVo();
+		HsnDetailsVO hsnDetailsVo = new HsnDetailsVO();
 		hsnDetailsVo.setId(hsnDetails.getId());
 		hsnDetailsVo.setHsnCode(hsnDetails.getHsnCode());
 		hsnDetailsVo.setDescription(hsnDetails.getDescription());
@@ -50,8 +50,8 @@ public class HsnDetailsMapper {
 	/*
 	 * to convert list dto's to vo's
 	 */
-	public List<HsnDetailsVo> EntityToVo(List<HsnDetails> hsnDetailsList) {
-		return hsnDetailsList.stream().map(hsnDetails -> EntityToVo(hsnDetails)).collect(Collectors.toList());
+	public List<HsnDetailsVO> entityToVO(List<HsnDetails> hsnDetailsList) {
+		return hsnDetailsList.stream().map(hsnDetails -> entityToVO(hsnDetails)).collect(Collectors.toList());
 
 	}
 
@@ -60,7 +60,7 @@ public class HsnDetailsMapper {
 	 * 
 	 */
 
-	public HsnDetails mapVoToEntity(HsnDetailsVo hsnDetailsVo) {
+	public HsnDetails mapVoToEntity(HsnDetailsVO hsnDetailsVo) {
 		HsnDetails hsnDetails = new HsnDetails();
 		if (hsnDetailsVo.getId() != 0)
 			hsnDetails.setId(hsnDetailsVo.getId());
@@ -75,13 +75,13 @@ public class HsnDetailsMapper {
 	/*
 	 * to convert list vo's to dto's
 	 */
-	public List<HsnDetails> mapVoToEntity(List<HsnDetailsVo> hsnDetailsVos) {
+	public List<HsnDetails> mapVoToEntity(List<HsnDetailsVO> hsnDetailsVos) {
 		return hsnDetailsVos.stream().map(hsnDetailsVo -> mapVoToEntity(hsnDetailsVo)).collect(Collectors.toList());
 
 	}
 
 
-	public HsnDetails voToEntityUpdate(HsnDetailsVo hsnDetailsVo) {
+	public HsnDetails voToEntityUpdate(HsnDetailsVO hsnDetailsVo) {
 		HsnDetails hsnDetails = new HsnDetails();
 		
 		hsnDetails.setId(hsnDetailsVo.getId());

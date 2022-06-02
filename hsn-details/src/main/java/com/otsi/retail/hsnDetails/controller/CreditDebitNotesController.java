@@ -27,10 +27,10 @@ import com.otsi.retail.hsnDetails.enums.AccountType;
 import com.otsi.retail.hsnDetails.gatewayresponse.GateWayResponse;
 import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
 import com.otsi.retail.hsnDetails.service.CreditDebitNotesService;
-import com.otsi.retail.hsnDetails.vo.AccountingBookVo;
-import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVo;
-import com.otsi.retail.hsnDetails.vo.LedgerLogBookVo;
-import com.otsi.retail.hsnDetails.vo.SearchFilterVo;
+import com.otsi.retail.hsnDetails.vo.AccountingBookVO;
+import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVO;
+import com.otsi.retail.hsnDetails.vo.LedgerLogBookVO;
+import com.otsi.retail.hsnDetails.vo.SearchFilterVO;
 import com.otsi.retail.hsnDetails.vo.UpdateCreditRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -51,25 +51,25 @@ public class CreditDebitNotesController {
 	@Autowired
 	private CreditDebitNotesService creditDebitNotesService;
 
-	@ApiOperation(value = "saveCreditDebitNotes", notes = "saving credit/debit notes", response = CreditDebitNotesVo.class)
+	@ApiOperation(value = "saveCreditDebitNotes", notes = "saving credit/debit notes", response = CreditDebitNotesVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotesVo.class, responseContainer = "String") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotesVO.class, responseContainer = "String") })
 	@PostMapping("/saveCreditDebitNotes")
-	public GateWayResponse<?> saveCreditDebitNotes(@RequestBody CreditDebitNotesVo debitNotesVo) {
+	public GateWayResponse<?> saveCreditDebitNotes(@RequestBody CreditDebitNotesVO debitNotesVo) {
 		log.info("Received Request to saveDebitNotes : " + debitNotesVo);
 		String debitNotesSave = creditDebitNotesService.saveCreditDebitNotes(debitNotesVo);
 		return new GateWayResponse<>("saved notes successfully", debitNotesSave);
 
 	}
 
-	@ApiOperation(value = "getCreditNotes", notes = "fetching credit notes using customerId", response = CreditDebitNotesVo.class)
+	@ApiOperation(value = "getCreditNotes", notes = "fetching credit notes using customerId", response = CreditDebitNotesVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotesVo.class, responseContainer = "List") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotesVO.class, responseContainer = "List") })
 	@GetMapping("/getCreditNotes")
 	public GateWayResponse<?> getMobileNumber(@RequestParam("mobileNumber") String mobileNumber,
 			@RequestParam("customerId") Long customerId) {
 		log.info("Received Request to getCreditNotes : " + mobileNumber + "and" + customerId);
-		List<CreditDebitNotesVo> mobNo = creditDebitNotesService.getCreditNotes(mobileNumber, customerId);
+		List<CreditDebitNotesVO> mobNo = creditDebitNotesService.getCreditNotes(mobileNumber, customerId);
 		return new GateWayResponse<>("fetching  notes successfully with id", mobNo);
 	}
 
@@ -84,20 +84,20 @@ public class CreditDebitNotesController {
 
 	}
 
-	@ApiOperation(value = "saveListCreditDebitNotes", notes = "adding bulk of credit and debit notes", response = CreditDebitNotesVo.class)
+	@ApiOperation(value = "saveListCreditDebitNotes", notes = "adding bulk of credit and debit notes", response = CreditDebitNotesVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotesVo.class, responseContainer = "List") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotesVO.class, responseContainer = "List") })
 	@PostMapping("/saveListCreditDebitNotes")
-	public GateWayResponse<?> saveListCreditDebitNotes(@RequestBody List<CreditDebitNotesVo> creditDebitNotesVo) {
+	public GateWayResponse<?> saveListCreditDebitNotes(@RequestBody List<CreditDebitNotesVO> creditDebitNotesVo) {
 		log.info("Received Request to saveListCreditDebitNotes:" + creditDebitNotesVo);
-		List<CreditDebitNotesVo> saveVoList = creditDebitNotesService.saveListCreditDebitNotes(creditDebitNotesVo);
+		List<CreditDebitNotesVO> saveVoList = creditDebitNotesService.saveListCreditDebitNotes(creditDebitNotesVo);
 		return new GateWayResponse<>("saving list of notes", saveVoList);
 
 	}
 
-	@ApiOperation(value = "updateCreditDebitNotes", notes = "updating credit/debit notes", response = CreditDebitNotesVo.class)
+	@ApiOperation(value = "updateCreditDebitNotes", notes = "updating credit/debit notes", response = CreditDebitNotesVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotesVo.class, responseContainer = "String") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotesVO.class, responseContainer = "String") })
 	@PostMapping(value = "/updateCreditDebitNotes")
 	public GateWayResponse<?> updateCreditDebitNotes(@RequestBody UpdateCreditRequest vo) {
 		log.info("Recieved request to updateCreditDebitNotes:" + vo);
@@ -106,20 +106,20 @@ public class CreditDebitNotesController {
 
 	}
 
-	@ApiOperation(value = "updateNotes", notes = "updating credit/debit notes from newsale", response = CreditDebitNotesVo.class)
+	@ApiOperation(value = "updateNotes", notes = "updating credit/debit notes from newsale", response = CreditDebitNotesVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotesVo.class, responseContainer = "String") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotesVO.class, responseContainer = "String") })
 	@PutMapping(value = "/updateNotes")
-	public GateWayResponse<?> updateNotes(@RequestBody CreditDebitNotesVo vo) {
+	public GateWayResponse<?> updateNotes(@RequestBody CreditDebitNotesVO vo) {
 		log.info("Recieved request to updateCreditDebitNotes:" + vo);
 		String updateNotes = creditDebitNotesService.updateNotes(vo);
 		return new GateWayResponse<>("updated notes successfully", updateNotes);
 
 	}
 
-	@ApiOperation(value = "deleteCreditDebitNotes", notes = "deleting credit/debit notes using id", response = CreditDebitNotesVo.class)
+	@ApiOperation(value = "deleteCreditDebitNotes", notes = "deleting credit/debit notes using id", response = CreditDebitNotesVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotesVo.class, responseContainer = "String") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotesVO.class, responseContainer = "String") })
 	@DeleteMapping("/deleteCreditDebitNotes")
 	public GateWayResponse<?> deleteCreditDebitNotes(@RequestParam("creditDebitId") Long creditDebitId) {
 		log.info("Recieved request to deleteCreditDebitNotes:" + creditDebitId);
@@ -128,31 +128,31 @@ public class CreditDebitNotesController {
 
 	}
 
-	@ApiOperation(value = "getAllCreditNotes", notes = "fetching all credit notes", response = CreditDebitNotesVo.class)
+	@ApiOperation(value = "getAllCreditNotes", notes = "fetching all credit notes", response = CreditDebitNotesVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotesVo.class, responseContainer = "List") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotesVO.class, responseContainer = "List") })
 	@PostMapping("/getAllCreditNotes")
-	public GateWayResponse<?> getAllCreditNotes(@RequestBody CreditDebitNotesVo vo) {
+	public GateWayResponse<?> getAllCreditNotes(@RequestBody CreditDebitNotesVO vo) {
 		log.info("Recieved request to getAllCreditNotes:" + vo);
-		List<CreditDebitNotesVo> allCreditNotes = creditDebitNotesService.getAllCreditNotes(vo);
+		List<CreditDebitNotesVO> allCreditNotes = creditDebitNotesService.getAllCreditNotes(vo);
 		return new GateWayResponse<>("fetching all credit notes details sucessfully", allCreditNotes);
 	}
 
-	@ApiOperation(value = "getAllDebitNotes", notes = "fetching all debit notes", response = CreditDebitNotesVo.class)
+	@ApiOperation(value = "getAllDebitNotes", notes = "fetching all debit notes", response = CreditDebitNotesVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotesVo.class, responseContainer = "List") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotesVO.class, responseContainer = "List") })
 	@PostMapping("/getAllDebitNotes")
-	public GateWayResponse<?> getAllDebitNotes(@RequestBody CreditDebitNotesVo vo) {
+	public GateWayResponse<?> getAllDebitNotes(@RequestBody CreditDebitNotesVO vo) {
 		log.info("Recieved request to getAllDebitNotes:" + vo);
-		List<CreditDebitNotesVo> allDebitNotes = creditDebitNotesService.getAllDebitNotes(vo);
+		List<CreditDebitNotesVO> allDebitNotes = creditDebitNotesService.getAllDebitNotes(vo);
 		return new GateWayResponse<>("fetching all debit notes details sucessfully", allDebitNotes);
 	}
 
-	@ApiOperation(value = "save", notes = "saving credit/debit notes", response = AccountingBookVo.class)
+	@ApiOperation(value = "save", notes = "saving credit/debit notes", response = AccountingBookVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = AccountingBookVo.class, responseContainer = "String") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = AccountingBookVO.class, responseContainer = "String") })
 	@PostMapping("/save")
-	public ResponseEntity<?> saveNotes(@RequestBody LedgerLogBookVo ledgerLogBookVo) {
+	public ResponseEntity<?> saveNotes(@RequestBody LedgerLogBookVO ledgerLogBookVo) {
 		log.info("Received Request to saveNotes : " + ledgerLogBookVo);
 		if (StringUtils.isEmpty(ledgerLogBookVo.getAccountType())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "acounting type is required");
@@ -166,21 +166,21 @@ public class CreditDebitNotesController {
 				
 			}
 		}
-		LedgerLogBookVo notesSave = creditDebitNotesService.saveNotes(ledgerLogBookVo);
+		LedgerLogBookVO notesSave = creditDebitNotesService.saveNotes(ledgerLogBookVo);
 		return ResponseEntity.ok(notesSave);
 
 	}
 
 	@RabbitListener(queues = "return_credit_queue")
-	public void returnCreditNotes(@Payload LedgerLogBookVo ledgerLogBookVo) {
+	public void returnCreditNotes(@Payload LedgerLogBookVO ledgerLogBookVo) {
 		saveNotes(ledgerLogBookVo);
 	}
 
-	@ApiOperation(value = "sale", notes = "saving credit/debit notes", response = AccountingBookVo.class)
+	@ApiOperation(value = "sale", notes = "saving credit/debit notes", response = AccountingBookVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = AccountingBookVo.class, responseContainer = "String") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = AccountingBookVO.class, responseContainer = "String") })
 	@PostMapping("/sale")
-	public ResponseEntity<?> sale(@RequestBody LedgerLogBookVo ledgerLogBookVo) {
+	public ResponseEntity<?> sale(@RequestBody LedgerLogBookVO ledgerLogBookVo) {
 		log.info("Received Request to sale : " + ledgerLogBookVo);
 
 		if (StringUtils.isEmpty(ledgerLogBookVo.getAccountType())) {
@@ -193,33 +193,33 @@ public class CreditDebitNotesController {
 				ledgerLogBookVo.setTransactionType(AccountType.CREDIT);
 			}
 		}
-		LedgerLogBookVo ledgerLogBookSave=creditDebitNotesService.saveNotes(ledgerLogBookVo);
+		LedgerLogBookVO ledgerLogBookSave=creditDebitNotesService.saveNotes(ledgerLogBookVo);
 		return ResponseEntity.ok(ledgerLogBookSave);
 	}
 	
 	@RabbitListener(queues = "accounting_queue")
-	private void creditUsedFromNewsale(LedgerLogBookVo ledgerLogBookVo) {
+	private void creditUsedFromNewsale(LedgerLogBookVO ledgerLogBookVo) {
 		sale(ledgerLogBookVo);
 	}
 
-	@ApiOperation(value = "getNotes", notes = "fetching notes using account type and storeId", response = AccountingBookVo.class)
+	@ApiOperation(value = "getNotes", notes = "fetching notes using account type and storeId", response = AccountingBookVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = AccountingBookVo.class, responseContainer = "List") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = AccountingBookVO.class, responseContainer = "List") })
 	@GetMapping("/")
 	public ResponseEntity<?> getNotes(@RequestParam("storeId") Long storeId,
 			@RequestParam("accountType") AccountType accountType) {
 		log.info("Received Request to getNotes : " + accountType + "" + storeId);
-		List<AccountingBookVo> accountingBookVo = creditDebitNotesService.getNotes(accountType, storeId);
+		List<AccountingBookVO> accountingBookVo = creditDebitNotesService.getNotes(accountType, storeId);
 		return ResponseEntity.ok(accountingBookVo);
 	}
 
-	@ApiOperation(value = "update", notes = "updating credit/debit notes from newsale", response = AccountingBookVo.class)
+	@ApiOperation(value = "update", notes = "updating credit/debit notes from newsale", response = AccountingBookVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = AccountingBookVo.class, responseContainer = "String") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = AccountingBookVO.class, responseContainer = "String") })
 	@PutMapping(value = "/update")
-	public ResponseEntity<?> update(@RequestBody LedgerLogBookVo ledgerLogBookVo) {
+	public ResponseEntity<?> update(@RequestBody LedgerLogBookVO ledgerLogBookVo) {
 		log.info("Recieved request to updateCreditDebitNotes:" + ledgerLogBookVo);
-		LedgerLogBookVo updateNotes = creditDebitNotesService.update(ledgerLogBookVo);
+		LedgerLogBookVO updateNotes = creditDebitNotesService.update(ledgerLogBookVo);
 		return ResponseEntity.ok(updateNotes);
 
 	}
@@ -242,14 +242,14 @@ public class CreditDebitNotesController {
 	 * }
 	 */
 
-	@ApiOperation(value = "", notes = "fetching all notes", response = AccountingBookVo.class)
+	@ApiOperation(value = "", notes = "fetching all notes", response = AccountingBookVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = AccountingBookVo.class, responseContainer = "List") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = AccountingBookVO.class, responseContainer = "List") })
 
 	@PostMapping
-	public ResponseEntity<?> getAllNotes(@RequestBody SearchFilterVo searchFilterVo, Pageable pageable) {
+	public ResponseEntity<?> getAllNotes(@RequestBody SearchFilterVO searchFilterVo, Pageable pageable) {
 		log.info("Recieved request to getAllNotes:" + searchFilterVo);
-		Page<AccountingBookVo> allNotes = creditDebitNotesService.getAllNotes(searchFilterVo, pageable);
+		Page<AccountingBookVO> allNotes = creditDebitNotesService.getAllNotes(searchFilterVo, pageable);
 		return ResponseEntity.ok(allNotes);
 	}
 
@@ -259,15 +259,15 @@ public class CreditDebitNotesController {
 	 * @param page
 	 * @return
 	 */
-	@ApiOperation(value = "ledger-logs", notes = "fetching all ledger logs", response = LedgerLogBookVo.class)
+	@ApiOperation(value = "ledger-logs", notes = "fetching all ledger logs", response = LedgerLogBookVO.class)
 
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
 
-			@ApiResponse(code = 200, message = "Successful retrieval", response = LedgerLogBookVo.class, responseContainer = "List") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = LedgerLogBookVO.class, responseContainer = "List") })
 	@PostMapping("/ledger-logs")
-	public ResponseEntity<?> getAllLedgerLogs(@RequestBody SearchFilterVo searchFilterVo, Pageable page) {
+	public ResponseEntity<?> getAllLedgerLogs(@RequestBody SearchFilterVO searchFilterVo, Pageable page) {
 		log.info("Recieved request to getAllNotes:" + searchFilterVo);
-		Page<LedgerLogBookVo> ledgerLogs = creditDebitNotesService.getAllLedgerLogs(searchFilterVo, page);
+		Page<LedgerLogBookVO> ledgerLogs = creditDebitNotesService.getAllLedgerLogs(searchFilterVo, page);
 		return ResponseEntity.ok(ledgerLogs);
 	}
 

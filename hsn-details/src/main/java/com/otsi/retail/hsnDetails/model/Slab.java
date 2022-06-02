@@ -37,13 +37,17 @@ public class Slab extends BaseEntity implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
+	
 	@Column(name = "price_from")
 	private double priceFrom;
+	
 	@Column(name = "price_to")
 	private double priceTo;
+	
 	@JoinColumn(name = "tax_id")
 	@OneToOne
 	private Tax tax;
+	
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "hsn_id")

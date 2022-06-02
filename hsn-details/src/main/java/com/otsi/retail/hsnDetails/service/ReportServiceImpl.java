@@ -18,9 +18,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.otsi.retail.hsnDetails.config.Config;
 import com.otsi.retail.hsnDetails.gatewayresponse.GateWayResponse;
 import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
-import com.otsi.retail.hsnDetails.repo.CreditDebitNotesRepo;
+import com.otsi.retail.hsnDetails.repo.CreditDebitNotesRepository;
 import com.otsi.retail.hsnDetails.vo.ReportsVo;
-import com.otsi.retail.hsnDetails.vo.StoreVo;
+import com.otsi.retail.hsnDetails.vo.StoreVO;
 
 /**
  * @author vasavi
@@ -30,7 +30,7 @@ import com.otsi.retail.hsnDetails.vo.StoreVo;
 public class ReportServiceImpl implements ReportService {
 
 	@Autowired
-	private CreditDebitNotesRepo creditDebitNotesRepo;
+	private CreditDebitNotesRepository creditDebitNotesRepo;
 
 	@Autowired
 	private RestTemplate restTemplate;
@@ -44,7 +44,7 @@ public class ReportServiceImpl implements ReportService {
 		List<ReportsVo> reports = new ArrayList<>();
 		List<CreditDebitNotes> allNotes = creditDebitNotesRepo.findByCreditDebit(creditDebit);
 		List<Long> storeIds = allNotes.stream().map(x -> x.getStoreId()).distinct().collect(Collectors.toList());
-		List<StoreVo> svos = new ArrayList<>();
+		List<StoreVO> svos = new ArrayList<>();
 		try {
 			svos = getStoresForGivenId(storeIds);
 		} catch (URISyntaxException e) {
@@ -71,7 +71,7 @@ public class ReportServiceImpl implements ReportService {
 		List<CreditDebitNotes> allNotes = creditDebitNotesRepo.findByCreditDebit(creditDebit);
 
 		List<Long> storeIds = allNotes.stream().map(x -> x.getStoreId()).distinct().collect(Collectors.toList());
-		List<StoreVo> svos = new ArrayList<>();
+		List<StoreVO> svos = new ArrayList<>();
 		try {
 			svos = getStoresForGivenId(storeIds);
 		} catch (URISyntaxException e) {
@@ -96,7 +96,7 @@ public class ReportServiceImpl implements ReportService {
 		return reports;
 	}
 
-	public List<StoreVo> getStoresForGivenId(List<Long> storeIds) throws URISyntaxException {
+	public List<StoreVO> getStoresForGivenId(List<Long> storeIds) throws URISyntaxException {
 		HttpHeaders headers = new HttpHeaders();
 		URI uri = UriComponentsBuilder.fromUri(new URI(config.getStoreDetails())).build().encode().toUri();
 
@@ -109,7 +109,7 @@ public class ReportServiceImpl implements ReportService {
 
 		GateWayResponse<?> gatewayResponse = mapper.convertValue(notesResponse.getBody(), GateWayResponse.class);
 
-		List<StoreVo> bvo = mapper.convertValue(gatewayResponse.getResult(), new TypeReference<List<StoreVo>>() {
+		List<StoreVO> bvo = mapper.convertValue(gatewayResponse.getResult(), new TypeReference<List<StoreVO>>() {
 		});
 		return bvo;
 

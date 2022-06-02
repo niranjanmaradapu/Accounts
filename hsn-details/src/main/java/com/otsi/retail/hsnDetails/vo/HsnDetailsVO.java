@@ -18,7 +18,7 @@ import lombok.Data;
  */
 @ApiModel
 @Data
-public class HsnDetailsVo {
+public class HsnDetailsVO {
 
 	private long id;
 
@@ -48,6 +48,6 @@ public class HsnDetailsVo {
 	private Long taxId;
 
 	@ApiModelProperty(value = "slab ranges of the product", name = "slabVos", required = true)
-	private List<SlabVo> slabs;
+	private List<SlabVO> slabs;
 
 }

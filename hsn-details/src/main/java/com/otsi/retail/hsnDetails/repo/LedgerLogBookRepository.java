@@ -13,7 +13,7 @@ import com.otsi.retail.hsnDetails.enums.PaymentStatus;
 import com.otsi.retail.hsnDetails.model.LedgerLogBook;
 
 @Repository
-public interface LedgerLogBookRepo extends JpaRepository<LedgerLogBook, Long> {
+public interface LedgerLogBookRepository extends JpaRepository<LedgerLogBook, Long> {
 
 	LedgerLogBook findByLedgerLogBookId(Long ledgerLogBookId);
 

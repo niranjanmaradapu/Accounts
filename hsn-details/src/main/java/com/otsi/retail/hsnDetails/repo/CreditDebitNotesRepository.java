@@ -12,7 +12,7 @@ import com.otsi.retail.hsnDetails.model.AccountingBook;
 import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
 
 @Repository
-public interface CreditDebitNotesRepo extends JpaRepository<CreditDebitNotes, Long> {
+public interface CreditDebitNotesRepository extends JpaRepository<CreditDebitNotes, Long> {
 
 	Optional<CreditDebitNotes> findByCreditDebitId(Long creditDebitId);
 

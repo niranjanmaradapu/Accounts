@@ -7,14 +7,15 @@ import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.otsi.retail.hsnDetails.exceptions.InvalidDataException;
 import com.otsi.retail.hsnDetails.exceptions.RecordNotFoundException;
 import com.otsi.retail.hsnDetails.mapper.TaxMapper;
 import com.otsi.retail.hsnDetails.model.Tax;
-import com.otsi.retail.hsnDetails.repo.TaxRepo;
-import com.otsi.retail.hsnDetails.vo.TaxVo;
+import com.otsi.retail.hsnDetails.repo.TaxRepository;
+import com.otsi.retail.hsnDetails.vo.TaxVO;
 
 /**
  * @author vasavi
@@ -26,106 +27,78 @@ public class TaxServiceImpl implements TaxService {
 	private Logger log = LogManager.getLogger(TaxServiceImpl.class);
 
 	@Autowired
-	private TaxRepo taxRepo;
+	private TaxRepository taxRepository;
+
 	@Autowired
 	private TaxMapper taxMapper;
 
-	// Method use: add new tax information
 	@Override
-	public TaxVo saveTax(TaxVo taxvo, Long clientId) {
+	public TaxVO saveTax(TaxVO taxvo, Long clientId) {
 		if (taxvo.getCess() == 0 && taxvo.getCgst() == 0 && taxvo.getIgst() == 0 && taxvo.getIgst() == 0
 				|| taxvo.getTaxLabel() == null) {
-			throw new InvalidDataException("please give valid data");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "tax inputs are missing");
 		}
-		log.debug("debugging saveTax:" + taxvo);
-		Tax tax = taxMapper.VoToEntity(taxvo);
+		Tax tax = taxMapper.voToEntity(taxvo);
 		tax.setClientId(clientId);
-		taxvo = taxMapper.EntityToVo(taxRepo.save(tax));
+		taxvo = taxMapper.entityToVO(taxRepository.save(tax));
 		return taxvo;
 
 	}
 
-	/*
-	 * update functionality for tax information
-	 */
 	@Override
-	public String updateTax(TaxVo taxvo) throws RecordNotFoundException {
+	public String updateTax(TaxVO taxvo) throws RecordNotFoundException {
 		log.debug("debugging updateTax:" + taxvo);
-		Optional<Tax> taxOpt = taxRepo.findById(taxvo.getId());
-
-		// if id is not present,it will throw custom exception "RecordNotFoundException"
-		if (!taxOpt.isPresent()) {
+		Optional<Tax> taxOptional = taxRepository.findById(taxvo.getId());
+		if (!taxOptional.isPresent()) {
 			log.error("Record Not Found");
 			throw new RecordNotFoundException("tax Record is Not Found");
 		}
-
-		Tax tax = taxMapper.VoToEntity(taxvo);
-		Tax taxSave = taxRepo.save(tax);
-		TaxVo taxUpdate = taxMapper.EntityToVo(taxSave);
-		log.warn("we are checking if tax is updated...");
-		log.info("tax details updated successfully with the given id:" + taxUpdate);
+		Tax tax = taxMapper.voToEntity(taxvo);
+		tax = taxRepository.save(tax);
+		TaxVO taxUpdate = taxMapper.entityToVO(tax);
 		return "tax details updated successfully with the given id  " + taxUpdate;
 
 	}
 
 	@Override
-	public TaxVo getTaxById(Long id) {
+	public TaxVO getTaxById(Long id) {
 		log.debug("debugging getTaxById:" + id);
-		Optional<Tax> tax = taxRepo.findById(id);
+		Optional<Tax> tax = taxRepository.findById(id);
 		if (!(tax.isPresent())) {
 			log.error("tax  record is not found");
 			throw new RecordNotFoundException("tax record is not found");
 		}
-		TaxVo taxVo = taxMapper.EntityToVo(tax.get());
-		log.warn("we are checking if tax data is fetching by id...");
-		log.info("after fetching tax details:" + tax.toString());
-		return taxVo;
-
+		return taxMapper.entityToVO(tax.get());
 	}
 
-	/*
-	 * get functionality for tax_details
-	 */
 	@Override
-	public List<TaxVo> getTaxDetails(String taxLabel, Long clientId) {
-		log.debug("debugging getTaxDetails()");
+	public List<TaxVO> getTaxDetails(String taxLabel, Long clientId) {
 		List<Tax> taxs = new ArrayList<>();
-		List<TaxVo> VOList = new ArrayList<>();
 		if (taxLabel != null) {
-			taxs = taxRepo.findByTaxLabelAndClientId(taxLabel, clientId);
+			taxs = taxRepository.findByTaxLabelAndClientId(taxLabel, clientId);
 		} else if (clientId != null) {
-			taxs = taxRepo.findByClientId(clientId);
+			taxs = taxRepository.findByClientId(clientId);
 		} else {
-			// here,will find all tax's through taxRepo
-			taxs = taxRepo.findAll();
+			taxs = taxRepository.findAll();
 		}
-		// here,will map and assign to VOList and return voList
-		VOList = taxMapper.EntityToVo(taxs);
-		log.warn("we are checking if tax details is fetching...");
-		log.info("after getting tax details:" + VOList);
-		return VOList;
+		return taxMapper.entityToVO(taxs);
 	}
 
 	@Override
 	public String deleteTax(Long id) {
 		log.debug("debugging deleteDomain:" + id);
-		Optional<Tax> taxOpt = taxRepo.findById(id);
+		Optional<Tax> taxOpt = taxRepository.findById(id);
 		if (!(taxOpt.isPresent())) {
 			throw new RecordNotFoundException("tax not found with id: " + id);
 		}
-		taxRepo.delete(taxOpt.get());
-		log.warn("we are checking if tax is deleted...");
-		log.info("after deleting tax details:" + id);
+		taxRepository.delete(taxOpt.get());
 		return "tax data deleted succesfully: " + id;
 	}
 
 	@Override
-	public List<TaxVo> getTaxForGivenIds(List<Long> taxIds) {
-
-		List<TaxVo> taxVoList = new ArrayList<>();
-		List<Tax> taxs = taxRepo.findByIdIn(taxIds);
-		taxVoList = taxMapper.EntityToVo(taxs);
-		return taxVoList;
+	public List<TaxVO> getTaxForGivenIds(List<Long> taxIds) {
+		List<Tax> taxList = taxRepository.findByIdIn(taxIds);
+		return taxMapper.entityToVO(taxList);
 	}
 
 }

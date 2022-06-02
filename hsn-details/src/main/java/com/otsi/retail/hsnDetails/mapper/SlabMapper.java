@@ -5,9 +5,11 @@ package com.otsi.retail.hsnDetails.mapper;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
+
 import com.otsi.retail.hsnDetails.model.Slab;
-import com.otsi.retail.hsnDetails.vo.SlabVo;
+import com.otsi.retail.hsnDetails.vo.SlabVO;
 
 /**
  * @author vasavi
@@ -20,19 +22,19 @@ public class SlabMapper {
 	 * EntityToVo converts dto to vo
 	 * 
 	 */
-	public SlabVo EntityToVo(Slab slab) {
-		SlabVo slabVo = new SlabVo();
-		slabVo.setId(slab.getId());
-		slabVo.setPriceFrom(slab.getPriceFrom());
-		slabVo.setPriceTo(slab.getPriceTo());
-		if(slab.getTax()!=null) {
-		slabVo.setTaxId(slab.getTax().getId());
+	public SlabVO entityToVO(Slab slab) {
+		SlabVO slabVO = new SlabVO();
+		slabVO.setId(slab.getId());
+		slabVO.setPriceFrom(slab.getPriceFrom());
+		slabVO.setPriceTo(slab.getPriceTo());
+		if (slab.getTax() != null) {
+			slabVO.setTaxId(slab.getTax().getId());
 		}
-		slabVo.setCreatedDate(slab.getCreatedDate());
-		slabVo.setLastModifiedDate(slab.getLastModifiedDate());
-		slabVo.setCreatedBy(slab.getCreatedBy());
-		slabVo.setModifiedBy(slab.getModifiedBy());
-		return slabVo;
+		slabVO.setCreatedDate(slab.getCreatedDate());
+		slabVO.setLastModifiedDate(slab.getLastModifiedDate());
+		slabVO.setCreatedBy(slab.getCreatedBy());
+		slabVO.setModifiedBy(slab.getModifiedBy());
+		return slabVO;
 
 	}
 
@@ -40,8 +42,8 @@ public class SlabMapper {
 	 * to convert list dto's to vo's
 	 */
 
-	public List<SlabVo> EntityToVo(List<Slab> slabs) {
-		return slabs.stream().map(slab -> EntityToVo(slab)).collect(Collectors.toList());
+	public List<SlabVO> entityToVO(List<Slab> slabs) {
+		return slabs.stream().map(slab -> entityToVO(slab)).collect(Collectors.toList());
 
 	}
 
@@ -50,11 +52,11 @@ public class SlabMapper {
 	 * 
 	 */
 
-	public Slab VoToEntity(SlabVo slabVo) {
+	public Slab voToEntity(SlabVO slabVO) {
 		Slab slab = new Slab();
-		slab.setId(slabVo.getId());
-		slab.setPriceFrom(slabVo.getPriceFrom());
-		slab.setPriceTo(slabVo.getPriceTo());
+		slab.setId(slabVO.getId());
+		slab.setPriceFrom(slabVO.getPriceFrom());
+		slab.setPriceTo(slabVO.getPriceTo());
 		return slab;
 
 	}
@@ -62,8 +64,8 @@ public class SlabMapper {
 	 * to convert list vo's to dto's
 	 */
 
-	public List<Slab> VoToEntity(List<SlabVo> slabVos) {
-		return slabVos.stream().map(slabVo -> VoToEntity(slabVo)).collect(Collectors.toList());
+	public List<Slab> VoToEntity(List<SlabVO> slabVos) {
+		return slabVos.stream().map(slabVo -> voToEntity(slabVo)).collect(Collectors.toList());
 
 	}
 }

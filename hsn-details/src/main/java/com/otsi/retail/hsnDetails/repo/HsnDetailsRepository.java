@@ -18,7 +18,7 @@ import com.otsi.retail.hsnDetails.model.HsnDetails;
  *
  */
 @Repository
-public interface HsnDetailsRepo extends JpaRepository<HsnDetails, Long> {
+public interface HsnDetailsRepository extends JpaRepository<HsnDetails, Long> {
 
 	@Query(value = "select * from hsn_details h where h.hsn_code like :hsnCode%", nativeQuery = true)
 	List<HsnDetails> findByHsnCode(String hsnCode);

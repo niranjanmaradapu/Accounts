@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 import com.otsi.retail.hsnDetails.enums.AccountType;
 import com.otsi.retail.hsnDetails.model.AccountingBook;
 import com.otsi.retail.hsnDetails.model.LedgerLogBook;
-import com.otsi.retail.hsnDetails.vo.AccountingBookVo;
-import com.otsi.retail.hsnDetails.vo.LedgerLogBookVo;
+import com.otsi.retail.hsnDetails.vo.AccountingBookVO;
+import com.otsi.retail.hsnDetails.vo.LedgerLogBookVO;
 
 /**
  * @author vasavi
@@ -29,7 +29,7 @@ public class AccountingBookMapper {
 	 * 
 	 */
 
-	public AccountingBook voToEntity(AccountingBookVo accountingBookVo) {
+	public AccountingBook voToEntity(AccountingBookVO accountingBookVo) {
 		AccountingBook accountingBook = new AccountingBook();
 		accountingBook.setCustomerId(accountingBookVo.getCustomerId());
 		accountingBook.setAmount(accountingBookVo.getAmount());
@@ -38,7 +38,7 @@ public class AccountingBookMapper {
 		return accountingBook;
 	}
 
-	public List<AccountingBook> VoToEntity(List<AccountingBookVo> accountingBookVos) {
+	public List<AccountingBook> VoToEntity(List<AccountingBookVO> accountingBookVos) {
 		return accountingBookVos.stream().map(accountingBookVo -> voToEntity(accountingBookVo))
 				.collect(Collectors.toList());
 	}
@@ -48,8 +48,8 @@ public class AccountingBookMapper {
 	 * 
 	 */
 
-	public AccountingBookVo entityToVo(AccountingBook accountingBook) {
-		AccountingBookVo accountingBookVo = new AccountingBookVo();
+	public AccountingBookVO entityToVo(AccountingBook accountingBook) {
+		AccountingBookVO accountingBookVo = new AccountingBookVO();
 		accountingBookVo.setAccountingBookId(accountingBook.getAccountingBookId());
 		accountingBookVo.setCustomerId(accountingBook.getCustomerId());
 		accountingBookVo.setAmount(accountingBook.getAmount());
@@ -62,11 +62,11 @@ public class AccountingBookMapper {
 
 	}
 
-	public List<AccountingBookVo> entityToVo(List<AccountingBook> accountingBooks) {
+	public List<AccountingBookVO> entityToVo(List<AccountingBook> accountingBooks) {
 		return accountingBooks.stream().map(accountingBook -> entityToVo(accountingBook)).collect(Collectors.toList());
 	}
 
-	public AccountingBook voToEntityUpdate(AccountingBookVo accountingBookVo) {
+	public AccountingBook voToEntityUpdate(AccountingBookVO accountingBookVo) {
 		AccountingBook accountingBook = new AccountingBook();
 		accountingBook.setAccountingBookId(accountingBookVo.getAccountingBookId());
 		accountingBook.setCustomerId(accountingBookVo.getCustomerId());

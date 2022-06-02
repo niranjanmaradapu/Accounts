@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 import com.otsi.retail.hsnDetails.model.AccountingBook;
 import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
-import com.otsi.retail.hsnDetails.vo.AccountingBookVo;
-import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVo;
+import com.otsi.retail.hsnDetails.vo.AccountingBookVO;
+import com.otsi.retail.hsnDetails.vo.CreditDebitNotesVO;
 
 /**
  * @author vasavi
@@ -31,8 +31,8 @@ public class CreditDebitNotesMapper {
 	 * @param dto
 	 * @return
 	 */
-	public CreditDebitNotesVo EntityToVo(CreditDebitNotes dto) {
-		CreditDebitNotesVo vo = new CreditDebitNotesVo();
+	public CreditDebitNotesVO EntityToVo(CreditDebitNotes dto) {
+		CreditDebitNotesVO vo = new CreditDebitNotesVO();
 		vo.setCreditDebitId(dto.getCreditDebitId());
 		vo.setComments(dto.getComments());
 		vo.setFromDate(dto.getCreatedDate());
@@ -50,7 +50,7 @@ public class CreditDebitNotesMapper {
 		return vo;
 	}
 
-	public List<CreditDebitNotesVo> EntityToVo(List<CreditDebitNotes> dtos) {
+	public List<CreditDebitNotesVO> EntityToVo(List<CreditDebitNotes> dtos) {
 		return dtos.stream().map(dto -> EntityToVo(dto)).collect(Collectors.toList());
 
 	}
@@ -60,7 +60,7 @@ public class CreditDebitNotesMapper {
 	 * 
 	 */
 
-	public CreditDebitNotes VoToEntity(CreditDebitNotesVo vo) {
+	public CreditDebitNotes VoToEntity(CreditDebitNotesVO vo) {
 		CreditDebitNotes dto = new CreditDebitNotes();
 		dto.setCreditDebitId(vo.getCreditDebitId());
 		dto.setComments(vo.getComments());
@@ -81,7 +81,7 @@ public class CreditDebitNotesMapper {
 
 	}
 
-	public List<CreditDebitNotes> VoToEntity(List<CreditDebitNotesVo> vos) {
+	public List<CreditDebitNotes> VoToEntity(List<CreditDebitNotesVO> vos) {
 		return vos.stream().map(vo -> VoToEntity(vo)).collect(Collectors.toList());
 
 	}

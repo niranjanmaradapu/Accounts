@@ -7,7 +7,7 @@ import lombok.Data;
  *
  */
 @Data
-public class BaseEntityVo {
+public class BaseEntityVO {
 
 	private Long createdBy;
 
