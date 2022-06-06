@@ -539,11 +539,11 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 			UserDetailsVO UserDetailsVO = getUserDetailsFromURM(LedgerLogBookVO.getMobileNumber());
 			if (UserDetailsVO != null) {
 				AccountingBook accountingBook = AccountingBookRepository
-						.findByCustomerIdAndAccountType(UserDetailsVO.getUserId(), LedgerLogBookVO.getAccountType());
+						.findByCustomerIdAndAccountType(UserDetailsVO.getId(), LedgerLogBookVO.getAccountType());
 
 				ledgerLogBook.setPaymentStatus(PaymentStatus.DEBIT);
 				ledgerLogBook.setReferenceNumber("DB" + RandomStringUtils.randomAlphanumeric(10));
-				ledgerLogBook.setCustomerId(UserDetailsVO.getUserId());
+				ledgerLogBook.setCustomerId(UserDetailsVO.getId());
 				ledgerLogBook.setAccountingBookId(accountingBook.getAccountingBookId());
 				// to update used amount in accounting book
 				if (accountingBook.getUsedAmount() == null) {
@@ -721,7 +721,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 				LocalDateTime toTime = DateConverters.convertToLocalDateTimeMax(searchFilterVo.getToDate());
 				accountingBooks = AccountingBookRepository
 						.findByCreatedDateBetweenAndCustomerIdAndStoreIdAndAccountTypeOrderByLastModifiedDateAsc(
-								fromTime, toTime, UserDetailsVO.getUserId(), searchFilterVo.getStoreId(),
+								fromTime, toTime, UserDetailsVO.getId(), searchFilterVo.getStoreId(),
 								searchFilterVo.getAccountType(), pageable);
 			}
 		}
@@ -748,7 +748,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 			UserDetailsVO UserDetailsVO = getUserDetailsFromURM(searchFilterVo.getMobileNumber());
 			if (UserDetailsVO != null) {
 				accountingBooks = AccountingBookRepository.findByCustomerIdAndStoreIdAndAccountType(
-						UserDetailsVO.getUserId(), searchFilterVo.getStoreId(), searchFilterVo.getAccountType(),
+						UserDetailsVO.getId(), searchFilterVo.getStoreId(), searchFilterVo.getAccountType(),
 						pageable);
 			}
 		}

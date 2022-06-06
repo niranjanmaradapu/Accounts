@@ -26,9 +26,9 @@ public class UserDetailsVO {
 
 	private List<UserAv> userAv;
 
-	private List<StoreVo> stores;
+	private List<StoreVO> stores;
 
-	private StoreVo ownerOf;
+	private StoreVO ownerOf;
 
 	private Boolean isActive;
 
