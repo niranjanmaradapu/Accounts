@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 @Data
-public class StoreVO {
+public class StoreVo {
 
 	private long id;
 	private String name;
