@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.otsi.retail.hsnDetails.enums.Description;
@@ -100,7 +101,6 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		// will only print hsn and tax details
 		if (hsnDetailsVo.getTaxAppliedType().equals(TaxAppliedType.Priceslab) && !hsnDetailsVo.getSlabs().isEmpty()) {
 			hsnDetailsVo.getSlabs().forEach(slabVO -> {
-
 				Slab slab = slabMapper.voToEntity(slabVO);
 				if (slabVO.getTaxId() != null) {
 					Optional<Tax> taxOpt = taxRepository.findById(slabVO.getTaxId());
@@ -362,45 +362,47 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 						"Invalid slab range price from is greater than price to");
 			}
 
-			List<Slab> slabList = slabRepository.findAll();
-			slabList.stream().forEach(slab -> {
+			List<Slab> slabList = slabRepository.findByHsnDetailsId(hsnDetails.getId());
+			if (CollectionUtils.isEmpty(slabList)) {
+				slabList.stream().forEach(slab -> {
 
-				// check slab already exists with same prices
-				if (slabVO.getPriceFrom() == slab.getPriceFrom() && slabVO.getPriceTo() == slab.getPriceTo()) {
-					log.error("price from and price to is already exists:" + slabVO.getPriceFrom() + "and"
-							+ slabVO.getPriceTo());
-					throw new DuplicateRecordException("price from and price to is already exists:"
-							+ slabVO.getPriceFrom() + "and" + slabVO.getPriceTo());
+					// check slab already exists with same prices
+					if (slabVO.getPriceFrom() == slab.getPriceFrom() && slabVO.getPriceTo() == slab.getPriceTo()) {
+						log.error("price from and price to is already exists:" + slabVO.getPriceFrom() + "and"
+								+ slabVO.getPriceTo());
+						throw new DuplicateRecordException("price from and price to is already exists:"
+								+ slabVO.getPriceFrom() + "and" + slabVO.getPriceTo());
 
-				}
+					}
 
-				// check if priceFrom exits in between other slab range
-				else if (slabVO.getPriceFrom() >= slab.getPriceFrom() && slabVO.getPriceTo() <= slab.getPriceTo()) {
-					log.error("price from  exists in other slab range :" + slabVO.getPriceFrom() + "and"
-							+ slabVO.getPriceTo());
-					throw new DuplicateRecordException("price from  exists in other slab range :"
-							+ slabVO.getPriceFrom() + "and" + slabVO.getPriceTo());
+					// check if priceFrom exits in between other slab range
+					if (slabVO.getPriceFrom() >= slab.getPriceFrom() && slabVO.getPriceTo() <= slab.getPriceTo()) {
+						log.error("price from  exists in other slab range :" + slabVO.getPriceFrom() + "and"
+								+ slabVO.getPriceTo());
+						throw new DuplicateRecordException("price from  exists in other slab range :"
+								+ slabVO.getPriceFrom() + "and" + slabVO.getPriceTo());
 
-				}
+					}
 
-				// check if priceTo exits in between other slab range
-				else if (slabVO.getPriceTo() >= slab.getPriceFrom() && slabVO.getPriceTo() <= slab.getPriceTo()) {
-					log.error("price to  exists in other slab range :" + slabVO.getPriceFrom() + "and"
-							+ slabVO.getPriceTo());
-					throw new DuplicateRecordException("price to  exists in other slab range :" + slabVO.getPriceFrom()
-							+ "and" + slabVO.getPriceTo());
+					// check if priceTo exits in between other slab range
+					else if (slabVO.getPriceTo() >= slab.getPriceFrom() && slabVO.getPriceTo() <= slab.getPriceTo()) {
+						log.error("price to  exists in other slab range :" + slabVO.getPriceFrom() + "and"
+								+ slabVO.getPriceTo());
+						throw new DuplicateRecordException("price to  exists in other slab range :"
+								+ slabVO.getPriceFrom() + "and" + slabVO.getPriceTo());
 
-				}
+					}
 
-				// check if other slabs exits in this range
-				else if (slab.getPriceFrom() >= slabVO.getPriceFrom() && slab.getPriceTo() <= slabVO.getPriceTo()) {
-					log.error(" other slabs exists in the slab range :" + slabVO.getPriceFrom() + "and"
-							+ slabVO.getPriceTo());
-					throw new DuplicateRecordException(" other slabs exists in the slab range :" + slabVO.getPriceFrom()
-							+ "and" + slabVO.getPriceTo());
-				}
+					// check if other slabs exits in this range
+					else if (slab.getPriceFrom() >= slabVO.getPriceFrom() && slab.getPriceTo() <= slabVO.getPriceTo()) {
+						log.error(" other slabs exists in the slab range :" + slabVO.getPriceFrom() + "and"
+								+ slabVO.getPriceTo());
+						throw new DuplicateRecordException(" other slabs exists in the slab range :"
+								+ slabVO.getPriceFrom() + "and" + slabVO.getPriceTo());
+					}
 
-			});
+				});
+			}
 
 		});
 	}
