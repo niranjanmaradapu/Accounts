@@ -321,10 +321,14 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 				taxMap.put("cessPercent", tax.getCess());
 				// if tax is included
 				if (true) {
-					taxMap.put("cgstValue", (tax.getCgst() > 0 ? (itemPrice * tax.getCgst()) / 100 : 0));
-					taxMap.put("sgstValue", (tax.getSgst() > 0 ? (itemPrice * tax.getSgst()) / 100 : 0));
-					taxMap.put("igstValue", (tax.getIgst() > 0 ? (itemPrice * tax.getIgst()) / 100 : 0));
-					taxMap.put("cessValue", (tax.getCess() > 0 ? (itemPrice * tax.getCess()) / 100 : 0));
+					taxMap.put("cgstValue",
+							(tax.getCgst() > 0 ? itemPrice - ((itemPrice * 100) / (100 + tax.getCgst())) : 0));
+					taxMap.put("sgstValue",
+							(tax.getSgst() > 0 ? itemPrice - ((itemPrice * 100) / (100 + tax.getSgst())) : 0));
+					taxMap.put("igstValue",
+							(tax.getIgst() > 0 ? itemPrice - ((itemPrice * 100) / (100 + tax.getIgst())) : 0));
+					taxMap.put("cessValue",
+							(tax.getCess() > 0 ? itemPrice - ((itemPrice * 100) / (100 + tax.getCess())) : 0));
 					taxMap.put("intrastate",
 							itemPrice - taxMap.get("sgstValue") - taxMap.get("cgstValue") - taxMap.get("cessValue"));
 					taxMap.put("interstate", itemPrice - taxMap.get("igstValue") - taxMap.get("cessValue"));
