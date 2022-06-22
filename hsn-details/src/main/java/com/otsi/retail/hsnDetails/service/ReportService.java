@@ -5,13 +5,13 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.otsi.retail.hsnDetails.model.CreditDebitNotes;
-import com.otsi.retail.hsnDetails.vo.ReportsVo;
+import com.otsi.retail.hsnDetails.vo.ReportsVO;
 
 @Service
 public interface ReportService {
 
-	List<ReportsVo> debitNotesByStores();
+	List<ReportsVO> debitNotesByStores();
 
-	List<ReportsVo> usedAndBalancedAmountByStores();
+	List<ReportsVO> usedAndBalancedAmountByStores();
 
 }

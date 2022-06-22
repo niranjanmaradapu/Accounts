@@ -6,7 +6,7 @@ import lombok.Data;
 
 @ApiModel
 @Data
-public class ReportsVo {
+public class ReportsVO {
 
 	@ApiModelProperty(value = "debit amount of the customer", name = "dAmount",required = true)
 	private Long dAmount;

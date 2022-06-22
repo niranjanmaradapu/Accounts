@@ -10,7 +10,7 @@ package com.otsi.retail.hsnDetails.enums;
  */
 public enum TaxAppliesOn {
 
-	NETPRICE(1, "netprice"), RSP(2, "rsp");
+	LISTEDPRICE(1, "listedPrice"), MRP(2, "mrp");
 
 	private int id;
 	private String name;

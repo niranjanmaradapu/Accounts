@@ -14,12 +14,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @author vasavi
+ *
+ */
 @Entity
 @Table(name = "tax")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Tax implements Serializable {
+public class Tax extends BaseEntity implements Serializable {
 
 	/**
 	 * @author vasavi
@@ -29,16 +33,22 @@ public class Tax implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "tax_id")
 	private Long id;
+
 	@Column(name = "tax_label")
 	private String taxLabel;
+
 	@Column(name = "sgst")
 	private float sgst;
+
 	@Column(name = "cgst")
 	private float cgst;
+
 	@Column(name = "igst")
 	private float igst;
+
 	@Column(name = "cess")
 	private float cess;
-	
-	
+
+	private Long clientId;
+
 }

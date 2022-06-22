@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -15,19 +16,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MimeType;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.otsi.retail.paymentgateway.config.Config;
 import com.otsi.retail.paymentgateway.util.EndpointConstants;
+import com.otsi.retail.paymentgateway.vo.AccountVo;
 import com.otsi.retail.paymentgateway.vo.PaymentDetailsVo;
 import com.otsi.retail.paymentgateway.vo.PaymentLinkRequest;
 import com.otsi.retail.paymentgateway.vo.RazorPayResponse;
 import com.razorpay.Order;
 import com.razorpay.Payment;
 import com.razorpay.RazorpayClient;
+import com.razorpay.RazorpayException;
 
 @Component
 public class RazorPayImpl implements PaymentGatewayService {
@@ -53,7 +58,7 @@ public class RazorPayImpl implements PaymentGatewayService {
 		ob.put("receipt", newsaleOrderNumber);
 
 		// creating new order
-
+	
 		Order order = client.Orders.create(ob);
 		log.info("order created succesfully:" + order.toString());
 
@@ -61,7 +66,7 @@ public class RazorPayImpl implements PaymentGatewayService {
 		RazorPayResponse razorPayResponse = objectMapper.readValue(order.toString(), RazorPayResponse.class);
 		PaymentDetailsVo vo = new PaymentDetailsVo();
 
-		vo.setNewsaleOrder(newsaleOrderNumber);
+		vo.setReferenceNumber(newsaleOrderNumber);
 		vo.setAmount(Long.valueOf(amount));
 		vo.setPayType("Card");
 		vo.setRazorPayId(razorPayResponse.getId());
@@ -73,6 +78,7 @@ public class RazorPayImpl implements PaymentGatewayService {
 		return order;
 
 	}
+	
 
 	@Override
 	public List<Payment> fetchAllTranx() throws Exception {
@@ -134,5 +140,47 @@ public class RazorPayImpl implements PaymentGatewayService {
 			System.out.println("Exception while invoking payment create link :" + e.getMessage());
 		}
 		return null;
+	}
+	@Override
+	public PaymentDetailsVo createCreditDebitOrder(AccountVo accountVo) throws Exception {
+		
+		
+		
+		
+		RazorPayResponse razorPayResponse =	 getPayment(accountVo.getAmount(),accountVo.getReferenceNumber());
+		PaymentDetailsVo vo = new PaymentDetailsVo();
+
+		vo.setReferenceNumber(accountVo.getReferenceNumber());
+		vo.setAmount(Long.valueOf(accountVo.getAmount()));
+		vo.setPayType("Card");
+		vo.setRazorPayId(razorPayResponse.getId());
+		
+
+		// Pass object to Rabbit queue
+		rabbitTemplate.convertAndSend(config.getPayemntsExchange(), config.getPaymentCreditNotesRK(), vo);
+		///log.info("order details queue send to newsale " + order.toString());
+
+		return vo;
+
+		
+
+		
+	}
+
+
+	private RazorPayResponse getPayment(int amt, String orderNumber) throws RazorpayException, JsonMappingException, JsonProcessingException {
+		RazorpayClient client = new RazorpayClient(config.getKey(), config.getSecert());
+		JSONObject ob = new JSONObject();
+		ob.put("amount", amt * 100);
+		ob.put("currency", "INR");
+		ob.put("receipt", orderNumber);
+
+		// creating new order
+	
+		Order order = client.Orders.create(ob);
+		log.info("order created succesfully:" + order.toString());
+		ObjectMapper objectMapper = new ObjectMapper();
+	return	objectMapper.readValue(order.toString(), RazorPayResponse.class);
+		
 	}
 }

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 server:
   port: 8086
 spring:
@@ -44,3 +45,50 @@ logging:
      
 razorpay:
   callback-url: http://14.98.164.17:9097/paymentgateway/razorpay      
+=======
+server:
+  port: 8086
+spring:
+  application:
+    name: paymentgateway
+  rabbitmq:
+      host: localhost
+      port: 5672
+      username: guest
+      password: guest    
+
+      #######################------Database related propertises-------########################
+  datasource:
+    url: jdbc:postgresql://localhost:5432/accounting
+    username: postgres
+    password: Otsi@123
+  jpa:
+   hibernate:
+    ddl-auto: update
+   database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+   show-sql: true
+
+    #######################------Eureka server related propertises-------########################
+    
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8762/eureka/
+    instance:
+    instance-id: ${spring.application.name}:${random.int}
+    hostname: localhost
+
+
+springdoc:
+  packagesToScan: com.otsi.retail.paymentgateway
+  
+logging:
+   file:
+     name: C:\Users\ADMIN\Desktop\logs\payment-gateway.log
+   level:
+     com.otsi.retail.paymentgateway.service: DEBUG
+razorpay:
+  callback-url: http://14.98.164.17:9097/paymentgateway/razorpay
+>>>>>>> alpha-release
