@@ -16,6 +16,9 @@ public class UserDetailsVO {
 
 	@JsonIgnore
 	private String gender;
+	
+	@JsonIgnore
+	private ClientDetails client;
 	@JsonIgnore
 	private LocalDate createdDate;
 	@JsonIgnore

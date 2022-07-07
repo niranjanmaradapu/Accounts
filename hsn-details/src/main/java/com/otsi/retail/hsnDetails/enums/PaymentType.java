@@ -2,5 +2,5 @@ package com.otsi.retail.hsnDetails.enums;
 
 public enum PaymentType {
 	
-	Cash,Card,Upi,RTSlip 
+	Cash,Card,Upi,RTSlip,DEBIT
 }

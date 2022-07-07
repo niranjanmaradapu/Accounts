@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
@@ -149,6 +149,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		}
 
 	}
+
 	@Override
 	public List<CreditDebitNotes> getAllCreditDebitNotes() {
 		log.debug("debugging getAllDebitNotes:");
@@ -558,6 +559,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 					accountingBook.setUsedAmount(accountingBook.getUsedAmount() + LedgerLogBookVO.getAmount());
 					accountingBook.setLastModifiedDate(LocalDateTime.now());
 				}
+				accountingBook.setAmount(Math.abs(accountingBook.getAmount() - accountingBook.getUsedAmount()));
 				accountingBookRepository.save(accountingBook);
 			}
 
@@ -576,28 +578,29 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		}
 
 		else if (LedgerLogBookVO.getTransactionType().equals(AccountType.CREDIT)) {
-			// UserDetailsVO UserDetailsVO =
-			// getUserDetailsFromURM(LedgerLogBookVO.getMobileNumber());
-			// if (UserDetailsVO != null) {
+
 			AccountingBook accountingBook = accountingBookRepository.findByCustomerIdAndStoreIdAndAccountType(
 					LedgerLogBookVO.getCustomerId(), LedgerLogBookVO.getStoreId(), LedgerLogBookVO.getAccountType());
-			if (accountingBook.getAmount() == 0) {
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No Due for this Customer");
-			}
-			if (LedgerLogBookVO.getPaymentType().equals(PaymentType.Cash)) {
-				ledgerLogBook.setPaymentStatus(PaymentStatus.SUCCESS);
-			}
-			ledgerLogBook.setAccountingBookId(accountingBook.getAccountingBookId());
-			ledgerLogBook.setReferenceNumber("CR" + RandomStringUtils.randomAlphanumeric(10));
-			ledgerLogBook.setCustomerId(accountingBook.getCustomerId());
-			// to update deducted amount in accounting book
-			accountingBook.setAmount(Math.abs(LedgerLogBookVO.getAmount() - accountingBook.getAmount()));
-			accountingBook.setLastModifiedDate(LocalDateTime.now());
-			accountingBookRepository.save(accountingBook);
-			// }
+			if (accountingBook != null) {
+				if (accountingBook.getAmount() == 0) {
+					throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No Due for this Customer");
+				}
+				if (LedgerLogBookVO.getPaymentType().equals(PaymentType.Cash)) {
+					ledgerLogBook.setPaymentStatus(PaymentStatus.SUCCESS);
+				}
+				ledgerLogBook.setAccountingBookId(accountingBook.getAccountingBookId());
+				ledgerLogBook.setReferenceNumber("CR" + RandomStringUtils.randomAlphanumeric(10));
+				ledgerLogBook.setCustomerId(accountingBook.getCustomerId());
+				// to update deducted amount in accounting book
 
+				accountingBook.setAmount(Math.abs(LedgerLogBookVO.getAmount() - accountingBook.getAmount()));
+
+				accountingBook.setLastModifiedDate(LocalDateTime.now());
+				accountingBookRepository.save(accountingBook);
+			}
+
+			ledgerLogBook = ledgerLogBookRepository.save(ledgerLogBook);
 		}
-		ledgerLogBook = ledgerLogBookRepository.save(ledgerLogBook);
 		return ledgerLogBook;
 	}
 
@@ -618,6 +621,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 			accountingBook.setStoreId(ledgerLogBook.getStoreId());
 			AccountingBook accountingBookSave = accountingBookRepository.save(accountingBook);
 			ledgerLogBook.setAccountingBookId(accountingBookSave.getAccountingBookId());
+			ledgerLogBook.setPaymentType(PaymentType.DEBIT);
 		}
 		LedgerLogBook ledgerLogBookSave = ledgerLogBookRepository.save(ledgerLogBook);
 		LedgerLogBookVO LedgerLogBookVO = ledgerLogBookMapper.entityToVo(ledgerLogBookSave);

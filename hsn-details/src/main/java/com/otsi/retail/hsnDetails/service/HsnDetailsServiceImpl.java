@@ -5,6 +5,7 @@ package com.otsi.retail.hsnDetails.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -261,12 +262,14 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 		}
 
 		voList = hsnDetailsMapper.entityToVO(hsnDetails);
-
-		// here,will loop based on hsn id
-		voList.stream().forEach(t -> {
-			t.setSlabs(slabMapper.entityToVO(slabRepository.findByHsnDetailsId(t.getId())));
-		});
-
+		if (voList != null) {
+			// here,will loop based on hsn id
+			voList.stream().forEach(t -> {
+				t.setSlabs(slabMapper.entityToVO(slabRepository.findByHsnDetailsId(t.getId())));
+			});
+		} else {
+			Collections.emptyList();
+		}
 		log.warn("we are checking if hsn details is fetching...");
 		log.info("after getting hsn details:" + voList);
 		return voList;
