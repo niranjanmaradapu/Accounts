@@ -38,10 +38,4 @@ public interface LedgerLogBookRepository extends JpaRepository<LedgerLogBook, Lo
 	LedgerLogBook findTopByCustomerIdInAndStoreIdAndAccountType(List<Long> userIds, Long storeId,
 			AccountType accountType);
 
-	//LedgerLogBook findByCustomerIdAndStoreIdAndAccountType(Long userId, Long storeId, AccountType accountType);
-
-	LedgerLogBook findByCustomerIdAndStoreIdAndAccountType(Long userId, Long storeId, AccountType accountType);
-
-	
-
 }

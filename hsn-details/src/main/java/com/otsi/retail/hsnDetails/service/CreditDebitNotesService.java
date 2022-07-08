@@ -20,7 +20,7 @@ public interface CreditDebitNotesService {
 
 	String saveCreditDebitNotes(CreditDebitNotesVO debitNotesVo) throws DataNotFoundException;
 
-	List<CreditDebitNotesVO> getCreditNotes(String mobileNumber, Long customerId);
+	List<AccountingBookVO> getCreditNotes(String mobileNumber, Long customerId);
 
 	List<CreditDebitNotes> getAllCreditDebitNotes();
 

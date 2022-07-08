@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +80,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 	private LedgerLogBookMapper ledgerLogBookMapper;
 
 	@Autowired
-	private AccountingBookRepository AccountingBookRepository;
+	private AccountingBookRepository accountingBookRepository;
 
 	@Autowired
 	private LedgerLogBookRepository ledgerLogBookRepository;
@@ -121,25 +122,31 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 	}
 
 	@Override
-	public List<CreditDebitNotesVO> getCreditNotes(String mobileNumber, Long customerId) {
+	public List<AccountingBookVO> getCreditNotes(String mobileNumber, Long customerId) {
 		log.debug("debugging getMobileNumber:" + mobileNumber);
-		List<CreditDebitNotesVO> voList = new ArrayList<>();
-		boolean flag = true;
-		List<CreditDebitNotes> mob = CreditDebitNotesRepository.findAllByMobileNumberAndCustomerIdAndFlag(mobileNumber,
-				customerId, flag);
-		List<CreditDebitNotes> mob1 = CreditDebitNotesRepository.findByCustomerIdAndFlag(customerId, flag);
-		if (mob1 != null && !mob1.isEmpty()) {
-			mob1.stream().forEach(m -> {
-				if (m.getCustomerId() != null) {
-					CreditDebitNotesVO vo = creditDebitNotesMapper.EntityToVo(m);
-					voList.add(vo);
-				}
-			});
-			return voList;
-
-		} else
+		// List<CreditDebitNotesVO> voList = new ArrayList<>();
+		// boolean flag = true;
+		// AccountType accountType=AccountType.CREDIT;
+		List<AccountingBook> accountingBooks = accountingBookRepository.findAllByCustomerIdAndAccountType(customerId,
+				AccountType.CREDIT);
+		/*
+		 * List<CreditDebitNotes> mob =
+		 * CreditDebitNotesRepository.findAllByMobileNumberAndCustomerIdAndFlag(
+		 * mobileNumber, customerId, flag); List<CreditDebitNotes> mob1 =
+		 * CreditDebitNotesRepository.findByCustomerIdAndFlag(customerId, flag);
+		 */
+		/*
+		 * if (mob1 != null && !mob1.isEmpty()) { mob1.stream().forEach(m -> { if
+		 * (m.getCustomerId() != null) { CreditDebitNotesVO vo =
+		 * creditDebitNotesMapper.EntityToVo(m); voList.add(vo); } }); return voList;
+		 */
+		if (accountingBooks != null) {
+			List<AccountingBookVO> accounts = accountingBookMapper.entityToVo(accountingBooks);
+			return accounts;
+		} else {
 			log.error("no record found with customerId:" + customerId);
-		throw new RecordNotFoundException("no record found with  customerId:" + customerId);
+			throw new RecordNotFoundException("no record found with  customerId:" + customerId);
+		}
 
 	}
 
@@ -538,7 +545,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 			// when the customer used the credit amount
 			UserDetailsVO UserDetailsVO = getUserDetailsFromURM(LedgerLogBookVO.getMobileNumber());
 			if (UserDetailsVO != null) {
-				AccountingBook accountingBook = AccountingBookRepository
+				AccountingBook accountingBook = accountingBookRepository
 						.findByCustomerIdAndAccountType(UserDetailsVO.getId(), LedgerLogBookVO.getAccountType());
 
 				ledgerLogBook.setPaymentStatus(PaymentStatus.DEBIT);
@@ -552,7 +559,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 					accountingBook.setUsedAmount(accountingBook.getUsedAmount() + LedgerLogBookVO.getAmount());
 					accountingBook.setLastModifiedDate(LocalDateTime.now());
 				}
-				AccountingBookRepository.save(accountingBook);
+				accountingBook.setAmount(Math.abs(accountingBook.getAmount() - accountingBook.getUsedAmount()));
+				accountingBookRepository.save(accountingBook);
 			}
 
 		}
@@ -570,38 +578,39 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		}
 
 		else if (LedgerLogBookVO.getTransactionType().equals(AccountType.CREDIT)) {
-			// UserDetailsVO UserDetailsVO =
-			// getUserDetailsFromURM(LedgerLogBookVO.getMobileNumber());
-			// if (UserDetailsVO != null) {
-			AccountingBook accountingBook = AccountingBookRepository.findByCustomerIdAndStoreIdAndAccountType(
-					LedgerLogBookVO.getCustomerId(), LedgerLogBookVO.getStoreId(), LedgerLogBookVO.getAccountType());
-			if (accountingBook.getAmount() == 0) {
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No Due for this Customer");
-			}
-			if (LedgerLogBookVO.getPaymentType().equals(PaymentType.Cash)) {
-				ledgerLogBook.setPaymentStatus(PaymentStatus.SUCCESS);
-			}
-			ledgerLogBook.setAccountingBookId(accountingBook.getAccountingBookId());
-			ledgerLogBook.setReferenceNumber("CR" + RandomStringUtils.randomAlphanumeric(10));
-			ledgerLogBook.setCustomerId(accountingBook.getCustomerId());
-			// to update deducted amount in accounting book
-			accountingBook.setAmount(Math.abs(LedgerLogBookVO.getAmount() - accountingBook.getAmount()));
-			accountingBook.setLastModifiedDate(LocalDateTime.now());
-			AccountingBookRepository.save(accountingBook);
-			// }
 
+			AccountingBook accountingBook = accountingBookRepository.findByCustomerIdAndStoreIdAndAccountType(
+					LedgerLogBookVO.getCustomerId(), LedgerLogBookVO.getStoreId(), LedgerLogBookVO.getAccountType());
+			if (accountingBook != null) {
+				if (accountingBook.getAmount() == 0) {
+					throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No Due for this Customer");
+				}
+				if (LedgerLogBookVO.getPaymentType().equals(PaymentType.Cash)) {
+					ledgerLogBook.setPaymentStatus(PaymentStatus.SUCCESS);
+				}
+				ledgerLogBook.setAccountingBookId(accountingBook.getAccountingBookId());
+				ledgerLogBook.setReferenceNumber("CR" + RandomStringUtils.randomAlphanumeric(10));
+				ledgerLogBook.setCustomerId(accountingBook.getCustomerId());
+				// to update deducted amount in accounting book
+
+				accountingBook.setAmount(Math.abs(LedgerLogBookVO.getAmount() - accountingBook.getAmount()));
+
+				accountingBook.setLastModifiedDate(LocalDateTime.now());
+				accountingBookRepository.save(accountingBook);
+			}
+
+			ledgerLogBook = ledgerLogBookRepository.save(ledgerLogBook);
 		}
-		ledgerLogBook = ledgerLogBookRepository.save(ledgerLogBook);
 		return ledgerLogBook;
 	}
 
 	private LedgerLogBookVO calculateAmount(LedgerLogBook ledgerLogBook) {
-		AccountingBook accountingBookCustomer = AccountingBookRepository
+		AccountingBook accountingBookCustomer = accountingBookRepository
 				.findByCustomerIdAndAccountType(ledgerLogBook.getCustomerId(), ledgerLogBook.getAccountType());
 		if (accountingBookCustomer != null) {
 			accountingBookCustomer.setAmount(accountingBookCustomer.getAmount() + ledgerLogBook.getAmount());
 			accountingBookCustomer.setLastModifiedDate(LocalDateTime.now());
-			AccountingBook accountingBookSave = AccountingBookRepository.save(accountingBookCustomer);
+			AccountingBook accountingBookSave = accountingBookRepository.save(accountingBookCustomer);
 			ledgerLogBook.setAccountingBookId(accountingBookSave.getAccountingBookId());
 
 		} else {
@@ -610,8 +619,9 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 			accountingBook.setAccountType(ledgerLogBook.getAccountType());
 			accountingBook.setCustomerId(ledgerLogBook.getCustomerId());
 			accountingBook.setStoreId(ledgerLogBook.getStoreId());
-			AccountingBook accountingBookSave = AccountingBookRepository.save(accountingBook);
+			AccountingBook accountingBookSave = accountingBookRepository.save(accountingBook);
 			ledgerLogBook.setAccountingBookId(accountingBookSave.getAccountingBookId());
+			ledgerLogBook.setPaymentType(PaymentType.DEBIT);
 		}
 		LedgerLogBook ledgerLogBookSave = ledgerLogBookRepository.save(ledgerLogBook);
 		LedgerLogBookVO LedgerLogBookVO = ledgerLogBookMapper.entityToVo(ledgerLogBookSave);
@@ -621,7 +631,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 
 	@Override
 	public List<AccountingBookVO> getNotes(AccountType accountType, Long storeId) {
-		List<AccountingBook> accountingBookOpt = AccountingBookRepository.findByAccountTypeAndStoreId(accountType,
+		List<AccountingBook> accountingBookOpt = accountingBookRepository.findByAccountTypeAndStoreId(accountType,
 				storeId);
 		if (accountingBookOpt == null) {
 			log.error("accounting book id  is Not Found:" + accountingBookOpt);
@@ -649,7 +659,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		if (ledBook == null) {
 			throw new RecordNotFoundException("record not found with id:" + LedgerLogBookVO.getLedgerLogBookId());
 		}
-		AccountingBook accountingBookCustomer = AccountingBookRepository.findByCustomerIdAndStoreIdAndAccountType(
+		AccountingBook accountingBookCustomer = accountingBookRepository.findByCustomerIdAndStoreIdAndAccountType(
 				LedgerLogBookVO.getCustomerId(), LedgerLogBookVO.getStoreId(), LedgerLogBookVO.getAccountType());
 		LedgerLogBook ledgerLogBook = ledgerLogBookMapper.voToEntityUpdate(ledBook, LedgerLogBookVO);
 		LedgerLogBook ledgerLogBookSave = ledgerLogBookRepository.save(ledgerLogBook);
@@ -660,7 +670,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 					.findByAccountingBookId(ledBook.getAccountingBookId());
 			paymentValue = ledgerLogAccount.stream().mapToLong(x -> x.getAmount()).sum();
 			accountingBookCustomer.setAmount(paymentValue);
-			AccountingBook accountingBookSave = AccountingBookRepository.save(accountingBookCustomer);
+			AccountingBook accountingBookSave = accountingBookRepository.save(accountingBookCustomer);
 			ledgerLogBook.setAccountingBookId(accountingBookSave.getAccountingBookId());
 		} else {
 			AccountingBook accountingBook = new AccountingBook();
@@ -669,7 +679,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 			accountingBook.setAccountType(LedgerLogBookVO.getAccountType());
 			accountingBook.setCustomerId(LedgerLogBookVO.getCustomerId());
 			accountingBook.setStoreId(LedgerLogBookVO.getStoreId());
-			AccountingBook accountingBookSave = AccountingBookRepository.save(accountingBook);
+			AccountingBook accountingBookSave = accountingBookRepository.save(accountingBook);
 			ledgerLogBook.setAccountingBookId(accountingBookSave.getAccountingBookId());
 		}
 
@@ -688,7 +698,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 				&& searchFilterVo.getAccountType() != null) {
 			LocalDateTime fromTime = DateConverters.convertLocalDateToLocalDateTime(searchFilterVo.getFromDate());
 			LocalDateTime fromTime1 = DateConverters.convertToLocalDateTimeMax(searchFilterVo.getFromDate());
-			accountingBooks = AccountingBookRepository.findByCreatedDateBetweenAndStoreIdAndAccountType(fromTime,
+			accountingBooks = accountingBookRepository.findByCreatedDateBetweenAndStoreIdAndAccountType(fromTime,
 					fromTime1, searchFilterVo.getStoreId(), searchFilterVo.getAccountType(), pageable);
 
 		}
@@ -701,7 +711,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 				&& searchFilterVo.getAccountType() != null) {
 			LocalDateTime fromTime = DateConverters.convertLocalDateToLocalDateTime(searchFilterVo.getFromDate());
 			LocalDateTime toTime = DateConverters.convertToLocalDateTimeMax(searchFilterVo.getToDate());
-			accountingBooks = AccountingBookRepository
+			accountingBooks = accountingBookRepository
 					.findByLastModifiedDateBetweenAndStoreIdAndAccountTypeOrderByLastModifiedDateDesc(fromTime, toTime,
 							searchFilterVo.getStoreId(), searchFilterVo.getAccountType(), pageable);
 
@@ -719,7 +729,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 			if (UserDetailsVO != null) {
 				LocalDateTime fromTime = DateConverters.convertLocalDateToLocalDateTime(searchFilterVo.getFromDate());
 				LocalDateTime toTime = DateConverters.convertToLocalDateTimeMax(searchFilterVo.getToDate());
-				accountingBooks = AccountingBookRepository
+				accountingBooks = accountingBookRepository
 						.findByCreatedDateBetweenAndCustomerIdAndStoreIdAndAccountTypeOrderByLastModifiedDateAsc(
 								fromTime, toTime, UserDetailsVO.getId(), searchFilterVo.getStoreId(),
 								searchFilterVo.getAccountType(), pageable);
@@ -733,7 +743,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 		else if (searchFilterVo.getFromDate() == null && searchFilterVo.getToDate() == null
 				&& searchFilterVo.getMobileNumber() == null && searchFilterVo.getStoreId() != null
 				&& searchFilterVo.getAccountType() != null) {
-			accountingBooks = AccountingBookRepository.findByStoreIdAndAccountTypeOrderByCreatedDateDesc(
+			accountingBooks = accountingBookRepository.findByStoreIdAndAccountTypeOrderByCreatedDateDesc(
 					searchFilterVo.getStoreId(), searchFilterVo.getAccountType(), pageable);
 		}
 
@@ -747,9 +757,8 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 
 			UserDetailsVO UserDetailsVO = getUserDetailsFromURM(searchFilterVo.getMobileNumber());
 			if (UserDetailsVO != null) {
-				accountingBooks = AccountingBookRepository.findByCustomerIdAndStoreIdAndAccountType(
-						UserDetailsVO.getId(), searchFilterVo.getStoreId(), searchFilterVo.getAccountType(),
-						pageable);
+				accountingBooks = accountingBookRepository.findByCustomerIdAndStoreIdAndAccountType(
+						UserDetailsVO.getId(), searchFilterVo.getStoreId(), searchFilterVo.getAccountType(), pageable);
 			}
 		}
 		if (accountingBooks != null && accountingBooks.hasContent()) {
@@ -761,7 +770,7 @@ public class CreditDebitNotesServiceImpl implements CreditDebitNotesService {
 	private AccountingBookVO accountMapToVo(AccountingBook accountingBook) {
 		AccountingBookVO accountingBookVo = accountingBookMapper.entityToVo(accountingBook);
 
-		List<AccountingBook> customerIds = AccountingBookRepository
+		List<AccountingBook> customerIds = accountingBookRepository
 				.findAllByCustomerId(accountingBookVo.getCustomerId());
 		List<Long> userIds = customerIds.stream().map(x -> x.getCustomerId()).distinct().collect(Collectors.toList());
 		List<UserDetailsVO> UserDetailsVO = null;
