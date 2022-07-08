@@ -65,7 +65,10 @@ jobs:
     runs-on: ubuntu-latest
     env: 
       MODULE_NAME: payment-gateway
+<<<<<<< HEAD
 
+=======
+>>>>>>> 22a965906e7e8c96fc2054b11543faa6ee725450
     steps:
       - uses: actions/checkout@v3
         with:

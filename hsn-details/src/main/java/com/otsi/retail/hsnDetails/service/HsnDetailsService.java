@@ -5,10 +5,13 @@
 package com.otsi.retail.hsnDetails.service;
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
+import com.otsi.retail.hsnDetails.enums.TaxAppliedType;
 import com.otsi.retail.hsnDetails.vo.EnumVo;
-import com.otsi.retail.hsnDetails.vo.HsnDetailsVo;
-import com.otsi.retail.hsnDetails.vo.TaxVo;
+import com.otsi.retail.hsnDetails.vo.HsnDetailsVO;
+
 
 /**
  * @author vasavi
@@ -17,16 +20,21 @@ import com.otsi.retail.hsnDetails.vo.TaxVo;
 @Service
 public interface HsnDetailsService {
 
-	String hsnSave(HsnDetailsVo vo);
+	HsnDetailsVO hsnSave(HsnDetailsVO hsnDetailsVo, Long userId,Long clientId);
 
-	String hsnUpdate(HsnDetailsVo vo);
+	HsnDetailsVO hsnUpdate(HsnDetailsVO vo);
 
 	List<EnumVo> getEnums(String enumName);
 
 	String hsnDelete(long id);
 
-	List<HsnDetailsVo> getHsnDetails();
 
-	/* double getTaxValue(Double netAmount); */
+	List<HsnDetailsVO> getAllHsnDetails(String hsnCode);
+
+	//List<HsnDetailsVo> getHsnDetails(String hsnCode, String description, TaxAppliedType taxAppliedType);
+
+	List<HsnDetailsVO> getHsnDetails(String hsnCode, String description, TaxAppliedType taxAppliedType, Long clientId);
+
+	Map<String, Float> getHsnDetails(String hsnCode, Float itemPrice, Long storeId);
 
 }

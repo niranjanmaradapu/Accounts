@@ -7,7 +7,7 @@ import lombok.Data;
 
 @ApiModel
 @Data
-public class CreditDebitNotesVo {
+public class CreditDebitNotesVO {
 
 	private Long creditDebitId;
 

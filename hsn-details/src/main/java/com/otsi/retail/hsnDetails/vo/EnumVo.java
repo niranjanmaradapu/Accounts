@@ -10,6 +10,7 @@ package com.otsi.retail.hsnDetails.vo;
 public class EnumVo {
 
 	private int id;
+	
 	private String name;
 
 	/**

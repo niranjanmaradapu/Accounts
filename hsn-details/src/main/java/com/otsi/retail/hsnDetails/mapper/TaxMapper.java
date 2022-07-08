@@ -5,10 +5,11 @@ package com.otsi.retail.hsnDetails.mapper;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
 
 import com.otsi.retail.hsnDetails.model.Tax;
-import com.otsi.retail.hsnDetails.vo.TaxVo;
+import com.otsi.retail.hsnDetails.vo.TaxVO;
 
 /**
  * @author vasavi
@@ -16,55 +17,39 @@ import com.otsi.retail.hsnDetails.vo.TaxVo;
  */
 @Component
 public class TaxMapper {
-	/*
-	 * EntityToVo
-	 */
-	public TaxVo EntityToVo(Tax dto) {
-		TaxVo vo = new TaxVo();
-		/* BeanUtils.copyProperties(vo, dto); */
-		vo.setId(dto.getId());
-		vo.setIgst(dto.getIgst());
-		vo.setCess(dto.getCess());
-		vo.setCgst(dto.getCgst());
-		vo.setSgst(dto.getSgst());
-		vo.setTaxLabel(dto.getTaxLabel());
-		
 
-		return vo;
+	public TaxVO entityToVO(Tax tax) {
+		TaxVO taxVO = new TaxVO();
+		taxVO.setId(tax.getId());
+		taxVO.setIgst(tax.getIgst());
+		taxVO.setCess(tax.getCess());
+		taxVO.setCgst(tax.getCgst());
+		taxVO.setSgst(tax.getSgst());
+		taxVO.setTaxLabel(tax.getTaxLabel());
+		taxVO.setClientId(tax.getClientId());
+		return taxVO;
 
 	}
 
-	/*
-	 * list of EntityToVo to convert dto's to vo's
-	 */
-	public List<TaxVo> EntityToVo(List<Tax> dtos) {
-		return dtos.stream().map(dto -> EntityToVo(dto)).collect(Collectors.toList());
+	public List<TaxVO> entityToVO(List<Tax> taxList) {
+		return taxList.stream().map(tax -> entityToVO(tax)).collect(Collectors.toList());
 
 	}
 
-	/*
-	 * 
-	 * VoToEntity
-	 * 
-	 */
-	public Tax VoToEntity(TaxVo vo) {
-		Tax dto = new Tax();
-		/* BeanUtils.copyProperties(dto, vo); */
-		dto.setId(vo.getId());
-		dto.setIgst(vo.getIgst());
-		dto.setCess(vo.getCess());
-		dto.setCgst(vo.getCgst());
-		dto.setSgst(vo.getSgst());
-		dto.setTaxLabel(vo.getTaxLabel());
-		
-		return dto;
-	}
-	/*
-	 * list of VoToEntity to convert vo's to dto's
-	 */
+	public Tax voToEntity(TaxVO taxVO) {
+		Tax tax = new Tax();
+		tax.setId(taxVO.getId());
+		tax.setIgst(taxVO.getIgst());
+		tax.setCess(taxVO.getCess());
+		tax.setCgst(taxVO.getCgst());
+		tax.setSgst(taxVO.getSgst());
+		tax.setTaxLabel(taxVO.getTaxLabel());
 
-	public List<Tax> VoToEntity(List<TaxVo> vos) {
-		return vos.stream().map(vo -> VoToEntity(vo)).collect(Collectors.toList());
+		return tax;
+	}
+
+	public List<Tax> VoToEntity(List<TaxVO> taxVOs) {
+		return taxVOs.stream().map(taxVo -> voToEntity(taxVo)).collect(Collectors.toList());
 
 	}
 

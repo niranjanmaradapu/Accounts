@@ -19,13 +19,16 @@ import org.hibernate.annotations.OnDeleteAction;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+/**
+ * @author vasavi
+ *
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "slab")
-public class Slab implements Serializable {
+public class Slab extends BaseEntity implements Serializable {
 	/**
 	 * @author vasavi
 	 */
@@ -34,13 +37,17 @@ public class Slab implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
+	
 	@Column(name = "price_from")
 	private double priceFrom;
+	
 	@Column(name = "price_to")
 	private double priceTo;
+	
 	@JoinColumn(name = "tax_id")
-	@OneToOne(cascade = {CascadeType.MERGE,CascadeType.REFRESH})
+	@OneToOne
 	private Tax tax;
+	
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "hsn_id")
