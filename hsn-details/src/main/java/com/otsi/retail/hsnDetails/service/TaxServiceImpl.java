@@ -1,6 +1,7 @@
 package com.otsi.retail.hsnDetails.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,6 +75,7 @@ public class TaxServiceImpl implements TaxService {
 	@Override
 	public List<TaxVO> getTaxDetails(String taxLabel, Long clientId) {
 		List<Tax> taxs = new ArrayList<>();
+		List<TaxVO> taxList = new ArrayList<>();
 		if (taxLabel != null) {
 			taxs = taxRepository.findByTaxLabelAndClientId(taxLabel, clientId);
 		} else if (clientId != null) {
@@ -81,7 +83,13 @@ public class TaxServiceImpl implements TaxService {
 		} else {
 			taxs = taxRepository.findAll();
 		}
-		return taxMapper.entityToVO(taxs);
+		taxList = taxMapper.entityToVO(taxs);
+		if (taxList == null) {
+			Collections.emptyList();
+		}
+
+		return taxList;
+
 	}
 
 	@Override

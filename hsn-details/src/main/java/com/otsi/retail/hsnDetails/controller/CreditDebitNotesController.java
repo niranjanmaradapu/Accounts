@@ -62,14 +62,14 @@ public class CreditDebitNotesController {
 
 	}
 
-	@ApiOperation(value = "getCreditNotes", notes = "fetching credit notes using customerId", response = CreditDebitNotesVO.class)
+	@ApiOperation(value = "getCreditNotes", notes = "fetching credit notes using customerId", response = AccountingBookVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 500, message = "Server error"),
-			@ApiResponse(code = 200, message = "Successful retrieval", response = CreditDebitNotesVO.class, responseContainer = "List") })
+			@ApiResponse(code = 200, message = "Successful retrieval", response = AccountingBookVO.class, responseContainer = "List") })
 	@GetMapping("/getCreditNotes")
 	public GateWayResponse<?> getMobileNumber(@RequestParam("mobileNumber") String mobileNumber,
 			@RequestParam("customerId") Long customerId) {
 		log.info("Received Request to getCreditNotes : " + mobileNumber + "and" + customerId);
-		List<CreditDebitNotesVO> mobNo = creditDebitNotesService.getCreditNotes(mobileNumber, customerId);
+		List<AccountingBookVO> mobNo = creditDebitNotesService.getCreditNotes(mobileNumber, customerId);
 		return new GateWayResponse<>("fetching  notes successfully with id", mobNo);
 	}
 
@@ -159,11 +159,11 @@ public class CreditDebitNotesController {
 		}
 		if (ledgerLogBookVo.getAccountType().equals(AccountType.CREDIT)) {
 			ledgerLogBookVo.setTransactionType(AccountType.CREDIT);
-		
+
 		} else {
 			if (ledgerLogBookVo.getAccountType().equals(AccountType.DEBIT)) {
 				ledgerLogBookVo.setTransactionType(AccountType.DEBIT);
-				
+
 			}
 		}
 		LedgerLogBookVO notesSave = creditDebitNotesService.saveNotes(ledgerLogBookVo);
@@ -193,10 +193,10 @@ public class CreditDebitNotesController {
 				ledgerLogBookVo.setTransactionType(AccountType.CREDIT);
 			}
 		}
-		LedgerLogBookVO ledgerLogBookSave=creditDebitNotesService.saveNotes(ledgerLogBookVo);
+		LedgerLogBookVO ledgerLogBookSave = creditDebitNotesService.saveNotes(ledgerLogBookVo);
 		return ResponseEntity.ok(ledgerLogBookSave);
 	}
-	
+
 	@RabbitListener(queues = "accounting_queue")
 	private void creditUsedFromNewsale(LedgerLogBookVO ledgerLogBookVo) {
 		sale(ledgerLogBookVo);
