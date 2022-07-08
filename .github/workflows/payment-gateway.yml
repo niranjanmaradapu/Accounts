@@ -65,9 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     env: 
       MODULE_NAME: payment-gateway
-    permissions:
-      contents: read
-      packages: write
+
     steps:
       - uses: actions/checkout@v3
         with:
