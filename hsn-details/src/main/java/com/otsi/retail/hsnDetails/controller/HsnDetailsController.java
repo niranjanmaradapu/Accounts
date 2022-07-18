@@ -142,10 +142,11 @@ public class HsnDetailsController {
 			@ApiResponse(code = 200, message = "Successful retrieval", response = HsnDetailsVO.class, responseContainer = "List") })
 	@GetMapping("/code")
 	public ResponseEntity<?> getHsnDetailsByCode(@RequestParam("hsnCode") String hsnCode,
-			@RequestParam(value ="itemPrice" , required = false) Float itemPrice, @RequestHeader Long clientId) {
+			@RequestParam(value = "itemPrice", required = false) Float itemPrice, @RequestHeader Long clientId,
+			@RequestHeader(name = "isTaxIncluded" , required =false) String isTaxIncluded) {
 		log.info("Received Request to get HsnDetails");
-		Map<String, Float> taxValues = hsnDetailsService.getHsnDetails(hsnCode, itemPrice, clientId);
+		Map<String, Float> taxValues = hsnDetailsService.getHsnDetails(hsnCode, itemPrice, clientId , isTaxIncluded);
 		return ResponseEntity.ok(taxValues);
-	}                 
+	}
 
 }

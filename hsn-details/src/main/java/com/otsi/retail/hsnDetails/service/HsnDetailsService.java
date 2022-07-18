@@ -35,6 +35,6 @@ public interface HsnDetailsService {
 
 	List<HsnDetailsVO> getHsnDetails(String hsnCode, String description, TaxAppliedType taxAppliedType, Long clientId);
 
-	Map<String, Float> getHsnDetails(String hsnCode, Float itemPrice, Long storeId);
+	Map<String, Float> getHsnDetails(String hsnCode, Float itemPrice, Long clientId , String isTaxIncluded);
 
 }

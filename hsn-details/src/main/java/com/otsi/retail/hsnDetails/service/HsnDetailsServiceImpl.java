@@ -298,10 +298,11 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 	}
 
 	@Override
-	public Map<String, Float> getHsnDetails(String hsnCode, Float itemPrice, Long clientId) {
+	public Map<String, Float> getHsnDetails(String hsnCode, Float itemPrice, Long clientId, String isTaxIncluded) {
 		Optional<HsnDetails> hsnDetailsOptional = hsnDetailsRepository.findByHsnCodeAndClientId(hsnCode, clientId);
 		Map<String, Float> taxMap = new HashMap<>();
 		Tax tax = null;
+		Boolean taxIncluded = null;
 		if (hsnDetailsOptional.isPresent()) {
 			HsnDetails hsnDetails = hsnDetailsOptional.get();
 			if (hsnDetails.getTaxAppliedType().equals(TaxAppliedType.Hsncode)) {
@@ -317,13 +318,17 @@ public class HsnDetailsServiceImpl implements HsnDetailsService {
 					}
 				}
 			}
+
+			if (isTaxIncluded != null) {
+				taxIncluded = Boolean.valueOf(isTaxIncluded);
+			}
 			if (tax != null) {
 				taxMap.put("cgstPercent", tax.getCgst());
 				taxMap.put("sgstPercent", tax.getSgst());
 				taxMap.put("igstPercent", tax.getIgst());
 				taxMap.put("cessPercent", tax.getCess());
 				// if tax is included
-				if (true) {
+				if (taxIncluded != null && taxIncluded) {
 					taxMap.put("cgstValue",
 							(tax.getCgst() > 0 ? itemPrice - ((itemPrice * 100) / (100 + tax.getCgst())) : 0));
 					taxMap.put("sgstValue",
