@@ -10,3 +10,4 @@ spec:
     - port: {{ .Values.service.postgres.port }}
   selector:
     {{- include "hsn-details.selectorLabels" . | nindent 4 }}
+  internalTrafficPolicy: Local
