@@ -11,13 +11,10 @@ spring:
     password: Otsi@123
     
   jpa:
-    properties:
-      hibernate.format_sql: true
-      hibernate.dailect: org.hibernate.dialect.PostgreSQL81Dialect      
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    
+   hibernate:
+    ddl-auto: update
+   database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+   show-sql: true
      #######################------Eureka server related propertises-------########################
 
 eureka:
