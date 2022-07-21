@@ -94,6 +94,7 @@ autoscaling:
   targetCPUUtilizationPercentage: 1
   targetMemoryUtilizationPercentage: 50
 
+
 nodeSelector: {}
 
 tolerations: []
@@ -103,5 +104,5 @@ affinity: {}
 persistence: 
   enabled: true
   storageClass: gp2
-  accessMode: ReadWriteOnce
+  accessMode: ReadWriteMany
   size: 5Gi
