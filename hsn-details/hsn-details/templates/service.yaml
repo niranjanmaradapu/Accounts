@@ -14,3 +14,4 @@ spec:
       nodePort: {{ .Values.service.nodePort }}
   selector:
     {{- include "hsn-details.selectorLabels" . | nindent 4 }}
+  
