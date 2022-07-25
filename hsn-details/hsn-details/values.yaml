@@ -88,11 +88,16 @@ ingress:
   #   memory: 128Mi
 
 autoscaling:
-  enabled: true
-  minReplicas: 1
-  maxReplicas: 3
-  targetCPUUtilizationPercentage: 1
-  targetMemoryUtilizationPercentage: 50
+  horizontal:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    averageCPU: 100m
+    averageRelativeCPU: 50
+    averageMemory: 1Gi
+    averageRelativeMemory: 50
+# targetCPUUtilizationPercentage: 1
+#  targetMemoryUtilizationPercentage: 50
 
 
 nodeSelector: {}
