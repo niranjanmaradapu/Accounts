@@ -6,7 +6,7 @@ metadata:
   labels:
     {{- include "hsn-details.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.horizontal.enabled }}
+  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
@@ -41,14 +41,6 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
-          resources:
-            request:
-             limits:
-              cpu: 10m
-              memory: 100Mi
-            requests:
-              cpu: 20m
-              memory: 300Mi
           #livenessProbe:
           # httpGet:
           #    path: /
