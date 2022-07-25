@@ -41,6 +41,12 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+        #  resources:
+         #   requests:
+          #    cpu: 100m
+           # limits:
+            #  cpu: 200m
+
           #livenessProbe:
           # httpGet:
           #    path: /
