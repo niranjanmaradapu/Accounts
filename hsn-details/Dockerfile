@@ -19,7 +19,3 @@ EXPOSE 8083
 #ENTRYPOINT ["java","-javaagent:target/newrelic/newrelic.jar", "-Dspring.profiles.active=cloud", "-jar", "target/hsn-details.jar"]
 ENTRYPOINT ["java", "-Dspring.profiles.active=cloud", "-jar", "target/hsn-details.jar"]
 
-
-
-
-
