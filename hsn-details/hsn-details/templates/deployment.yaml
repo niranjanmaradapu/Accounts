@@ -54,8 +54,11 @@ spec:
           #    path: /
           #    port: http
           #volumeMounts:
-          #  - name: newrelic-config
+          #  - name: hsn-details
           #    mountPath: {{ .Values.volumeMounts.mountPath }}
+          volumeMounts:
+            - name: hsn-details-data
+              mountPath: /var/lib/postgresql/data
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
