@@ -21,6 +21,10 @@ spec:
       labels:
         {{- include "hsn-details.selectorLabels" . | nindent 8 }}
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       serviceAccountName: {{ include "hsn-details.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
@@ -30,13 +34,13 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          env:
-          - name: SPRING_DATASOURCE_USERNAME
-            value: {{ .Values.env.postgres_user }}
-          - name: SPRING_DATASOURCE_PASSWORD
-            value: {{ .Values.env.postgres_password }}
-          - name: SPRING_DATASOURCE_URL
-            value: jdbc:postgresql://{{ include "hsn-details.fullname" . }}-pos:5432/{{ .Values.env.postgres_db }}
+         # env:
+         # - name: SPRING_DATASOURCE_USERNAME
+         #   value: {{ .Values.env.postgres_user }}
+         # - name: SPRING_DATASOURCE_PASSWORD
+         #   value: {{ .Values.env.postgres_password }}
+         # - name: SPRING_DATASOURCE_URL
+         #   value: jdbc:postgresql://{{ include "usermanagement.fullname" . }}-pos:5432/{{ .Values.env.postgres_db }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -50,8 +54,8 @@ spec:
           #    path: /
           #    port: http
           #volumeMounts:
-          #  - name: hsn-details-data
-          #    mountPath: /app/database
+          #  - name: newrelic-config
+          #    mountPath: {{ .Values.volumeMounts.mountPath }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -66,11 +70,11 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      #volumes:
-      #  - name: hsn-details-data
+        
+      #  - name: usermanagement-data
       #  {{- if .Values.persistence.enabled }}
       #    persistentVolumeClaim:
-      #      claimName: {{ include "hsn-details.fullname" . }}
+      #      claimName: {{ include "usermanagement.fullname" . }}
       #  {{- else }}
       #    emptyDir: {}
       #  {{- end -}}

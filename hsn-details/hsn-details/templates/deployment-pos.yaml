@@ -21,6 +21,10 @@ spec:
       labels:
         {{- include "hsn-details.selectorLabels" . | nindent 8 }}
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       serviceAccountName: {{ include "hsn-details.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
@@ -54,6 +58,8 @@ spec:
           volumeMounts:
             - name: hsn-details-data
               mountPath: /var/lib/postgresql/data
+#            - name: hsn-details-data
+#              mountPath: /docker-entrypoint-initdb.d
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

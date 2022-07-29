@@ -8,6 +8,9 @@ spec:
   type: {{ .Values.service.postgres.type }}
   ports:
     - port: {{ .Values.service.postgres.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+      nodePort: {{ .Values.service.nodePort }}
   selector:
     {{- include "hsn-details.selectorLabels" . | nindent 4 }}
-  
