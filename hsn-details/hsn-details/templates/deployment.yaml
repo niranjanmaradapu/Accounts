@@ -40,7 +40,7 @@ spec:
          # - name: SPRING_DATASOURCE_PASSWORD
          #   value: {{ .Values.env.postgres_password }}
          # - name: SPRING_DATASOURCE_URL
-         #   value: jdbc:postgresql://{{ include "usermanagement.fullname" . }}-pos:5432/{{ .Values.env.postgres_db }}
+         #   value: jdbc:postgresql://{{ include "hsn-details.fullname" . }}-pos:5432/{{ .Values.env.postgres_db }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -71,10 +71,10 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
         
-      #  - name: usermanagement-data
+      #  - name: hsn-details-data
       #  {{- if .Values.persistence.enabled }}
       #    persistentVolumeClaim:
-      #      claimName: {{ include "usermanagement.fullname" . }}
+      #      claimName: {{ include "hsn-details.fullname" . }}
       #  {{- else }}
       #    emptyDir: {}
       #  {{- end -}}
