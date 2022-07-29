@@ -20,4 +20,3 @@ EXPOSE 8083
 ENTRYPOINT ["java", "-Dspring.profiles.active=cloud", "-jar", "target/hsn-details.jar"]
 
 
-

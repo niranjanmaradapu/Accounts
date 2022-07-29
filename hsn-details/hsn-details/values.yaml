@@ -49,7 +49,7 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: LoadBalancer
+  type: NodePort
   port: 8083
   postgres: 
     type: NodePort
@@ -64,6 +64,7 @@ ingress:
     - host: chart-example.local
       paths:
       - path: /
+        pathType: ImplementationSpecific
         backend:
           serviceName: chart-example.local
           servicePort: 80
@@ -103,3 +104,7 @@ persistence:
   storageClass: gp2
   accessMode: ReadWriteOnce
   size: 5Gi
+
+volumeMounts:
+  - name: hsn-details-data
+    mountPath: /var/lib/postgresql/data

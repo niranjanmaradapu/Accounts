@@ -21,6 +21,10 @@ spec:
       labels:
         {{- include "hsn-details.selectorLabels" . | nindent 8 }}
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       serviceAccountName: {{ include "hsn-details.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
@@ -50,8 +54,11 @@ spec:
           #    path: /
           #    port: http
           #volumeMounts:
-          #  - name: hsn-details-data
-          #    mountPath: /app/database
+          #  - name: hsn-details
+          #    mountPath: {{ .Values.volumeMounts.mountPath }}
+          volumeMounts:
+            - name: hsn-details-data
+              mountPath: /var/lib/postgresql/data
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -66,7 +73,7 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      #volumes:
+      #volumes:  
       #  - name: hsn-details-data
       #  {{- if .Values.persistence.enabled }}
       #    persistentVolumeClaim:
