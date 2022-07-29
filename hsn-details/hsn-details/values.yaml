@@ -1,13 +1,13 @@
 # Default values for usermanagement.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-name: usermanagement
+name: hsn-details
 
 env:
   postgres_user: postgres
   postgres_password: Otsi@123
   postgres_data: /var/lib/postgresql/data/pgdata
-  postgres_db: UserManagement
+  postgres_db: hsn-details
 
 replicaCount: 1
 replicaCountPos: 1
@@ -89,7 +89,7 @@ resources:
   #   memory: 128Mi
 
 autoscaling:
-  enabled: true
+  enabled: false
   minReplicas: 1
   maxReplicas: 5
   targetCPUUtilizationPercentage: 80
