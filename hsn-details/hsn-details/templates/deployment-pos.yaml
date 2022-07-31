@@ -58,8 +58,8 @@ spec:
           volumeMounts:
             - name: hsn-details-data
               mountPath: /var/lib/postgresql/data
-            - name: hsn-details-data
-              mountPath: /docker-entrypoint-initdb.d
+#            - name: hsn-details-data
+#              mountPath: /docker-entrypoint-initdb.d
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
